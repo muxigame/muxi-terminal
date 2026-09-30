@@ -1,0 +1,9 @@
+{
+  "id": "muxi_terminal",
+  "name": "Muxi Player Terminal",
+  "version": "0.1.0",
+  "minecraft": "1.21.1",
+  "neoforge": "21.1.250",
+  "java": 21
+}
+

@@ -1,0 +1,12 @@
+{
+  "minecraft": "1.21.1",
+  "neoforge": "21.1.250",
+  "client": {
+    "minecraft": "libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-srg.jar",
+    "neoforgePatched": "libraries/net/neoforged/neoforge/21.1.250/neoforge-21.1.250-client.jar"
+  },
+  "compileOnly": [
+    "[嵌入式框架]mcef-neoforge-2.1.6-1.21.1.jar"
+  ]
+}
+

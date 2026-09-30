@@ -1,0 +1,34 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="MIT"
+
+[[mods]]
+modId="muxi_terminal"
+version="${mod_version}"
+displayName="Muxi Player Terminal"
+authors="Muxi Game"
+description='''
+The handheld application platform for Muxi Game.
+'''
+
+[[dependencies.muxi_terminal]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.muxi_terminal]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1,1.22)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.muxi_terminal]]
+modId="mcef"
+type="required"
+versionRange="[2.1.6,)"
+ordering="AFTER"
+side="CLIENT"
+

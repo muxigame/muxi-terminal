@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Muxi Terminal</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main id="app" class="shell">
+    <header class="statusbar">
+      <div class="brand"><span class="brand-dot"></span>MUXI TERMINAL</div>
+      <div class="status-right"><span id="statusText">本地模式</span><span id="clock">00:00</span></div>
+    </header>
+
+    <section id="home" class="page page-active">
+      <div class="hero">
+        <div>
+          <div class="eyebrow">PLAYER TERMINAL</div>
+          <h1>晚上好，冒险者。</h1>
+          <p>这里会逐渐成为任务、挑战、地图、Wiki、通讯与服务器服务的统一入口。</p>
+        </div>
+        <div class="terminal-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+      </div>
+
+      <div class="section-title"><span>应用</span><small>1 个已安装</small></div>
+      <div class="app-grid">
+        <button class="app-card" data-open="guide">
+          <span class="app-icon guide-icon"><i></i><i></i><i></i></span>
+          <span class="app-name">游戏指南</span>
+          <span class="app-desc">热门模组、入门路线与游戏内手册入口</span>
+        </button>
+      </div>
+
+      <div class="dock-hint">更多应用将在这里安装。</div>
+    </section>
+
+    <section id="guide" class="page">
+      <div class="toolbar">
+        <button class="back" data-open="home" aria-label="返回">‹</button>
+        <div>
+          <div class="eyebrow">APP / GAME GUIDE</div>
+          <h2>游戏指南</h2>
+        </div>
+        <label class="search-wrap"><input id="guideSearch" type="search" placeholder="搜索模组或玩法" /><span></span></label>
+      </div>
+
+      <div class="guide-intro">
+        <strong>不知道从哪里开始？</strong>
+        <span>先选一个你感兴趣的玩法。指南只介绍真正有用的第一步，不把 Wiki 全搬进来。</span>
+      </div>
+      <div id="guideList" class="guide-list"></div>
+    </section>
+
+    <section id="guideDetail" class="page">
+      <div class="toolbar">
+        <button class="back" data-open="guide" aria-label="返回">‹</button>
+        <div>
+          <div class="eyebrow">GAME GUIDE</div>
+          <h2 id="detailTitle">模组</h2>
+        </div>
+      </div>
+      <article class="detail-card">
+        <div class="detail-head">
+          <div id="detailIcon" class="mod-icon"></div>
+          <div><div id="detailCategory" class="pill"></div><p id="detailSummary"></p></div>
+        </div>
+        <div class="detail-section"><h3>先做什么</h3><div id="detailSteps" class="steps"></div></div>
+        <div class="detail-section"><h3>为什么值得玩</h3><p id="detailWhy"></p></div>
+        <div class="detail-actions">
+          <button id="openManual" class="primary" hidden>打开游戏内手册</button>
+          <button data-open="guide" class="secondary">返回指南</button>
+        </div>
+      </article>
+    </section>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>
+

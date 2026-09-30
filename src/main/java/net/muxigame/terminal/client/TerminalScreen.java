@@ -1,0 +1,172 @@
+package net.muxigame.terminal.client;
+
+import com.cinemamod.mcef.MCEFBrowser;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
+
+/** Full-screen tablet shell around one persistent MCEF browser session. */
+public final class TerminalScreen extends Screen {
+    private static final int FRAME = 14;
+    private static final int TOP = 18;
+    private final MCEFBrowser browser;
+    private int left, top, contentWidth, contentHeight;
+
+    public TerminalScreen(MCEFBrowser browser) {
+        super(Component.literal("Muxi Terminal"));
+        this.browser = browser;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        layout();
+        browser.setFocus(true);
+    }
+
+    private void layout() {
+        int availableWidth = Math.max(180, width - 48);
+        int availableHeight = Math.max(120, height - 36);
+        double ratio = 16.0 / 10.0;
+        int outerWidth = availableWidth;
+        int outerHeight = (int) Math.round(outerWidth / ratio);
+        if (outerHeight > availableHeight) {
+            outerHeight = availableHeight;
+            outerWidth = (int) Math.round(outerHeight * ratio);
+        }
+        left = (width - outerWidth) / 2 + FRAME;
+        top = (height - outerHeight) / 2 + TOP;
+        contentWidth = Math.max(64, outerWidth - FRAME * 2);
+        contentHeight = Math.max(64, outerHeight - TOP - FRAME);
+        resizeBrowser();
+    }
+
+    private void resizeBrowser() {
+        if (minecraft == null) return;
+        double scale = minecraft.getWindow().getGuiScale();
+        browser.resize(Math.max(1, (int) Math.round(contentWidth * scale)),
+            Math.max(1, (int) Math.round(contentHeight * scale)));
+    }
+
+    private int browserX(double x) {
+        return (int) Math.round((x - left) * minecraft.getWindow().getGuiScale());
+    }
+
+    private int browserY(double y) {
+        return (int) Math.round((y - top) * minecraft.getWindow().getGuiScale());
+    }
+
+    private boolean inside(double x, double y) {
+        return x >= left && y >= top && x < left + contentWidth && y < top + contentHeight;
+    }
+
+    @Override
+    public void resize(Minecraft minecraft, int width, int height) {
+        super.resize(minecraft, width, height);
+        layout();
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+
+    @Override
+    public void onClose() {
+        browser.setFocus(false);
+        super.onClose();
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        graphics.fill(0, 0, width, height, 0xB0101217);
+    }
+
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        renderBackground(graphics, mouseX, mouseY, partialTick);
+
+        int x0 = left - FRAME, y0 = top - TOP;
+        int x1 = left + contentWidth + FRAME, y1 = top + contentHeight + FRAME;
+        graphics.fill(x0, y0, x1, y1, 0xFF171B22);
+        graphics.fill(x0 + 2, y0 + 2, x1 - 2, y1 - 2, 0xFF252B34);
+        graphics.fill(left - 2, top - 2, left + contentWidth + 2, top + contentHeight + 2, 0xFF080B10);
+        graphics.fill(x0 + 7, y0 + 7, x0 + 11, y0 + 11, 0xFF64D7E8);
+
+        drawBrowser(graphics);
+        super.render(graphics, mouseX, mouseY, partialTick);
+    }
+
+    private void drawBrowser(GuiGraphics graphics) {
+        int texture = browser.getRenderer().getTextureID();
+        if (texture == 0) return;
+        RenderSystem.disableDepthTest();
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShaderTexture(0, texture);
+        BufferBuilder b = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        var matrix = graphics.pose().last().pose();
+        float x0 = left, y0 = top, x1 = left + contentWidth, y1 = top + contentHeight;
+        b.addVertex(matrix, x0, y1, 0).setUv(0, 1).setColor(255,255,255,255);
+        b.addVertex(matrix, x1, y1, 0).setUv(1, 1).setColor(255,255,255,255);
+        b.addVertex(matrix, x1, y0, 0).setUv(1, 0).setColor(255,255,255,255);
+        b.addVertex(matrix, x0, y0, 0).setUv(0, 0).setColor(255,255,255,255);
+        BufferUploader.drawWithShader(b.buildOrThrow());
+        RenderSystem.setShaderTexture(0, 0);
+        RenderSystem.enableDepthTest();
+    }
+
+    @Override
+    public boolean mouseClicked(double x, double y, int button) {
+        if (inside(x, y)) {
+            browser.sendMousePress(browserX(x), browserY(y), button);
+            browser.setFocus(true);
+        }
+        return super.mouseClicked(x, y, button);
+    }
+
+    @Override
+    public boolean mouseReleased(double x, double y, int button) {
+        if (inside(x, y)) browser.sendMouseRelease(browserX(x), browserY(y), button);
+        return super.mouseReleased(x, y, button);
+    }
+
+    @Override
+    public void mouseMoved(double x, double y) {
+        if (inside(x, y)) browser.sendMouseMove(browserX(x), browserY(y));
+        super.mouseMoved(x, y);
+    }
+
+    @Override
+    public boolean mouseScrolled(double x, double y, double horizontal, double vertical) {
+        if (inside(x, y)) browser.sendMouseWheel(browserX(x), browserY(y), vertical, 0);
+        return super.mouseScrolled(x, y, horizontal, vertical);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        browser.sendKeyPress(keyCode, scanCode, modifiers);
+        browser.setFocus(true);
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+        browser.sendKeyRelease(keyCode, scanCode, modifiers);
+        return super.keyReleased(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean charTyped(char codePoint, int modifiers) {
+        browser.sendKeyTyped(codePoint, modifiers);
+        return super.charTyped(codePoint, modifiers);
+    }
+}
+
