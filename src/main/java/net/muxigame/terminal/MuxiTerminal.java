@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.muxigame.terminal.item.PlayerTerminalItem;
+import net.muxigame.terminal.net.TerminalNetwork;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
@@ -27,6 +28,7 @@ public final class MuxiTerminal {
 
     public MuxiTerminal(IEventBus modBus) {
         ITEMS.register(modBus);
+        TerminalNetwork.register(modBus);
         NeoForge.EVENT_BUS.addListener(this::onPlayerLogin);
         if (FMLEnvironment.dist.isClient()) {
             net.muxigame.terminal.client.TerminalClient.bootstrap();

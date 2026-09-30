@@ -23,12 +23,22 @@
         <div class="terminal-mark" aria-hidden="true"><span></span><span></span><span></span></div>
       </div>
 
-      <div class="section-title"><span>应用</span><small>1 个已安装</small></div>
+      <div class="section-title"><span>应用</span><small>3 个已安装</small></div>
       <div class="app-grid">
         <button class="app-card" data-open="guide">
           <span class="app-icon guide-icon"><i></i><i></i><i></i></span>
           <span class="app-name">游戏指南</span>
           <span class="app-desc">热门模组、入门路线与游戏内手册入口</span>
+        </button>
+        <button class="app-card" data-open="tasks">
+          <span class="app-icon task-icon"><i></i><i></i><i></i></span>
+          <span class="app-name">任务</span>
+          <span class="app-desc">每日任务、主线任务、奖励与追踪管理</span>
+        </button>
+        <button class="app-card" id="passportApp">
+          <span class="app-icon passport-icon"><i></i></span>
+          <span class="app-name">Muxi 通行证</span>
+          <span class="app-desc">进入玩家账号中心，修改昵称与账户资料</span>
         </button>
       </div>
 
@@ -71,7 +81,38 @@
           <button id="openManual" class="primary" hidden>打开游戏内手册</button>
           <button data-open="guide" class="secondary">返回指南</button>
         </div>
+        <p id="manualHint" class="manual-hint"></p>
       </article>
+    </section>
+
+    <section id="tasks" class="page">
+      <div class="toolbar">
+        <button class="back" data-open="home" aria-label="返回">‹</button>
+        <div>
+          <div class="eyebrow">APP / TASKS</div>
+          <h2>任务</h2>
+        </div>
+        <div id="taskMeta" class="task-meta">正在连接任务服务…</div>
+      </div>
+
+      <div class="task-tabs">
+        <button class="task-tab task-tab-active" data-task-tab="daily">每日任务</button>
+        <button class="task-tab" data-task-tab="mainline">主线任务</button>
+        <button id="challengeOpen" class="task-tab">挑战任务</button>
+      </div>
+
+      <div id="dailyTasksPanel">
+        <div class="task-intro">
+          <div><strong>每日委托</strong><span id="taskCountdown">等待服务器数据</span></div>
+          <div id="rerollAllowance" class="task-allowance"></div>
+        </div>
+        <div id="taskList" class="task-list"></div>
+      </div>
+
+      <div id="mainlineTasksPanel" hidden>
+        <div class="task-intro"><div><strong>主线任务</strong><span>长期推进目标</span></div></div>
+        <div id="mainlineList" class="task-list"></div>
+      </div>
     </section>
   </main>
   <script src="./app.js"></script>

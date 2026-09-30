@@ -37,6 +37,9 @@ def main() -> None:
     release=json.loads((ROOT/'build/release.json').read_text(encoding='utf-8'))
     terminal=ROOT/'build/libs'/release['artifact']
     if not terminal.is_file(): raise SystemExit('Build muxi-terminal first')
+    core_release=json.loads((ROOT.parent/'muxi-game-core/build/release.json').read_text(encoding='utf-8'))
+    core=ROOT.parent/'muxi-game-core/build/libs'/core_release['artifact']
+    if not core.is_file(): raise SystemExit('Build muxi-game-core first')
 
     lab=ROOT/'build'/('client-smoke-'+datetime.now().strftime('%Y%m%d-%H%M%S-%f')+'-'+uuid.uuid4().hex[:8])
     for name in ('mods','natives','config'): (lab/name).mkdir(parents=True,exist_ok=True)
@@ -44,6 +47,11 @@ def main() -> None:
     (lab/'options.txt').write_text('lang:zh_cn\nguiScale:2\nmaxFps:30\nenableVsync:false\nonboardAccessibility:false\nsoundCategory_master:0.0\nfullscreen:false\npauseOnLostFocus:false\n',encoding='utf-8')
 
     shutil.copy2(terminal,lab/'mods'/terminal.name)
+    shutil.copy2(core,lab/'mods'/core.name)
+    for pattern in ['balm-neoforge*.jar','waystones-neoforge*.jar','xaerominimap-neoforge*.jar','xaeroworldmap-neoforge*.jar']:
+        jars=list((ROOT.parent/'bmc5server/mods').glob(pattern))
+        if len(jars)!=1: raise SystemExit('Ambiguous client smoke dependency '+pattern)
+        shutil.copy2(jars[0],lab/'mods'/jars[0].name)
     mcef=next((game/'mods').glob('*mcef-neoforge-2.1.6-1.21.1.jar'))
     shutil.copy2(mcef,lab/'mods'/mcef.name)
     for name in ('mcef-libraries','mcef-cache'):
@@ -65,7 +73,7 @@ def main() -> None:
     neo=game/'libraries/net/neoforged/neoforge/21.1.250/neoforge-21.1.250-client.jar'
     mc=game/'libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-srg.jar'
     server_libs=list((ROOT.parent/'bmc5server/libraries').rglob('*.jar'))
-    cp=os.pathsep.join(map(str,[terminal,mcef,neo,mc,*libraries,*server_libs]))
+    cp=os.pathsep.join(map(str,[terminal,core,mcef,neo,mc,*libraries,*server_libs,*list((lab/'mods').glob('*.jar'))]))
     classes=lab/'test-classes'
     sources=sorted((ROOT/'tests/client-smoke/java').rglob('*.java'))
     terminal_build.compile_java(compiler,sources,classes,cp,lab/'compile.args')
@@ -76,6 +84,7 @@ def main() -> None:
             '[[mixins]]\nconfig="muxi_terminal_smoke.mixins.json"\n'
             '[[mods]]\nmodId="muxi_terminal_smoke"\nversion="1.0.0"\ndisplayName="Muxi Terminal hidden smoke"\n'
             '[[dependencies.muxi_terminal_smoke]]\nmodId="muxi_terminal"\ntype="required"\nversionRange="[0.1.0,)"\nordering="AFTER"\nside="CLIENT"\n')
+        z.writestr('META-INF/terminal-smoke-dependency.txt','muxi_game_core required by the fixture\n')
         z.writestr('muxi_terminal_smoke.mixins.json',json.dumps({
             'required':True,'minVersion':'0.8','package':'net.muxigame.terminal.smoke.mixin',
             'compatibilityLevel':'JAVA_21','client':['HiddenWindowMixin'],'injectors':{'defaultRequire':1}

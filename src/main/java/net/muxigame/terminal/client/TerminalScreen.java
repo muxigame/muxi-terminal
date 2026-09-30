@@ -100,6 +100,8 @@ public final class TerminalScreen extends Screen {
         graphics.fill(x0 + 2, y0 + 2, x1 - 2, y1 - 2, 0xFF252B34);
         graphics.fill(left - 2, top - 2, left + contentWidth + 2, top + contentHeight + 2, 0xFF080B10);
         graphics.fill(x0 + 7, y0 + 7, x0 + 11, y0 + 11, 0xFF64D7E8);
+        graphics.drawString(font,"MUXI",x0+16,y0+5,0xFF9DAAB5,false);
+        graphics.drawString(font,"⌂",x1-18,y0+5,0xFF9DAAB5,false);
 
         drawBrowser(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
@@ -125,6 +127,11 @@ public final class TerminalScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double x, double y, int button) {
+        int x0=left-FRAME, y0=top-TOP, x1=left+contentWidth+FRAME;
+        if(button==0 && y>=y0 && y<top && x>=x1-34 && x<x1) {
+            TerminalBrowserSession.home();
+            return true;
+        }
         if (inside(x, y)) {
             browser.sendMousePress(browserX(x), browserY(y), button);
             browser.setFocus(true);

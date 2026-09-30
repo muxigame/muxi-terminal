@@ -23,9 +23,15 @@ public final class TerminalClient {
     }
 
     public static void openHome() {
+        openApp("home");
+    }
+
+    public static void openApp(String app) {
         Minecraft mc = Minecraft.getInstance();
         if (MCEF.isInitialized()) {
-            mc.setScreen(new TerminalScreen(TerminalBrowserSession.getOrCreate()));
+            var browser=TerminalBrowserSession.getOrCreate();
+            TerminalBrowserSession.openApp(app);
+            mc.setScreen(new TerminalScreen(browser));
             return;
         }
 
@@ -33,7 +39,11 @@ public final class TerminalClient {
             mc.player.displayClientMessage(Component.translatable("muxi_terminal.mcef_wait"), true);
 
         MCEF.scheduleForInit(success -> mc.execute(() -> {
-            if (success) mc.setScreen(new TerminalScreen(TerminalBrowserSession.getOrCreate()));
+            if (success) {
+                var browser=TerminalBrowserSession.getOrCreate();
+                TerminalBrowserSession.openApp(app);
+                mc.setScreen(new TerminalScreen(browser));
+            }
             else if (mc.player != null)
                 mc.player.displayClientMessage(Component.translatable("muxi_terminal.mcef_failed"), true);
         }));
