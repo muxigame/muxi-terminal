@@ -24,7 +24,8 @@ small CEF message bridge.
 
 The repository uses the same offline JDK 21 build style as `muxi-game-core`.
 It compiles against the already-installed Minecraft/NeoForge client libraries
-and the pack's MCEF/Patchouli jars, but does not bundle those dependencies.
+and the pack's MCEF jar, but does not bundle that dependency. Patchouli is
+detected at runtime and remains optional.
 
 ```powershell
 python build.py --server ..\bmc5server
@@ -38,4 +39,11 @@ The artifact is written to `build/libs/`.
 
 WebDisplays can remain installed during migration, but Muxi Player Terminal
 does not require it.
+
+## Native smoke test
+
+`python tests/run_client_smoke.py` launches an invisible isolated client,
+waits for MCEF, opens the local terminal home page, verifies a browser texture
+was produced, captures `terminal-home.png`, and exits without connecting to a
+server or using a real account.
 
