@@ -4,11 +4,10 @@ import com.cinemamod.mcef.MCEF;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.muxigame.terminal.net.TerminalNetwork;
 import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
 import org.cef.browser.CefMessageRouter;
@@ -38,6 +37,11 @@ public final class TerminalNativeBridge {
         public boolean onQuery(CefBrowser browser, CefFrame frame, long queryId, String request,
                                boolean persistent, CefQueryCallback callback) {
             Minecraft mc = Minecraft.getInstance();
+            String frameUrl=frame==null?"":frame.getURL();
+            if(frameUrl==null || !frameUrl.startsWith("mod://muxi_terminal/")) {
+                callback.failure(403,"Native bridge is available only to local Muxi Terminal apps");
+                return true;
+            }
             if (request.equals("terminal.home")) {
                 mc.execute(TerminalBrowserSession::home);
                 callback.success("{\"ok\":true}");
@@ -95,7 +99,10 @@ public final class TerminalNativeBridge {
                     mc.execute(Handler::openAlexDictionary); callback.success("{\"ok\":true}"); return true;
                 }
                 if("iceandfire".equals(manual)) {
-                    PacketDistributor.sendToServer(new TerminalNetwork.OpenManual("iceandfire")); callback.success("{\"ok\":true}"); return true;
+                    mc.execute(Handler::openIceAndFireBestiary); callback.success("{\"ok\":true}"); return true;
+                }
+                if("create".equals(manual)) {
+                    mc.execute(Handler::openCreatePonderIndex); callback.success("{\"ok\":true}"); return true;
                 }
             }
             if (request.startsWith("patchouli.open:")) {
@@ -164,6 +171,41 @@ public final class TerminalNativeBridge {
                 proxy.getClass().getMethod("openBookGUI",ItemStack.class).invoke(proxy,stack);
             } catch(ReflectiveOperationException error) {
                 throw new IllegalStateException("Could not open Alex's Mobs animal dictionary",error);
+            }
+        }
+
+        private static void openIceAndFireBestiary() {
+            Minecraft mc=Minecraft.getInstance();
+            if(mc.player==null)return;
+            ResourceLocation id=ResourceLocation.fromNamespaceAndPath("iceandfire","bestiary");
+            var item=BuiltInRegistries.ITEM.get(id);
+            ItemStack book=ItemStack.EMPTY;
+            for(ItemStack candidate:mc.player.getInventory().items) if(candidate.is(item)){book=candidate.copy();break;}
+            if(book.isEmpty() && mc.player.getOffhandItem().is(item))book=mc.player.getOffhandItem().copy();
+            if(book.isEmpty()){
+                mc.player.displayClientMessage(Component.literal("需要先获得《怪物图鉴》，终端不会跳过图鉴页解锁。"),false);
+                return;
+            }
+            try {
+                Class<?> menuClass=Class.forName("com.iafenvoy.iceandfire.screen.menu.BestiaryMenu");
+                Object menu=menuClass.getConstructor(int.class,net.minecraft.world.entity.player.Inventory.class)
+                    .newInstance(0,mc.player.getInventory());
+                var field=menuClass.getDeclaredField("bookStack");field.setAccessible(true);field.set(menu,book);
+                Class<?> screenClass=Class.forName("com.iafenvoy.iceandfire.screen.gui.bestiary.BestiaryScreen");
+                Object screen=screenClass.getConstructor(menuClass,net.minecraft.world.entity.player.Inventory.class,Component.class)
+                    .newInstance(menu,mc.player.getInventory(),Component.translatable("bestiary_gui"));
+                mc.setScreen((net.minecraft.client.gui.screens.Screen)screen);
+            } catch(ReflectiveOperationException error) {
+                throw new IllegalStateException("Could not open Ice and Fire bestiary",error);
+            }
+        }
+
+        private static void openCreatePonderIndex() {
+            try {
+                Class<?> type=Class.forName("net.createmod.ponder.foundation.ui.PonderIndexScreen");
+                Minecraft.getInstance().setScreen((net.minecraft.client.gui.screens.Screen)type.getConstructor().newInstance());
+            } catch(ReflectiveOperationException error) {
+                throw new IllegalStateException("Could not open Create Ponder index",error);
             }
         }
 

@@ -21,10 +21,12 @@ small CEF message bridge.
   Maid and L_Ender's Cataclysm.
 - Guide icons are read at runtime from the installed mods through Minecraft's
   resource manager; third-party textures are not copied into this repository.
-- Native manual integration: Modular Golems and Touhou Little Maid Patchouli
-  books, Starcatcher's Fishing Guide, Alex's Mobs Animal Dictionary, and the
-  Ice and Fire Bestiary (server-assisted so the player's actual book data is
-  retained). Mods without a dedicated in-game manual show an explanatory note.
+- Native manual integration: Create's Ponder index, Modular Golems and Touhou
+  Little Maid Patchouli books, Starcatcher's Fishing Guide, Alex's Mobs Animal
+  Dictionary, and the Ice and Fire Bestiary. The Bestiary screen reuses the
+  player's existing Bestiary stack so unlocked pages are retained even though
+  the player is holding the terminal. Mods without a dedicated in-game manual
+  show an explanatory note.
 - Tasks is a web presentation of the existing Game Core task system. Game Core
   remains the authority for snapshots, claim/reroll actions and tracked-task
   state, so the compact HUD tracker remains unchanged.
@@ -32,7 +34,9 @@ small CEF message bridge.
   `https://account.muxigame.com/account`. The native terminal frame always
   keeps a Home control available so users can return from external Muxi pages.
 - Capability-style CEF bridge for local resources, task actions, manuals,
-  challenge entry and allowlisted Muxi web pages.
+  challenge entry and allowlisted Muxi web pages. Native bridge calls are
+  accepted only from the local `mod://muxi_terminal/` origin; external account
+  or future web apps never inherit Java/game capabilities.
 
 ## Build
 

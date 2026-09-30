@@ -1,11 +1,11 @@
 const guides = [
   {
     id:'create', name:'机械动力 Create', short:'CR', category:'工程 / 自动化',
-    icon:'create:textures/item/andesite_alloy.png', colors:['#b48a4b','#392c1d'],
+    icon:'create:textures/item/andesite_alloy.png', colors:['#b48a4b','#392c1d'], manual:'manual.open:create', manualLabel:'打开 Ponder 教程索引',
     summary:'用齿轮、传动轴和机械结构，把自动化真正“搭”在世界里。',
     why:'Create 的核心不是机器方块堆叠，而是可视化的机械系统。它非常适合作为整合包中期的大型工程主线。',
     steps:['先从安山合金、齿轮与传动轴开始，理解动力如何传递。','做一个水车或其他稳定动力源，再观察应力容量。','先完成一个小型自动化，例如自动加工或简单物品运输，再扩建工厂。'],
-    manualHint:'Create 没有独立手册；对支持的物品按住 W 可以打开 Ponder 动画教程。'
+    manualHint:'Create 没有 Patchouli 书，但有完整的 Ponder 动画教程系统；终端会直接打开 Ponder 索引。'
   },
   {
     id:'iceandfire', name:'冰火传说 Ice and Fire', short:'IF', category:'探索 / 战斗',
