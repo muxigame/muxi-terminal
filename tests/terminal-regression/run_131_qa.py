@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 import argparse,ctypes,datetime,hashlib,json,os,shutil,subprocess,sys,time,uuid,zipfile
+from qa_fml_config import configure_file
 HERE=Path(__file__).resolve().parent
 REPO=HERE.parents[1]
 ROOT=Path(r"C:\Users\ranzh\workspace\dev\muxigame")
@@ -15,6 +16,24 @@ def digest(path,kind="sha256"):
     with path.open("rb") as stream:
         for data in iter(lambda:stream.read(1048576),b""):h.update(data)
     return h.hexdigest()
+
+def refuse_existing_qa(home):
+    kernel=ctypes.windll.kernel32
+    kernel.OpenProcess.restype=ctypes.c_void_p
+    kernel.GetExitCodeProcess.argtypes=[ctypes.c_void_p,ctypes.POINTER(ctypes.c_ulong)]
+    kernel.QueryFullProcessImageNameW.argtypes=[ctypes.c_void_p,ctypes.c_ulong,ctypes.c_wchar_p,ctypes.POINTER(ctypes.c_ulong)]
+    kernel.CloseHandle.argtypes=[ctypes.c_void_p]
+    for receipt in home.glob("active-*.json"):
+        previous=json.loads(receipt.read_text(encoding="utf-8"));pid=previous.get("pid")
+        if not pid:continue
+        handle=kernel.OpenProcess(0x1000,False,int(pid))
+        if not handle:continue
+        try:
+            code=ctypes.c_ulong();name=ctypes.create_unicode_buffer(32768);size=ctypes.c_ulong(len(name))
+            if not kernel.GetExitCodeProcess(handle,ctypes.byref(code)):raise SystemExit("Cannot verify prior QA PID "+str(pid))
+            if code.value==259 and kernel.QueryFullProcessImageNameW(handle,0,name,ctypes.byref(size)) and Path(name.value).name.lower() in ("java.exe","javaw.exe"):
+                raise SystemExit("Prior QA Java PID "+str(pid)+" is still running; normally close that QA window before retrying. No new client started.")
+        finally:kernel.CloseHandle(handle)
 def command(args):return subprocess.run(list(map(str,args)),check=True,capture_output=True,text=True,timeout=20).stdout.strip()
 def allowed(rules):
     if not rules:return True
@@ -30,7 +49,7 @@ def argfile(path,args):path.write_text("\n".join('"'+str(a).replace("\\","/").re
 def config(lab,audible=False):
     (lab/"config").mkdir(exist_ok=True)
     write(lab/"config/muxi-game-core.json",{"schema":1,"features":{"identity":{"enabled":False},"login":{"enabled":False}}})
-    (lab/"config/fml.toml").write_text('earlyWindowControl = false\nearlyWindowProvider = ""\nversionCheck = false\n',encoding="utf-8")
+    configure_file(lab/"config/fml.toml")
     (lab/"options.txt").write_text("lang:zh_cn\nguiScale:2\nmaxFps:45\nenableVsync:false\nonboardAccessibility:false\nsoundCategory_master:"+("0.25" if audible else "0.0")+"\nfullscreen:false\npauseOnLostFocus:false\nrenderDistance:3\nsimulationDistance:5\ngraphicsMode:0\n",encoding="utf-8")
     (lab/"config/mcef").mkdir(parents=True,exist_ok=True)
     (lab/"config/mcef/mcef.properties").write_text("skip-download=true\nuse-cache=false\nuser-agent=\ndownload-mirror=\n",encoding="utf-8")
@@ -67,6 +86,7 @@ def main():
     if not args.prepare_only and session.value==0:raise SystemExit("Session0 is preparation only; launch manually in the assigned 131 desktop")
     if not args.prepare_only and args.assigned_slot!="task14-production-assigned":raise SystemExit("Parent-assigned 131 slot required")
     if not args.prepare_only and not args.visible:raise SystemExit("Visible desktop launch required")
+    if not args.prepare_only:refuse_existing_qa(OWN/"qa-runtime")
     lock=json.loads((OWN/"release-lock.json").read_text(encoding="utf-8"))
     if lock["productCommits"]["muxi-terminal"]!=BASE:raise SystemExit("Final product commit differs from review")
     EXPECTED=lock["artifacts"]["muxi-terminal"]["sha256"]
