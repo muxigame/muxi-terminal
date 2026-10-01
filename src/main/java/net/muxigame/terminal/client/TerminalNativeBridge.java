@@ -69,7 +69,7 @@ public final class TerminalNativeBridge {
                         callback.success("{\"ok\":"+ok+"}");return;
                     }
                     String kind=data.get("kind").getAsString(),id=data.get("id").getAsString();
-                    if(kind.equals("builtin") && (id.equals("guide") || id.equals("tasks"))){
+                    if(kind.equals("builtin") && (id.equals("guide") || id.equals("tasks") || id.equals("games"))){
                         callback.success("{\"ok\":true}");TerminalBrowserSession.beginLaunch(token,TerminalBrowserSession.Kind.BUILTIN,id);TerminalBrowserSession.openApp(id);return;
                     }
                     if(kind.equals("web")){
@@ -156,6 +156,7 @@ public final class TerminalNativeBridge {
             if(request.equals("challenge.open")) {
                 mc.execute(Handler::openChallenge); callback.success("{\"ok\":true}"); return;
             }
+            if(TerminalGameAppsBridge.dispatch(request,callback))return;
             if(request.startsWith("manual.open:")) {
                 String manual=request.substring("manual.open:".length());
                 if(manual.startsWith("patchouli:")) {
@@ -284,10 +285,10 @@ public final class TerminalNativeBridge {
 
         private static void openChallenge() {
             try {
-                Class<?> challenge=Class.forName("net.muxigame.core.client.challenge.ChallengeClient");
-                challenge.getMethod("open").invoke(null);
+                Class<?> challenge=Class.forName("net.muxigame.minigames.client.TerminalGamesApi");
+                challenge.getMethod("open",String.class).invoke(null,"zombie-challenge");
             } catch(ReflectiveOperationException | LinkageError error) {
-                throw new IllegalStateException("Game Core challenge UI is unavailable",error);
+                throw new IllegalStateException("Challenge launcher is unavailable",error);
             }
         }
 

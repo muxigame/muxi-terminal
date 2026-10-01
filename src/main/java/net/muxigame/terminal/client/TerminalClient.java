@@ -20,6 +20,22 @@ public final class TerminalClient {
         NeoForge.EVENT_BUS.addListener(TerminalClient::onRenderHand);
         NeoForge.EVENT_BUS.addListener(TerminalClient::onLevelUnload);
         TerminalNativeBridge.installWhenReady();
+        registerMinigameApp();
+    }
+
+    private static void registerMinigameApp() {
+        try {
+            java.util.function.BiConsumer<String,String> launcher=(game,page)->{
+                TerminalGameAppsBridge.select(game,page);
+                openApp("games");
+            };
+            Class.forName("net.muxigame.minigames.client.TerminalGamesApi")
+                .getMethod("registerAppLauncher",java.util.function.BiConsumer.class).invoke(null,launcher);
+        } catch (ClassNotFoundException unavailable) {
+            // The terminal remains usable without the optional minigame framework.
+        } catch (ReflectiveOperationException | LinkageError failed) {
+            throw new IllegalStateException("Cannot register minigame app launcher",failed);
+        }
     }
 
     public static void openHome() {

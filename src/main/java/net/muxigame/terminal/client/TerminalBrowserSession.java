@@ -108,8 +108,8 @@ public final class TerminalBrowserSession {
     }
 
     public static synchronized void openApp(String app) {
-        if(!"tasks".equals(app) && !"guide".equals(app)){home();return;}
-        open(Kind.BUILTIN,HOME_URL+"#/"+app,"tasks".equals(app)?"任务":"游戏指南");
+        if(!"tasks".equals(app) && !"guide".equals(app) && !"games".equals(app)){home();return;}
+        open(Kind.BUILTIN,HOME_URL+"#/"+app,"games".equals(app)?"小游戏":"tasks".equals(app)?"任务":"游戏指南");
     }
 
     public static synchronized boolean openWebApp(String value,String name){

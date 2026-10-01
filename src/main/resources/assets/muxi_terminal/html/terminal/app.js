@@ -110,13 +110,14 @@ function show(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('page-active'));
   page.classList.add('page-active');
   if(id==='tasks') refreshTasks(true);
+  if(id==='games')window.MuxiMinigamesApp?.activate();
 }
 
 function navigate(id,source){
   if(typeof window.muxiTerminalQuery==='function'){
     if(contentView && id==='home'){native('terminal.home').catch(error=>setStatus(error.message));return;}
-    if(!contentView && ['tasks','guide'].includes(id)){
-      if(window.terminalLaunch)window.terminalLaunch({kind:'builtin',id,name:id==='tasks'?'任务':'游戏指南',source}).catch(error=>setStatus(error.message));
+    if(!contentView && ['tasks','guide','games'].includes(id)){
+      if(window.terminalLaunch)window.terminalLaunch({kind:'builtin',id,name:id==='games'?'小游戏':id==='tasks'?'任务':'游戏指南',source}).catch(error=>setStatus(error.message));
       else native('terminal.app:'+id).catch(error=>setStatus(error.message));return;
     }
   }
@@ -261,7 +262,6 @@ document.querySelectorAll('[data-task-tab]').forEach(button=>button.addEventList
   $('#dailyTasksPanel').hidden=!daily;$('#mainlineTasksPanel').hidden=daily;
 }));
 
-$('#challengeOpen').addEventListener('click',()=>native('challenge.open').catch(error=>setStatus(error.message)));
 $('#passportApp').addEventListener('click',event=>{
   const opening=window.terminalLaunch?window.terminalLaunch({kind:'account',id:'passport',name:'木夕账户',source:event.currentTarget}):native('passport.open');
   opening.catch(error=>setStatus(error.message));
@@ -334,7 +334,7 @@ function setStatus(message){
 
 function routeFromHash(){
   const route=(location.hash||'#/home').replace(/^#\/?/,'');
-  return ['home','guide','guideDetail','tasks'].includes(route)?route:'home';
+  return ['home','guide','guideDetail','tasks','games'].includes(route)?route:'home';
 }
 window.addEventListener('hashchange',()=>show(routeFromHash()));
 
