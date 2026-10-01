@@ -6,6 +6,7 @@
   <title>玩家终端</title>
   <link rel="stylesheet" href="./styles.css" />
   <link rel="stylesheet" href="./app-transition.css" />
+  <link rel="stylesheet" href="./apps/minigames/app.css" />
 </head>
 <body>
   <main id="app" class="shell">
@@ -25,7 +26,7 @@
         <div class="cover-frame"><img src="./cover.png" alt="玩家终端"></div>
       </div>
 
-      <div class="section-title"><span>应用</span><small>3 个已安装</small></div>
+      <div class="section-title"><span>应用</span><small>4 个已安装</small></div>
       <div class="app-grid">
         <button class="app-card" data-open="guide">
           <span class="app-icon guide-icon"><i></i><i></i><i></i></span>
@@ -41,6 +42,10 @@
           <span class="app-icon passport-icon"><i></i></span>
           <span class="app-name">玩家账户</span>
           <span class="app-desc">昵称与账户资料</span>
+        </button>
+        <button class="app-card" data-open="games">
+          <span class="app-icon minigames-icon"><i></i><i></i><i></i></span>
+          <span class="app-name">小游戏</span><span class="app-desc">大厅、队伍与玩法商店</span>
         </button>
       </div>
 
@@ -112,7 +117,6 @@
       <div class="task-tabs">
         <button class="task-tab task-tab-active" data-task-tab="daily">每日任务</button>
         <button class="task-tab" data-task-tab="mainline">主线任务</button>
-        <button id="challengeOpen" class="task-tab">挑战任务</button>
       </div>
 
       <div id="dailyTasksPanel">
@@ -128,12 +132,24 @@
         <div id="mainlineList" class="task-list"></div>
       </div>
     </section>
+    <section id="games" class="page minigames-app" aria-label="小游戏 APP">
+      <header class="mg-toolbar"><div><small>APP / MINIGAMES</small><h2>小游戏</h2></div><button id="mg-refresh" class="secondary">刷新</button></header>
+      <p id="mg-notice" class="mg-notice" role="status" aria-live="polite">正在读取小游戏服务…</p>
+      <div id="mg-platform" class="mg-platform"></div>
+      <div class="mg-layout"><aside id="mg-games" class="mg-games" aria-label="玩法选择"></aside><div class="mg-main">
+        <nav class="mg-tabs" aria-label="小游戏页面"><button data-mg-page="lobby" aria-pressed="true">大厅与队伍</button><button data-mg-page="shop" aria-pressed="false">商店与兑换</button></nav>
+        <div id="mg-currencies" class="mg-currencies"></div><div id="mg-content" class="mg-content"></div>
+      </div></div>
+      <div id="mg-confirm" class="mg-confirm" hidden><div role="dialog" aria-modal="true" aria-labelledby="mg-confirm-text"><h3>确认操作</h3><p id="mg-confirm-text"></p><button id="mg-confirm-cancel" class="secondary">取消</button><button id="mg-confirm-ok" class="primary">继续</button></div></div>
+    </section>
     </div>
   </main>
   <script src="./app-transition.js"></script>
   <script src="./app.js"></script>
   <script src="./app-container.js"></script>
   <script src="./web-apps.js"></script>
+  <script src="./apps/minigames/model.js"></script>
+  <script src="./apps/minigames/app.js"></script>
 </body>
 </html>
 

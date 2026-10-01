@@ -1,0 +1,21 @@
+const assert=require('node:assert/strict');
+const M=require('../src/main/resources/assets/muxi_terminal/html/terminal/apps/minigames/model.js');
+let passed=0;function check(name,fn){fn();passed++;}
+const fields={fields:[{id:'map',selected:'research_lab',options:[{value:'research_lab'},{value:'mysterious_camp'}]},{id:'difficulty',selected:'NORMAL',options:[{value:'NORMAL'},{value:'EXTREME'}]}]};
+check('map and difficulty form drafts reach the existing validated create action',()=>assert.equal(M.actionValue('zombie-challenge',{value:'{map}|{difficulty}'},fields,{'zombie-challenge:map':'mysterious_camp','zombie-challenge:difficulty':'EXTREME'}),'mysterious_camp|EXTREME'));
+check('polling keeps a valid draft',()=>assert.equal(M.values('zombie-challenge',fields,{'zombie-challenge:map':'mysterious_camp'}).map,'mysterious_camp'));
+check('removed options reject stale selection',()=>assert.equal(M.values('zombie-challenge',fields,{'zombie-challenge:map':'removed'}).map,'research_lab'));
+check('game drafts stay separate',()=>assert.equal(M.values('zombie-challenge',fields,{'outbreak:map':'mysterious_camp'}).map,'research_lab'));
+check('Outbreak creation sends only declared fields',()=>assert.deepEqual(JSON.parse(M.actionValue('outbreak',{jsonFields:true,fields:'map,difficulty'},fields,{})),{map:'research_lab',difficulty:'NORMAL'}));
+check('incomplete form cannot submit',()=>assert.throws(()=>M.actionValue('g',{value:'{missing}'},fields,{})));
+check('quote and revision stay server-authored',()=>assert.equal(M.actionValue('g',{value:'medkit:7:4'},fields,{}),'medkit:7:4'));
+check('ban disables a purchase',()=>assert.equal(M.blocked({allowed:false},'g',{enabled:true}),true));
+check('ban keeps safe return available',()=>assert.equal(M.blocked({allowed:false},'g',{enabled:true,safe:true}),false));
+check('cross-game membership blocks new actions',()=>assert.equal(M.blocked({allowed:true,activeGame:'other'},'g',{enabled:true}),true));
+check('server eligibility cannot be enabled by a client balance',()=>assert.equal(M.blocked({allowed:true},'g',{enabled:false}),true));
+check('platform amount retains integer precision',()=>assert.equal(M.platformText({available:true,points:'9223372036854775807'}),'9223372036854775807'));
+check('unknown platform amount does not become zero',()=>assert.equal(M.platformText({available:false}),'尚未同步'));
+check('labels escape injected HTML',()=>assert.equal(M.esc('<img onerror="x">'),'&lt;img onerror=&quot;x&quot;&gt;'));
+check('context persists one APP internal shop page',()=>assert.deepEqual(M.cleanContext({game:'zombie-challenge',page:'shop',drafts:{'zombie-challenge:map':'mysterious_camp'}}),{game:'zombie-challenge',page:'shop',drafts:{'zombie-challenge:map':'mysterious_camp'}}));
+check('context drops unsafe navigation fields',()=>assert.deepEqual(M.cleanContext({game:'https://evil',page:'account',uid:10000,drafts:{'bad/path':'x'}}),{game:'',page:'lobby',drafts:{}}));
+console.log(`Minigames terminal model: ${passed} meaningful boundary checks passed`);
