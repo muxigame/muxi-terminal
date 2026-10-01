@@ -25,8 +25,14 @@ def main():
         if name=='muxi-outbreak':
             dep=json.loads((repo/'dependencies.json').read_text(encoding='utf-8'))['externalDownloads'][0]
             source=ROOT/'bmc5server/mods'/dep['file']['filename']
-            if not source.is_file() or digest(source)!=dep['sha256']:raise SystemExit('Pinned installed equipment dependency unavailable')
-            target=repo/'build/equipment-research';target.mkdir(parents=True,exist_ok=True);shutil.copy2(source,target/source.name)
+            target=repo/'build/equipment-research';target.mkdir(parents=True,exist_ok=True)
+            pinned=target/dep['file']['filename']
+            if source.is_file() and digest(source)==dep['sha256']:shutil.copy2(source,pinned)
+            elif not pinned.is_file() or digest(pinned)!=dep['sha256']:
+                # Existing published-server integration dependency, same official pinned URL as task2.
+                with urllib.request.urlopen(dep['file']['url'],timeout=30) as response:data=response.read()
+                if hashlib.sha256(data).hexdigest()!=dep['sha256']:raise SystemExit('Pinned equipment dependency hash mismatch')
+                pinned.write_bytes(data)
         command(args,repo)
         release=json.loads((repo/'build/release.json').read_text(encoding='utf-8'))
         artifact=repo/'build/libs'/release['artifact']
@@ -53,6 +59,10 @@ def main():
     for name,item in report['artifacts'].items():
         shutil.copy2(item['path'],destination/'mods'/item['name'])
         if name!='muxi-terminal':expected.append({'path':'mods/'+item['name'],'sha1':item['sha1'],'policy':'Managed'})
+    dependency=OWN/'muxi-outbreak/build/equipment-research'/dep['file']['filename']
+    shutil.copy2(dependency,destination/'mods'/dependency.name)
+    expected.append({'path':'mods/'+dependency.name,'sha1':digest(dependency,'sha1'),'policy':'Managed'})
+    report['existingProductionDependency']={'name':dependency.name,'sha256':digest(dependency),'newGunPacksAdded':False,'publicRedistributionApprovedByThisScript':False}
     (OWN/'release-lock.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
     (OWN/'expected-pack.json').write_text(json.dumps({'referencePack':'1.4.26','files':expected},ensure_ascii=False,indent=2),encoding='utf-8')
     command([sys.executable,Path(__file__).parent/'run_131_qa.py','preflight','--prepare-only'])
