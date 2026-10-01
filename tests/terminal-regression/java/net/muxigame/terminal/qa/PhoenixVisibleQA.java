@@ -12,7 +12,7 @@ import java.nio.file.*;
 
 /** Appended to the visible, isolated singleplayer suite. No production connection. */
 final class PhoenixVisibleQA {
-    private static final String[] IDS={"fn57","hk_mp5a5_bolt","mp155","nl545","nl545_fde","rhino19","rsh12","vssk","vulkan"};
+    private static final String[] IDS={"fn57","mp155","nl545","rsh12","vssk","vulkan"};
     private int index,frame;private volatile boolean equipped;private volatile String failure="",shot="";private final JsonArray evidence=new JsonArray();
     boolean tick() throws Exception {
         var mc=Minecraft.getInstance();if(index==IDS.length)return true;

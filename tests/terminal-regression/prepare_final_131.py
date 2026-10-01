@@ -12,6 +12,9 @@ def command(args,cwd=None):return subprocess.run(list(map(str,args)),cwd=cwd,che
 def main():
     if os.environ.get('COMPUTERNAME','').upper()!='JBC_FCRL':raise SystemExit('131 only')
     sys.stdout.reconfigure(encoding='utf-8')
+    gun=json.loads((OWN/'better-mc-remake/pack/curated-gunpacks/phoenix-nine.json').read_text(encoding='utf-8'))
+    if gun.get('releaseStatus')!='ready' or not gun.get('scriptClosureVerified') or not gun.get('defaultModelDeduplicationVerified'):
+        raise SystemExit('Gunpack withdrawn or not accepted: final pack preparation blocked')
     report={'productCommits':COMMITS,'artifacts':{},'clientStarted':False,'productionChanged':False}
     previous=json.loads((OWN/'release-lock.json').read_text(encoding='utf-8')) if (OWN/'release-lock.json').exists() else {}
     for name,commit in COMMITS.items():
@@ -78,7 +81,6 @@ def main():
     for name,item in report['artifacts'].items():
         shutil.copy2(item['path'],destination/'mods'/item['name'])
         if name!='muxi-terminal':expected.append({'path':'mods/'+item['name'],'sha1':item['sha1'],'policy':'Managed'})
-    gun=json.loads((platform/'pack/curated-gunpacks/phoenix-nine.json').read_text(encoding='utf-8'))
     asset=OWN/'release-assets'/gun['packPath']
     if not asset.is_file() or digest(asset)!=gun['sha256']:raise SystemExit('Selected nine-gun binary asset missing or changed')
     gunTarget=destination/gun['packPath'];gunTarget.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(asset,gunTarget)
@@ -88,6 +90,7 @@ def main():
         import re
         fps.write_text(re.sub(r'(fpsDisplay\s*=\s*)"[^"]*"',r'\1"OFF"',fps.read_text(encoding='utf-8')),encoding='utf-8')
     report['fpsSeed']='OFF; one-time launcher overlay migration, not permanent enforcement'
+    dep=json.loads((OWN/'muxi-outbreak/dependencies.json').read_text(encoding='utf-8'))['externalDownloads'][0]
     dependency=OWN/'muxi-outbreak/build/equipment-research'/dep['file']['filename']
     shutil.copy2(dependency,destination/'mods'/dependency.name)
     expected.append({'path':'mods/'+dependency.name,'sha1':digest(dependency,'sha1'),'policy':'Managed'})
