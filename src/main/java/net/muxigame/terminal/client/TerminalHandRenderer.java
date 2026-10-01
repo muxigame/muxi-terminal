@@ -27,14 +27,15 @@ final class TerminalHandRenderer {
         float sway = (float)Math.sin(sqrt * Math.PI);
         float bob = (float)Math.sin(sqrt * Math.PI * 2.0);
 
+        boolean secondHand = mc.player != null && mc.player.getOffhandItem().isEmpty();
         renderArm(stack, buffers, light, -1f, equip, sway, bob);
-        renderArm(stack, buffers, light,  1f, equip, sway, bob);
+        if (secondHand) renderArm(stack, buffers, light, 1f, equip, sway, bob);
 
         stack.pushPose();
         stack.translate(-0.58f, -0.42f - equip * 0.6f + bob * 0.04f, -0.88f - sway * 0.08f);
         stack.mulPose(XP.rotationDegrees(13f + sway * 5f));
         stack.mulPose(ZP.rotationDegrees(-sway * 2f));
-        stack.scale(1.16f, 1.16f, 1.16f);
+        stack.scale(0.92f, 0.92f, 0.92f);
 
         drawFrame(stack.last().pose());
         MCEFBrowser browser = TerminalBrowserSession.current();
@@ -65,10 +66,10 @@ final class TerminalHandRenderer {
         // The tablet is a held object, not a fullscreen overlay. Keep the depth buffer
         // active so clouds/particles behind the player cannot leak through it.
         RenderSystem.enableDepthTest();
-        RenderSystem.depthMask(false);
+        RenderSystem.depthMask(true);
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         BufferBuilder b = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        quad(b, matrix, 0, 0, 1.16f, 0.70f, -0.010f, 18, 22, 29, 255);
+        quad(b, matrix, 0, 0, 1.05f, 0.63f, -0.010f, 18, 22, 29, 255);
         quad(b, matrix, 0.035f, 0.035f, 1.125f, 0.665f, -0.015f, 43, 51, 62, 255);
         quad(b, matrix, 0.065f, 0.070f, 1.095f, 0.625f, -0.020f, 5, 8, 12, 255);
         quad(b, matrix, 0.075f, 0.646f, 0.105f, 0.665f, -0.025f, 100, 215, 232, 255);

@@ -15,8 +15,8 @@ import net.minecraft.network.chat.Component;
 
 /** Full-screen tablet shell around one persistent MCEF browser session. */
 public final class TerminalScreen extends Screen {
-    private static final int FRAME = 14;
-    private static final int TOP = 18;
+    private static final int FRAME = 10;
+    private static final int TOP = 12;
     private final MCEFBrowser browser;
     private int left, top, contentWidth, contentHeight;
 
@@ -33,8 +33,8 @@ public final class TerminalScreen extends Screen {
     }
 
     private void layout() {
-        int availableWidth = Math.max(180, width - 48);
-        int availableHeight = Math.max(120, height - 36);
+        int availableWidth = Math.max(180, (int)(width * 0.78f));
+        int availableHeight = Math.max(120, (int)(height * 0.72f));
         double ratio = 16.0 / 10.0;
         int outerWidth = availableWidth;
         int outerHeight = (int) Math.round(outerWidth / ratio);
@@ -87,7 +87,7 @@ public final class TerminalScreen extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        graphics.fill(0, 0, width, height, 0xB0101217);
+        graphics.fill(0, 0, width, height, 0x30101217);
     }
 
     @Override
@@ -100,7 +100,7 @@ public final class TerminalScreen extends Screen {
         graphics.fill(x0 + 2, y0 + 2, x1 - 2, y1 - 2, 0xFF252B34);
         graphics.fill(left - 2, top - 2, left + contentWidth + 2, top + contentHeight + 2, 0xFF080B10);
         graphics.fill(x0 + 7, y0 + 7, x0 + 11, y0 + 11, 0xFF64D7E8);
-        graphics.drawString(font,"MUXI",x0+16,y0+5,0xFF9DAAB5,false);
+        graphics.drawString(font,"玩家终端",x0+16,y0+5,0xFFFFD45A,false);
         graphics.drawString(font,"⌂",x1-18,y0+5,0xFF9DAAB5,false);
 
         drawBrowser(graphics);
@@ -110,7 +110,7 @@ public final class TerminalScreen extends Screen {
     private void drawBrowser(GuiGraphics graphics) {
         int texture = browser.getRenderer().getTextureID();
         if (texture == 0) return;
-        RenderSystem.disableDepthTest();
+        RenderSystem.enableDepthTest();
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.setShaderTexture(0, texture);
         BufferBuilder b = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
