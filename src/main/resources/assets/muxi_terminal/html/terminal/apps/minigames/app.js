@@ -2,7 +2,7 @@
   'use strict';
   const M=window.MuxiMinigamesModel,el=id=>document.getElementById(id),root=el('games');
   if(!root)return;
-  let snapshot={loading:true,games:[]},context=M.cleanContext({}),actions=new Map(),stopped=false,pending=null,confirmAction=null,lastRead=0,readSerial=0,saveTimer;
+  let snapshot={loading:true,games:[]},context=M.cleanContext({}),actions=new Map(),lastRenderSignature='',stopped=false,pending=null,confirmAction=null,lastRead=0,readSerial=0,saveTimer;
   const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   function bridge(command){
     if(typeof window.muxi?.invoke!=='function')return Promise.reject(new Error('终端桥接尚未就绪，请稍后重试'));
@@ -22,7 +22,7 @@
   }
   function fieldsHtml(id,owner,filter=()=>true){
     const selected=M.values(id,owner,context.drafts);
-    return (owner.fields||[]).filter(filter).map(field=>`<label>${M.esc(field.label)}<select data-mg-field="${M.esc(id+':'+field.id)}">${(field.options||[]).map(option=>`<option value="${M.esc(option.value)}" ${String(option.value)===selected[field.id]?'selected':''}>${M.esc(option.label)}</option>`).join('')}</select></label>`).join('');
+    return (owner.fields||[]).filter(filter).map(field=>`<div class="mg-field"><span>${M.esc(field.label)}</span><div class="detail-actions">${(field.options||[]).map(option=>`<button class="task-tab ${String(option.value)===selected[field.id]?'task-tab-active':''}" data-mg-choice="${M.esc(id+':'+field.id)}" data-mg-value="${M.esc(option.value)}" aria-pressed="${String(option.value)===selected[field.id]}">${M.esc(option.label)}</button>`).join('')}</div></div>`).join('');
   }
   function sectionHtml(id,section){
     return `<section class="detail-card"><div class="detail-section"><h3>${M.esc(section.title)}</h3><p>${M.esc(section.text)}</p></div><div class="mg-fields">${fieldsHtml(id,section)}</div><div class="detail-actions">${(section.actions||[]).map(button=>buttonHtml(id,button,section)).join('')}</div><div class="guide-list">${(section.cards||[]).map(card=>`<article class="guide-card"><h4>${M.esc(card.title)}</h4><p>${M.esc(card.text)}</p><div class="detail-actions">${(card.actions||[]).map(button=>buttonHtml(id,button,section)).join('')}</div></article>`).join('')}</div></section>`;
@@ -32,6 +32,8 @@
     if(stopped)return;const games=snapshot.games||[],item=game();
     if(snapshot.activeGame&&context.page==='lobby'&&stage()!=='mode'&&(!context.game||snapshot.activeGame===context.game)){context.game=snapshot.activeGame;setStage('room');}
     const selected=game(),step=stage();
+    const signature=JSON.stringify([snapshot.games,snapshot.activeGame,snapshot.platform,snapshot.resultPending,snapshot.allowed,snapshot.actionSupported,snapshot.loading,snapshot.protocol,context,!!pending]);
+    if(signature===lastRenderSignature)return;lastRenderSignature=signature;
     el('mg-platform').innerHTML=`<div><small>平台累计积分</small><strong>${M.esc(M.platformText(snapshot.platform))}</strong></div><p>独立于战术点与兑换币，当前不兑换商品。${snapshot.resultPending>0?` ${M.esc(snapshot.resultPending)} 条结算等待确认。`:''}</p>`;
     for(const tab of root.querySelectorAll('[data-mg-page]')){const active=tab.dataset.mgPage===context.page;tab.setAttribute('aria-pressed',String(active));tab.classList.toggle('task-tab-active',active);}
     el('mg-stepbar').hidden=context.page!=='lobby';
@@ -86,6 +88,7 @@
   }
   root.addEventListener('click',event=>{
     const mode=event.target.closest('[data-mg-game]');if(mode){context.game=mode.dataset.mgGame;context.page='lobby';setStage(ownRoom(game())?'room':'map');render();return;}
+    const choice=event.target.closest('[data-mg-choice]');if(choice){context.drafts[choice.dataset.mgChoice]=choice.dataset.mgValue;render();return;}
     const map=event.target.closest('[data-mg-map]');if(map){context.drafts[context.game+':map']=map.dataset.mgMap;setStage('create');render();return;}
     const step=event.target.closest('[data-mg-stage]');if(step){setStage(step.dataset.mgStage);render();return;}
     const page=event.target.closest('[data-mg-page]');if(page){context.page=page.dataset.mgPage;render();return;}

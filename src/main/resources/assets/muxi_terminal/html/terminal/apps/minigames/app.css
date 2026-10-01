@@ -13,8 +13,8 @@
 .mg-content .guide-card .detail-actions{margin-top:9px}
 .mg-content .guide-card h4{margin:0 0 6px;font-size:12px}
 .mg-fields{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0}
-.mg-fields label{display:grid;gap:5px;font-size:11px;min-width:150px}
-.mg-fields select{font:inherit;border:3px solid var(--line);border-radius:0;background:var(--panel);color:var(--text);padding:6px}
+.mg-field{display:grid;gap:5px;font-size:11px;min-width:150px}
+.mg-field .detail-actions{margin-top:0}
 .mg-stepbar{margin:6px 0 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .mg-mode-list{margin-bottom:12px}
 .mg-mode-list .guide-card{display:block;text-align:left;color:inherit;cursor:pointer}

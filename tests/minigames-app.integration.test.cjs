@@ -39,7 +39,7 @@ function action(label){const html=el('mg-content').innerHTML;const match=html.ma
   await wait(30);
   check('shared terminal invoke reads both modes without cefQuery',()=>{assert.match(el('mg-games').innerHTML,/Zombie/);assert.match(el('mg-games').innerHTML,/Outbreak/);assert.ok(requests.includes('games.request'));assert.doesNotMatch(source,/window\.cefQuery|window\.muxiTerminalQuery/);});
   click('mgGame','game-a');check('mode proceeds to server supplied maps using existing cards',()=>{assert.match(el('mg-content').innerHTML,/Research Lab/);assert.match(el('mg-content').innerHTML,/Mysterious Camp/);assert.match(el('mg-content').innerHTML,/class="guide-card"/);});
-  click('mgMap','camp');check('map proceeds to create confirmation with selected map',()=>assert.match(el('mg-content').innerHTML,/value="camp" selected/));
+  click('mgMap','camp');check('map proceeds to create confirmation with selected map',()=>assert.match(el('mg-content').innerHTML,/data-mg-value="camp" aria-pressed="true"/));
   action('Create room');await wait(30);check('transport callback alone does not announce completion',()=>assert.doesNotMatch(el('mg-notice').textContent,/server confirmed/));await wait(400);
   check('server receipt opens room and invite controls',()=>{assert.match(el('mg-content').innerHTML,/Invite teammates/);assert.match(el('mg-notice').textContent,/server confirmed/);});
   action('Invite');await wait(400);check('invite reaches server with provider UUID',()=>assert.ok(requests.some(cmd=>cmd.includes('"action":"invite"')&&cmd.includes('guest-uuid'))));
