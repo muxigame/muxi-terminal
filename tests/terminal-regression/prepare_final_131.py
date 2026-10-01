@@ -40,6 +40,8 @@ def main():
     base=json.loads((Path(__file__).parent/'release-baseline.json').read_text(encoding='utf-8'))
     destination=OWN/'candidate-pack';destination.mkdir(exist_ok=True)
     oldprefix=('muxi-game-core-','muxi-terminal-','muxi-outbreak-','muxi-minigames-','muxi-zombie-challenge-')
+    for old in (destination/'mods').glob('*.jar'):
+        if old.name.startswith(oldprefix):old.unlink()
     expected=[]
     for entry in base['files']:
         relative=Path(entry['path'])
