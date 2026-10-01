@@ -84,6 +84,8 @@ const guides = [
 const $ = s => document.querySelector(s);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+let contentView=location.hash!=='#/home' && !!location.hash;
+if(contentView)document.body.classList.add('content-view');
 
 async function native(command){
   const deadline=Date.now()+2500;
@@ -110,12 +112,19 @@ function show(id){
   if(id==='tasks') refreshTasks(true);
 }
 
-function navigate(id){
+function navigate(id,source){
+  if(typeof window.cefQuery==='function'){
+    if(contentView && id==='home'){native('terminal.home').catch(error=>setStatus(error.message));return;}
+    if(!contentView && ['tasks','guide'].includes(id)){
+      if(window.terminalLaunch)window.terminalLaunch({kind:'builtin',id,name:id==='tasks'?'任务':'游戏指南',source}).catch(error=>setStatus(error.message));
+      else native('terminal.app:'+id).catch(error=>setStatus(error.message));return;
+    }
+  }
   if(location.hash!==`#/${id}`) location.hash=`/${id}`;
   show(id);
 }
 
-document.querySelectorAll('[data-open]').forEach(el=>el.addEventListener('click',()=>navigate(el.dataset.open)));
+document.querySelectorAll('[data-open]').forEach(el=>el.addEventListener('click',()=>navigate(el.dataset.open,el)));
 
 const resourceCache=new Map();
 async function resourceData(id){
@@ -253,7 +262,10 @@ document.querySelectorAll('[data-task-tab]').forEach(button=>button.addEventList
 }));
 
 $('#challengeOpen').addEventListener('click',()=>native('challenge.open').catch(error=>setStatus(error.message)));
-$('#passportApp').addEventListener('click',()=>native('passport.open').catch(error=>setStatus(error.message)));
+$('#passportApp').addEventListener('click',event=>{
+  const opening=window.terminalLaunch?window.terminalLaunch({kind:'account',id:'passport',name:'木夕账户',source:event.currentTarget}):native('passport.open');
+  opening.catch(error=>setStatus(error.message));
+});
 
 
 // Full keyboard / handheld navigation. Arrow keys move between actionable
@@ -298,6 +310,7 @@ function backRoute(){
   else if(route!=='home')navigate('home');
 }
 window.addEventListener('keydown',e=>{
+  if(['INPUT','TEXTAREA'].includes(document.activeElement?.tagName))return;
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){
     moveNav(e.key);e.preventDefault();return;
   }
@@ -330,3 +343,5 @@ tickClock();setInterval(tickClock,15000);
 setInterval(()=>{if($('#tasks').classList.contains('page-active'))refreshTasks(false);},1500);
 renderGuides();
 show(routeFromHash());
+window.terminalShellHome=()=>{location.hash='/home';show('home');window.refreshWebApps?.();window.terminalContainerCancel?.();};
+window.terminalPrepareContent=route=>{contentView=true;document.body.classList.add('content-view');location.replace('#'+route);show(route.replace(/^\//,''));};

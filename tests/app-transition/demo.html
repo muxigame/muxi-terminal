@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>玩家终端 · APP 打开过渡验证</title>
+  <link rel="stylesheet" href="../../src/main/resources/assets/muxi_terminal/html/terminal/styles.css">
+  <link rel="stylesheet" href="../../src/main/resources/assets/muxi_terminal/html/terminal/app-transition.css">
+  <style>
+    html,body{overflow:auto;background:#262923;color:#eee9db}
+    body{padding:32px;display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:30px;align-items:center;min-height:100vh}
+    .preview-device{height:650px;max-height:90vh;width:100%;max-width:820px;margin:auto;padding:12px;border:4px solid #666950;background:#35392e;box-shadow:inset 3px 3px 0 #949778,8px 8px 0 #171b16}
+    .shell{display:flex;flex-direction:column}.statusbar{flex-shrink:0}
+    #viewport{flex:1;min-height:0;overflow:hidden;color:var(--text)}
+    #viewport .page{height:100%}.demo-app{padding:24px;height:100%;overflow:auto;background:#d8d0b9}
+    .demo-app h2{margin:18px 0 12px}.demo-app p{font-size:12px;line-height:1.8;color:#5f5847}
+    .demo-controls h1{font-size:24px;color:#e6ddc3;margin:12px 0}.demo-controls p{font-size:12px;line-height:1.8;color:#adb29e}
+    .demo-controls button{display:block;width:100%;text-align:left;margin:9px 0;padding:10px 12px;background:#424a35;border:2px solid #738452;color:#e4edce;cursor:pointer;font-size:12px}
+    .demo-controls button:focus-visible{outline:2px solid #bbd08d;outline-offset:2px}
+    .demo-tag{font-size:10px;letter-spacing:.12em;color:#a9c37c}.demo-log{font-family:monospace;color:#c6d3aa;font-size:11px;min-height:32px;margin:15px 0}
+    @media(max-width:800px){body{padding:16px;grid-template-columns:1fr}.preview-device{height:580px}.demo-controls{max-width:760px;margin:auto;width:100%}}
+  </style>
+</head>
+<body>
+  <div class="preview-device">
+    <main class="shell">
+      <header class="statusbar"><div class="brand"><span class="brand-dot"></span>玩家终端</div><div class="status-right"><span>本地预览</span><span id="clock">12:30</span></div></header>
+      <div id="viewport">
+        <section id="demo-home" class="page page-active">
+          <div class="hero"><div><div class="eyebrow">PLAYER TERMINAL</div><h1>玩家终端</h1><p>游戏指南、你的任务和自定义应用，从这里打开。</p></div><div class="cover-frame"><img src="../../src/main/resources/assets/muxi_terminal/html/terminal/cover.png" alt="玩家终端"></div></div>
+          <div class="section-title"><span>应用</span><small>3 个已安装</small></div>
+          <div class="app-grid">
+            <button class="app-card" data-demo-app="guide"><span class="app-icon guide-icon"><i></i><i></i><i></i></span><span class="app-name">游戏指南</span><span class="app-desc">模组手册与玩法指引</span></button>
+            <button class="app-card" data-demo-app="tasks"><span class="app-icon task-icon"><i></i><i></i><i></i></span><span class="app-name">任务</span><span class="app-desc">每日、主线与追踪</span></button>
+            <button class="app-card" data-demo-app="custom"><span class="app-icon passport-icon"><i></i></span><span class="app-name">自定义应用</span><span class="app-desc">内置与自定义共享过渡</span></button>
+          </div>
+          <div class="dock-hint">点击图标打开 · 保留终端外壳</div>
+        </section>
+        <section id="demo-content" class="demo-app" hidden><button class="secondary" id="content-back">返回主页</button><div class="eyebrow" style="margin-top:24px">APP / CONTENT</div><h2 id="content-title"></h2><p>应用内容已准备就绪。状态栏与终端外壳保持原位，只有内部内容区切换。</p><div class="task-intro" style="margin-top:20px"><div><strong>欢迎回来</strong><span>继续探索你的世界。</span></div></div></section>
+      </div>
+    </main>
+  </div>
+  <aside class="demo-controls">
+    <div class="demo-tag">TRANSITION / PREVIEW</div>
+    <h1>轻按，打开。</h1>
+    <p>短促的像素图标反馈与内容区过渡。加载失败时可以重试，等待超过 2 秒自动结束。</p>
+    <button id="scenario-loading">持续加载状态</button>
+    <button id="scenario-error">模拟打开失败</button>
+    <button id="scenario-timeout">模拟超时恢复</button>
+    <button id="scenario-home">关闭 / 返回主页</button>
+    <button id="scenario-reduced">减少动效：关</button>
+    <div class="demo-log" id="demo-log">idle</div>
+    <p>此预览使用模拟就绪通知，供表现层验证与接口接入。</p>
+  </aside>
+  <script src="../../src/main/resources/assets/muxi_terminal/html/terminal/app-transition.js"></script>
+  <script src="demo.js"></script>
+  <script src="browser-tests.js"></script>
+</body>
+</html>

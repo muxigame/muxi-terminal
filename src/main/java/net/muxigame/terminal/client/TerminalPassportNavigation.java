@@ -25,9 +25,9 @@ final class TerminalPassportNavigation {
     private static boolean opening;
     private static Object gameConnection;
     private TerminalPassportNavigation() {}
-    static void install(){
+    static void install(com.cinemamod.mcef.MCEFClient client){
         // MCEF multiplexes handlers. CefClient.addLoadHandler silently ignores a second handler.
-        MCEF.getClient().addLoadHandler(new CefLoadHandlerAdapter(){
+        client.addLoadHandler(new CefLoadHandlerAdapter(){
             @Override public void onLoadEnd(CefBrowser browser,CefFrame frame,int status){
                 String value;
                 synchronized(TerminalPassportNavigation.class){
@@ -76,6 +76,7 @@ final class TerminalPassportNavigation {
         MCEFBrowser browser=TerminalBrowserSession.current();
         final long requestGeneration;
         final String sourceUrl=browser==null?"":browser.getURL();
+        final long viewGeneration=TerminalBrowserSession.generation();
         synchronized(TerminalPassportNavigation.class){
             if(opening) return;
             clear();opening=true;requestGeneration=generation;
@@ -87,11 +88,14 @@ final class TerminalPassportNavigation {
                     if(generation!=requestGeneration) return;
                     opening=false;
                     if(mc.player==null || !(mc.screen instanceof TerminalScreen) || browser==null
-                        || TerminalBrowserSession.current()!=browser || !sourceUrl.equals(browser.getURL())) return;
-                    if(value!=null && !value.isEmpty()){expected=browser;payload=value;gameConnection=mc.getConnection();expires=System.nanoTime()+20_000_000_000L;}
+                        || TerminalBrowserSession.current()!=browser || !sourceUrl.equals(browser.getURL())
+                        || TerminalBrowserSession.generation()!=viewGeneration) return;
                 }
                 if(value==null || value.isEmpty()){TerminalBrowserSession.openExternal(ACCOUNT);return;}
-                browser.loadURL(EXCHANGE);
+                MCEFBrowser account=TerminalBrowserSession.openAccountView(EXCHANGE);
+                synchronized(TerminalPassportNavigation.class){
+                    expected=account;payload=value;gameConnection=mc.getConnection();expires=System.nanoTime()+20_000_000_000L;
+                }
             });
             api.getMethod("request",Consumer.class).invoke(null,callback);
         }catch(ReflectiveOperationException | LinkageError ignored){clear();TerminalBrowserSession.openExternal(ACCOUNT);}
