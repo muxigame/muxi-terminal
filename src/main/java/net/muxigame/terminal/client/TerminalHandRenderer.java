@@ -43,6 +43,7 @@ final class TerminalHandRenderer {
 
         stack.popPose();
         RenderSystem.enableDepthTest();
+        RenderSystem.depthMask(true);
     }
 
     private void renderArm(PoseStack stack, MultiBufferSource buffers, int light, float side,
@@ -61,7 +62,10 @@ final class TerminalHandRenderer {
     }
 
     private static void drawFrame(Matrix4f matrix) {
-        RenderSystem.disableDepthTest();
+        // The tablet is a held object, not a fullscreen overlay. Keep the depth buffer
+        // active so clouds/particles behind the player cannot leak through it.
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthMask(false);
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         BufferBuilder b = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         quad(b, matrix, 0, 0, 1.16f, 0.70f, -0.010f, 18, 22, 29, 255);

@@ -52,16 +52,18 @@ public final class TerminalClient {
     private static void onRenderHand(RenderHandEvent event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
-        boolean hasTerminal = mc.player.getMainHandItem().is(MuxiTerminal.PLAYER_TERMINAL.get())
-            || mc.player.getOffhandItem().is(MuxiTerminal.PLAYER_TERMINAL.get());
-        if (!hasTerminal) return;
+        boolean main = mc.player.getMainHandItem().is(MuxiTerminal.PLAYER_TERMINAL.get());
+        boolean off = mc.player.getOffhandItem().is(MuxiTerminal.PLAYER_TERMINAL.get());
+        if (!main && !off) return;
 
-        // Render once from the main-hand pass and suppress both vanilla hands.
-        if (event.getHand() == net.minecraft.world.InteractionHand.MAIN_HAND) {
+        // Terminal follows map-like behaviour: one hand is enough. It only expands to
+        // a two-hand tablet pose when the other hand is empty.
+        if ((event.getHand() == net.minecraft.world.InteractionHand.MAIN_HAND && main)
+            || (event.getHand() == net.minecraft.world.InteractionHand.OFF_HAND && off)) {
             HAND_RENDERER.render(event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(),
                 event.getSwingProgress(), event.getEquipProgress());
+            event.setCanceled(true);
         }
-        event.setCanceled(true);
     }
 
     private static void onLevelUnload(LevelEvent.Unload event) {

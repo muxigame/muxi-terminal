@@ -251,6 +251,24 @@ document.querySelectorAll('[data-task-tab]').forEach(button=>button.addEventList
 $('#challengeOpen').addEventListener('click',()=>native('challenge.open').catch(error=>setStatus(error.message)));
 $('#passportApp').addEventListener('click',()=>window.muxi.openExternal('https://account.muxigame.com/account').catch(error=>setStatus(error.message)));
 
+
+// 手持终端导航：数字键选择主界面应用，回车确认，避免必须点击网页。
+const homeApps=['guide','tasks','passportApp'];
+let selectedApp=0;
+function updateAppSelection(){
+  document.querySelectorAll('.app-card').forEach((e,i)=>e.classList.toggle('keyboard-selected',i===selectedApp));
+}
+window.addEventListener('keydown',e=>{
+  if(!$('#home').classList.contains('page-active')) return;
+  if(e.key>='1'&&e.key<='3'){
+    selectedApp=Number(e.key)-1; updateAppSelection(); e.preventDefault();
+  }
+  if(e.key==='Enter'){
+    const el=document.querySelectorAll('.app-card')[selectedApp];
+    if(el) el.click();
+  }
+});
+
 function setStatus(message){
   const status=$('#statusText');status.textContent=message;
   clearTimeout(setStatus.timer);setStatus.timer=setTimeout(()=>status.textContent='本地模式',3500);
