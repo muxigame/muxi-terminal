@@ -27,11 +27,11 @@ def allowed(rules):
         result=rule.get("action")=="allow"
     return result
 def argfile(path,args):path.write_text("\n".join('"'+str(a).replace("\\","/").replace('"','\\"')+'"' for a in args),encoding="utf-8")
-def config(lab):
+def config(lab,audible=False):
     (lab/"config").mkdir(exist_ok=True)
     write(lab/"config/muxi-game-core.json",{"schema":1,"features":{"identity":{"enabled":False},"login":{"enabled":False}}})
     (lab/"config/fml.toml").write_text('earlyWindowControl = false\nearlyWindowProvider = ""\nversionCheck = false\n',encoding="utf-8")
-    (lab/"options.txt").write_text("lang:zh_cn\nguiScale:2\nmaxFps:45\nenableVsync:false\nonboardAccessibility:false\nsoundCategory_master:0.0\nfullscreen:false\npauseOnLostFocus:false\nrenderDistance:3\nsimulationDistance:5\ngraphicsMode:0\n",encoding="utf-8")
+    (lab/"options.txt").write_text("lang:zh_cn\nguiScale:2\nmaxFps:45\nenableVsync:false\nonboardAccessibility:false\nsoundCategory_master:"+("0.25" if audible else "0.0")+"\nfullscreen:false\npauseOnLostFocus:false\nrenderDistance:3\nsimulationDistance:5\ngraphicsMode:0\n",encoding="utf-8")
     (lab/"config/mcef").mkdir(parents=True,exist_ok=True)
     (lab/"config/mcef/mcef.properties").write_text("skip-download=true\nuse-cache=false\nuser-agent=\ndownload-mirror=\n",encoding="utf-8")
 def testmod(lab,classes,mode):
@@ -139,7 +139,7 @@ def main():
             sources=list((HERE/"java").rglob("*.java"))
             provenance.update({"referencePack":"1.4.26","optionalSelection":"released defaultOn; enable FirstPerson only in firstperson mode","fixtureTasks":False,"fixtureIcons":False,"samplerGlobalRouter":False,"samplerHydration":False})
             timeout=900;result_name="runtime-result.json"
-        config(lab);shutil.copy2(terminal,lab/"mods"/terminal.name)
+        config(lab,audible=args.mode=="full");shutil.copy2(terminal,lab/"mods"/terminal.name)
         fps=lab/"config/sodiumextras-client.toml"
         if fps.exists():
             raw=fps.read_text(encoding="utf-8");fps.write_text(re.sub(r'(fpsDisplay\s*=\s*)"[^"]*"',r'\1"OFF"',raw),encoding="utf-8")

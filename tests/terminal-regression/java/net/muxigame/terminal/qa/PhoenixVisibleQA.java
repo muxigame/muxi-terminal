@@ -5,6 +5,7 @@ import com.tacz.guns.api.entity.IGunOperator;
 import com.tacz.guns.api.entity.ShootResult;
 import com.tacz.guns.api.item.IGun;
 import com.tacz.guns.api.item.builder.GunItemBuilder;
+import com.tacz.guns.api.item.builder.AmmoItemBuilder;
 import net.minecraft.client.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -25,7 +26,7 @@ final class PhoenixVisibleQA {
             var uuid=mc.player.getUUID();mc.getSingleplayerServer().execute(()->{
                 try{var p=mc.getSingleplayerServer().getPlayerList().getPlayer(uuid);var common=TimelessAPI.getCommonGunIndex(id).orElseThrow();
                     var stack=GunItemBuilder.create().setId(id).setAmmoCount(1).setAmmoInBarrel(true).setFireMode(common.getGunData().getFireModeSet().getFirst()).build(p.registryAccess());
-                    if(stack.isEmpty())throw new IllegalStateException("Phoenix gun build empty "+id);p.getInventory().selected=0;p.getInventory().setItem(0,stack);p.inventoryMenu.broadcastChanges();
+                    if(stack.isEmpty())throw new IllegalStateException("Phoenix gun build empty "+id);p.getInventory().selected=0;p.getInventory().setItem(0,stack);p.getInventory().setItem(2,AmmoItemBuilder.create().setId(common.getGunData().getAmmoId()).setCount(64).build());p.inventoryMenu.broadcastChanges();
                     var operator=IGunOperator.fromLivingEntity(p);operator.initialData();operator.draw(p::getMainHandItem);equipped=true;
                 }catch(Throwable e){failure=e.toString();}
             });frame++;return false;
