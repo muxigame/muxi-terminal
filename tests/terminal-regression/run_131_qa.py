@@ -1,5 +1,6 @@
 """Visible bounded 131 QA. Preflight first. --prepare-only never starts a window/client."""
 from __future__ import annotations
+import re
 from pathlib import Path
 import argparse,ctypes,datetime,hashlib,json,os,shutil,subprocess,sys,time,uuid,zipfile
 HERE=Path(__file__).resolve().parent
@@ -128,7 +129,10 @@ def main():
             for entry in expected:
                 if entry["policy"]=="Optional" and not entry.get("defaultOn",False) and not (args.mode=="firstperson" and "firstperson-" in entry["path"]):continue
                 source=args.pack/entry["path"];shutil.copy2(source,lab/"mods"/source.name)
-            for directory in ["config","shaderpacks","resourcepacks","defaultconfigs","kubejs"]:
+            for entry in json.loads((OWN/"release-lock.json").read_text(encoding="utf-8")).get("additionalFiles",[]):
+                source=args.pack/entry["path"]
+                if not source.is_file() or digest(source)!=entry["sha256"]:raise SystemExit("Additional release asset mismatch "+entry["path"])
+            for directory in ["config","shaderpacks","resourcepacks","defaultconfigs","kubejs","tacz"]:
                 source=args.pack/directory
                 if source.is_dir():shutil.copytree(source,lab/directory,dirs_exist_ok=True)
             (lab/"config/iris.properties").write_text("enableShaders=true\nshaderPack=Better MC - Low\ndisableUpdateMessage=true\n",encoding="utf-8")
@@ -136,6 +140,9 @@ def main():
             provenance.update({"referencePack":"1.4.26","optionalSelection":"released defaultOn; enable FirstPerson only in firstperson mode","fixtureTasks":False,"fixtureIcons":False,"samplerGlobalRouter":False,"samplerHydration":False})
             timeout=900;result_name="runtime-result.json"
         config(lab);shutil.copy2(terminal,lab/"mods"/terminal.name)
+        fps=lab/"config/sodiumextras-client.toml"
+        if fps.exists():
+            raw=fps.read_text(encoding="utf-8");fps.write_text(re.sub(r'(fpsDisplay\s*=\s*)"[^"]*"',r'\1"OFF"',raw),encoding="utf-8")
         cp=os.pathsep.join(map(str,[terminal,args.game/"libraries/net/neoforged/neoforge/21.1.250/neoforge-21.1.250-client.jar",args.game/"libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-srg.jar",*libs,*list((args.dependencies/"libraries").rglob("*.jar")),*list((lab/"mods").glob("*.jar"))]))
         print("Compiling private test mod",flush=True)
         build.compile_java(compiler,sources,classes,cp,lab/"compile.args");testmod(lab,classes,args.mode)

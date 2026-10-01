@@ -38,6 +38,7 @@ import java.util.*;
 @Mod(value="terminal_qa",dist=Dist.CLIENT)
 public final class TerminalRuntimeQA {
  private int ticks,frames;
+ private final PhoenixVisibleQA phoenix=new PhoenixVisibleQA();
  private volatile int stage;
  private boolean starting,ready,finished,requested;
  private volatile JsonObject dom;
@@ -121,6 +122,7 @@ public final class TerminalRuntimeQA {
    }
    if(mc.player==null||mc.level==null||mc.getOverlay()!=null)return;
    if(stage==0&&frames==0){mc.setScreen(null);mc.player.setYRot(180);mc.player.setXRot(8);hands(HumanoidArm.RIGHT,ItemStack.EMPTY,ItemStack.EMPTY);time(6000);report.addProperty("graphicsMode",mc.options.graphicsMode().get().toString());report.addProperty("shader",shader());report.addProperty("modCount",ModList.get().size());report.addProperty("gpuRenderer",GL11.glGetString(GL11.GL_RENDERER));report.addProperty("windowVisible",org.lwjgl.glfw.GLFW.glfwGetWindowAttrib(mc.getWindow().getWindow(),org.lwjgl.glfw.GLFW.GLFW_VISIBLE)==org.lwjgl.glfw.GLFW.GLFW_TRUE);JsonObject versions=new JsonObject();for(var mod:ModList.get().getMods())if(Set.of("minecraft","neoforge","create","flywheel","sodium","iris","colorwheel","vanillin","firstperson","notenoughanimations","skinlayers3d","sway","yes_steve_model","mcef","webdisplays","muxi_game_core","muxi_terminal").contains(mod.getModId()))versions.addProperty(mod.getModId(),mod.getVersion().toString());report.add("renderModVersions",versions);}
+   if(stage==40&&!phoenix.tick())return;
    probeStage=stage;
    ++frames;
    if((stage==28||stage==33||stage==35||stage==38) && !heldRevealStarted){

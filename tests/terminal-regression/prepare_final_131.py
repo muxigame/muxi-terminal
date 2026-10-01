@@ -6,18 +6,25 @@ OWN=Path(r'C:\Users\ranzh\Documents\Codex\release-unified-task14-20261001')
 ROOT=Path(r'C:\Users\ranzh\workspace\dev\muxigame')
 JDK=Path(r'C:\Users\ranzh\Documents\Codex\terminal-integration-task6-20261001\tools\jdk\jdk-21.0.12.1+1')
 COMMITS={'muxi-minigames': 'de711f9fe93a614efee9d3c95d6d37e6d31b9238', 'muxi-zombie-challenge': 'b39845e8f3a3209b3754e703dbba61a0d33b4e1d', 'muxi-game-core': '5c45ca34877a3ead61a71a0bba794a2491e3d937', 'muxi-outbreak': 'afbeb63afd735499e1ef9d1a039f681c84aad208', 'muxi-terminal': 'bc415775dd50762262098d6a41f0a942df7ef157'}
+PACK_COMMIT='SET_AFTER_REVIEWED_SOURCE_COMMIT'
 def digest(path,kind='sha256'):return hashlib.new(kind,path.read_bytes()).hexdigest()
 def command(args,cwd=None):return subprocess.run(list(map(str,args)),cwd=cwd,check=True)
 def main():
     if os.environ.get('COMPUTERNAME','').upper()!='JBC_FCRL':raise SystemExit('131 only')
     sys.stdout.reconfigure(encoding='utf-8')
     report={'productCommits':COMMITS,'artifacts':{},'clientStarted':False,'productionChanged':False}
+    previous=json.loads((OWN/'release-lock.json').read_text(encoding='utf-8')) if (OWN/'release-lock.json').exists() else {}
     for name,commit in COMMITS.items():
         repo=OWN/name
         command(['git','-C',repo,'merge-base','--is-ancestor',commit,'HEAD'])
         difference=subprocess.check_output(['git','-C',str(repo),'diff',commit,'--','src','mod.json'],encoding='utf-8')
         dirty=subprocess.check_output(['git','-C',str(repo),'status','--porcelain','--','src','mod.json'],encoding='utf-8')
         if difference or dirty:raise SystemExit('Product sources changed: '+name)
+        old=previous.get('artifacts',{}).get(name)
+        if old and previous.get('productCommits',{}).get(name)==commit and Path(old['path']).is_file() and digest(Path(old['path']))==old['sha256']:
+            report['artifacts'][name]=old
+            print('Retained exact unchanged 131 artifact: '+name,flush=True)
+            continue
         args=[sys.executable,repo/'build.py','--server',ROOT/'bmc5server','--java-home',JDK]
         if name!='muxi-outbreak':args+=['--client-game',ROOT/'_client_test/game']
         if name in ('muxi-game-core','muxi-zombie-challenge','muxi-terminal'):args+=['--pack-mods',ROOT/'better-mc-remake/pack/staging/files/mods']
@@ -37,10 +44,19 @@ def main():
         release=json.loads((repo/'build/release.json').read_text(encoding='utf-8'))
         artifact=repo/'build/libs'/release['artifact']
         report['artifacts'][name]={'path':str(artifact),'name':artifact.name,'sha256':digest(artifact),'sha1':digest(artifact,'sha1'),'size':artifact.stat().st_size}
-    command([sys.executable,OWN/'muxi-minigames/tests/run_runtime_boundaries.py','--server',ROOT/'bmc5server','--java-home',JDK])
+    platform=OWN/'better-mc-remake'
+    command(['git','-C',platform,'merge-base','--is-ancestor',PACK_COMMIT,'HEAD'])
+    changed=subprocess.check_output(['git','-C',str(platform),'diff',PACK_COMMIT,'--','pack/patches/champions-companions/src','pack/packspec.json','pack/curated-gunpacks'],encoding='utf-8')
+    if changed:raise SystemExit('Added release source changed')
+    balance=platform/'pack/patches/champions-companions'
+    core=Path(report['artifacts']['muxi-game-core']['path'])
+    command([sys.executable,balance/'build_companions.py','--server',ROOT/'bmc5server','--java-home',JDK,'--core-jar',core])
+    release=json.loads((balance/'build/release.json').read_text(encoding='utf-8'));artifact=balance/'build'/release['artifact']
+    report['artifacts']['muxi-champion-companions']={'path':str(artifact),'name':artifact.name,'sha256':digest(artifact),'sha1':digest(artifact,'sha1'),'size':artifact.stat().st_size}
+    report['productCommits']={**COMMITS,'muxi-champion-companions':PACK_COMMIT}
     base=json.loads((Path(__file__).parent/'release-baseline.json').read_text(encoding='utf-8'))
     destination=OWN/'candidate-pack';destination.mkdir(exist_ok=True)
-    oldprefix=('muxi-game-core-','muxi-terminal-','muxi-outbreak-','muxi-minigames-','muxi-zombie-challenge-')
+    oldprefix=('muxi-game-core-','muxi-terminal-','muxi-outbreak-','muxi-minigames-','muxi-zombie-challenge-','muxi-champion-companions-')
     for old in (destination/'mods').glob('*.jar'):
         if old.name.startswith(oldprefix):old.unlink()
     expected=[]
@@ -62,6 +78,16 @@ def main():
     for name,item in report['artifacts'].items():
         shutil.copy2(item['path'],destination/'mods'/item['name'])
         if name!='muxi-terminal':expected.append({'path':'mods/'+item['name'],'sha1':item['sha1'],'policy':'Managed'})
+    gun=json.loads((platform/'pack/curated-gunpacks/phoenix-nine.json').read_text(encoding='utf-8'))
+    asset=OWN/'release-assets'/gun['packPath']
+    if not asset.is_file() or digest(asset)!=gun['sha256']:raise SystemExit('Selected nine-gun binary asset missing or changed')
+    gunTarget=destination/gun['packPath'];gunTarget.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(asset,gunTarget)
+    report['additionalFiles']=[{'path':gun['packPath'],'sha256':gun['sha256'],'size':asset.stat().st_size}]
+    fps=destination/'config/sodiumextras-client.toml'
+    if fps.is_file():
+        import re
+        fps.write_text(re.sub(r'(fpsDisplay\s*=\s*)"[^"]*"',r'\1"OFF"',fps.read_text(encoding='utf-8')),encoding='utf-8')
+    report['fpsSeed']='OFF; one-time launcher overlay migration, not permanent enforcement'
     dependency=OWN/'muxi-outbreak/build/equipment-research'/dep['file']['filename']
     shutil.copy2(dependency,destination/'mods'/dependency.name)
     expected.append({'path':'mods/'+dependency.name,'sha1':digest(dependency,'sha1'),'policy':'Managed'})
