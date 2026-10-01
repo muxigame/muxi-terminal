@@ -37,10 +37,11 @@ final class TerminalGameAppsBridge {
                 for(var field:data.entrySet())if(!field.getValue().isJsonPrimitive()||!field.getValue().getAsJsonPrimitive().isString())throw new IllegalArgumentException("String action fields required");
                 String game=data.get("game").getAsString(),action=data.get("action").getAsString(),value=data.get("value").getAsString();
                 if(!game.matches("[a-z0-9_-]{1,32}")||!action.matches("[a-zA-Z][a-zA-Z0-9_-]{0,23}")||value.length()>128)throw new IllegalArgumentException("Invalid game action");
-                invoke("action",new Class<?>[]{String.class,String.class,String.class},game,action,value);callback.success("{\"ok\":true}");
+                Object receipt=invoke("submit",new Class<?>[]{String.class,String.class,String.class},game,action,value);callback.success(receipt.toString());
             }
             else throw new IllegalArgumentException("Unknown minigame command");
-        }catch(ReflectiveOperationException|LinkageError unavailable){callback.failure(503,"小游戏服务当前不可用");}
+        }catch(java.lang.reflect.InvocationTargetException rejected){var cause=rejected.getCause();callback.failure(409,cause==null?"小游戏操作未发送":java.util.Objects.toString(cause.getMessage(),"小游戏操作未发送"));}
+        catch(ReflectiveOperationException|LinkageError unavailable){callback.failure(503,"小游戏服务当前不可用");}
         catch(RuntimeException invalid){callback.failure(400,invalid.getMessage()==null?"无效小游戏请求":invalid.getMessage());}
         return true;
     }

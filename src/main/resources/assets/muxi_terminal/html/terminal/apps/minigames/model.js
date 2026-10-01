@@ -18,8 +18,16 @@
     if(button.jsonFields){const keys=String(button.fields||'').split(',');const data={};for(const key of keys){if(!(key in selected))throw new Error('请选择完整创建参数');data[key]=selected[key];}return JSON.stringify(data);}
     return String(button.value||'').replace(/\{([a-zA-Z][a-zA-Z0-9_]*)\}/g,(_,key)=>{if(!(key in selected))throw new Error('请选择完整创建参数');return selected[key];});
   }
-  function blocked(snapshot,game,button){return button.enabled===false||(!button.safe&&(!snapshot.allowed||(snapshot.activeGame&&snapshot.activeGame!==game)));}
+  function blocked(snapshot,game,button){return snapshot.loading===true||snapshot.actionSupported===false||(snapshot.protocol!=null&&snapshot.protocol!==2)||button.enabled===false||(!button.safe&&(!snapshot.allowed||(snapshot.activeGame&&snapshot.activeGame!==game)));}
   function platformText(platform){return platform?.available?String(platform.points):'尚未同步';}
-  const api={esc,safeGame,cleanContext,values,actionValue,blocked,platformText};
+  function currentAction(snapshot,target){
+    const game=(snapshot.games||[]).find(item=>item.id===target.game);
+    for(const page of ['lobby','shop'])for(const owner of game?.ui?.[page]?.sections||[]){
+      const buttons=[...(owner.actions||[]),...(owner.cards||[]).flatMap(card=>card.actions||[])];
+      const button=buttons.find(item=>item.action===target.button.action&&item.value===target.button.value&&item.fields===target.button.fields);
+      if(button)return {game:target.game,button,owner};
+    }return null;
+  }
+  const api={esc,safeGame,cleanContext,values,actionValue,blocked,platformText,currentAction};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.MuxiMinigamesModel=api;
 })(typeof window!=='undefined'?window:globalThis);

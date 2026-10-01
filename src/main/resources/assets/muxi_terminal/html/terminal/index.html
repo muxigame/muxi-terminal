@@ -133,14 +133,14 @@
       </div>
     </section>
     <section id="games" class="page minigames-app" aria-label="小游戏 APP">
-      <header class="mg-toolbar"><div><small>APP / MINIGAMES</small><h2>小游戏</h2></div><button id="mg-refresh" class="secondary">刷新</button></header>
-      <p id="mg-notice" class="mg-notice" role="status" aria-live="polite">正在读取小游戏服务…</p>
-      <div id="mg-platform" class="mg-platform"></div>
-      <div class="mg-layout"><aside id="mg-games" class="mg-games" aria-label="玩法选择"></aside><div class="mg-main">
-        <nav class="mg-tabs" aria-label="小游戏页面"><button data-mg-page="lobby" aria-pressed="true">大厅与队伍</button><button data-mg-page="shop" aria-pressed="false">商店与兑换</button></nav>
-        <div id="mg-currencies" class="mg-currencies"></div><div id="mg-content" class="mg-content"></div>
-      </div></div>
-      <div id="mg-confirm" class="mg-confirm" hidden><div role="dialog" aria-modal="true" aria-labelledby="mg-confirm-text"><h3>确认操作</h3><p id="mg-confirm-text"></p><button id="mg-confirm-cancel" class="secondary">取消</button><button id="mg-confirm-ok" class="primary">继续</button></div></div>
+      <div class="toolbar"><button id="mg-back" class="back" aria-label="返回大厅">←</button><div><div class="eyebrow">APP / MINIGAMES</div><h2>小游戏</h2></div><button id="mg-refresh" class="secondary">刷新</button></div>
+      <nav class="task-tabs" aria-label="小游戏页面"><button class="task-tab task-tab-active" data-mg-page="lobby" aria-pressed="true">大厅与队伍</button><button class="task-tab" data-mg-page="shop" aria-pressed="false">商店与兑换</button></nav>
+      <p id="mg-notice" class="guide-intro mg-notice" role="status" aria-live="polite">正在读取小游戏服务…</p>
+      <div id="mg-platform" class="task-intro mg-platform"></div>
+      <div id="mg-stepbar" class="mg-stepbar" aria-label="房间步骤"></div>
+      <div id="mg-games" class="guide-list mg-mode-list" aria-label="模式选择"></div>
+      <div id="mg-currencies" class="mg-currencies"></div><div id="mg-content" class="mg-content"></div>
+      <div id="mg-confirm" class="mg-confirm" hidden><div class="detail-card" role="dialog" aria-modal="true" aria-labelledby="mg-confirm-text"><h3>确认操作</h3><p id="mg-confirm-text"></p><div class="detail-actions"><button id="mg-confirm-cancel" class="secondary">取消</button><button id="mg-confirm-ok" class="primary">继续</button></div></div></div>
     </section>
     </div>
   </main>
