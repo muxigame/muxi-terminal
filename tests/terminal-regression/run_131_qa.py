@@ -5,9 +5,9 @@ import argparse,ctypes,datetime,hashlib,json,os,shutil,subprocess,sys,time,uuid,
 HERE=Path(__file__).resolve().parent
 REPO=HERE.parents[1]
 ROOT=Path(r"C:\Users\ranzh\workspace\dev\muxigame")
-OWN=Path(r"C:\Users\ranzh\Documents\Codex\terminal-integration-task6-20261001")
-BASE="307c651c04293dd442e6e12ddbf8e4923ca53680"
-EXPECTED="0c60283617c2084890aa74695b03187e1f1077df0a204f42d06ab448300094ec"
+OWN=Path(r"C:\Users\ranzh\Documents\Codex\release-unified-task14-20261001")
+BASE="bc415775dd50762262098d6a41f0a942df7ef157"
+EXPECTED=None
 def write(path,data):path.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding="utf-8")
 def digest(path,kind="sha256"):
     h=hashlib.new(kind)
@@ -45,15 +45,16 @@ def testmod(lab,classes,mode):
         archive.writestr("META-INF/neoforge.mods.toml",toml)
         for path in classes.rglob("*.class"):archive.write(path,path.relative_to(classes).as_posix())
 def main():
+    global EXPECTED
     sys.stdout.reconfigure(encoding="utf-8",errors="replace")
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode",choices=["preflight","full","firstperson","container"])
+    parser.add_argument("mode",choices=["preflight","full","firstperson"])
     parser.add_argument("--prepare-only",action="store_true")
-    parser.add_argument("--jdk",type=Path,default=OWN/"tools/jdk/jdk-21.0.12.1+1")
+    parser.add_argument("--jdk",type=Path,default=Path(r"C:\Users\ranzh\Documents\Codex\terminal-integration-task6-20261001\tools\jdk\jdk-21.0.12.1+1"))
     parser.add_argument("--game",type=Path,default=ROOT/"_client_test/game")
-    parser.add_argument("--pack",type=Path,default=ROOT/"better-mc-remake/pack/staging/files")
+    parser.add_argument("--pack",type=Path,default=OWN/"candidate-pack")
     parser.add_argument("--dependencies",type=Path,default=ROOT/"bmc5server")
-    parser.add_argument("--jar",type=Path,default=REPO/"build/libs/muxi-terminal-0.2.1.jar")
+    parser.add_argument("--jar",type=Path,default=REPO/"build/libs/muxi-terminal-0.2.2.jar")
     parser.add_argument("--core-jar",type=Path)
     parser.add_argument("--assigned-slot",default=os.environ.get("TERMINAL_QA_SLOT",""))
     parser.add_argument("--visible",action="store_true",default=os.environ.get("TERMINAL_QA_VISIBLE")=="1")
@@ -63,8 +64,11 @@ def main():
     if not ctypes.windll.kernel32.ProcessIdToSessionId(os.getpid(),ctypes.byref(session)):raise SystemExit("Session ID unavailable")
     # Non-session-0 guard preserved. Static preparation cannot invoke any render/client main.
     if not args.prepare_only and session.value==0:raise SystemExit("Session0 is preparation only; launch manually in the assigned 131 desktop")
-    if not args.prepare_only and args.assigned_slot!="task5-parent-assigned":raise SystemExit("Parent-assigned 131 slot required")
+    if not args.prepare_only and args.assigned_slot!="task14-production-assigned":raise SystemExit("Parent-assigned 131 slot required")
     if not args.prepare_only and not args.visible:raise SystemExit("Visible desktop launch required")
+    lock=json.loads((OWN/"release-lock.json").read_text(encoding="utf-8"))
+    if lock["productCommits"]["muxi-terminal"]!=BASE:raise SystemExit("Final product commit differs from review")
+    EXPECTED=lock["artifacts"]["muxi-terminal"]["sha256"]
     terminal=args.jar.resolve()
     if digest(terminal)!=EXPECTED:raise SystemExit("Unified jar differs from the handed-off 131 build")
     head=command(["git","-C",REPO,"rev-parse","HEAD"])
@@ -115,8 +119,8 @@ def main():
             provenance.update({"coreJar":str(core),"coreSha256":digest(core),"syntheticSSO":True,"productionSSO":False})
             timeout=180;result_name="client-smoke-result.json"
         else:
-            print("Checking release 1.4.25 mod hashes; preparing private full-pack copy",flush=True)
-            expected=json.loads((HERE/"expected-pack.json").read_text(encoding="utf-8"))["files"];failures=[]
+            print("Checking final candidate 1.4.26 mod hashes; preparing private full-pack copy",flush=True)
+            expected=json.loads((OWN/"expected-pack.json").read_text(encoding="utf-8"))["files"];failures=[]
             for entry in expected:
                 source=args.pack/entry["path"]
                 if not source.is_file() or digest(source,"sha1")!=entry["sha1"]:failures.append(entry["path"])
@@ -129,7 +133,7 @@ def main():
                 if source.is_dir():shutil.copytree(source,lab/directory,dirs_exist_ok=True)
             (lab/"config/iris.properties").write_text("enableShaders=true\nshaderPack=Better MC - Low\ndisableUpdateMessage=true\n",encoding="utf-8")
             sources=list((HERE/"java").rglob("*.java"))
-            provenance.update({"referencePack":"1.4.25","optionalSelection":"released defaultOn; enable FirstPerson only in firstperson mode","fixtureTasks":False,"fixtureIcons":False,"samplerGlobalRouter":False,"samplerHydration":False})
+            provenance.update({"referencePack":"1.4.26","optionalSelection":"released defaultOn; enable FirstPerson only in firstperson mode","fixtureTasks":False,"fixtureIcons":False,"samplerGlobalRouter":False,"samplerHydration":False})
             timeout=900;result_name="runtime-result.json"
         config(lab);shutil.copy2(terminal,lab/"mods"/terminal.name)
         cp=os.pathsep.join(map(str,[terminal,args.game/"libraries/net/neoforged/neoforge/21.1.250/neoforge-21.1.250-client.jar",args.game/"libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-srg.jar",*libs,*list((args.dependencies/"libraries").rglob("*.jar")),*list((lab/"mods").glob("*.jar"))]))
