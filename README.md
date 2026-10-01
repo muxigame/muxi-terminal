@@ -30,13 +30,35 @@ small CEF message bridge.
 - Tasks is a web presentation of the existing Game Core task system. Game Core
   remains the authority for snapshots, claim/reroll actions and tracked-task
   state, so the compact HUD tracker remains unchanged.
-- Muxi Passport navigates the same embedded browser to
-  `https://account.muxigame.com/account`. The native terminal frame always
+- Muxi Passport navigates the same embedded browser to the game platform player
+  center at `https://mc.muxigame.com/account.html`. The native terminal frame always
   keeps a Home control available so users can return from external Muxi pages.
 - Capability-style CEF bridge for local resources, task actions, manuals,
   challenge entry and allowlisted Muxi web pages. Native bridge calls are
   accepted only from the local `mod://muxi_terminal/` origin; external account
   or future web apps never inherit Java/game capabilities.
+
+## Terminal platform login (isolated, not deployed)
+
+The local `passport.open` capability asks Game Core for a PKCE-bound, single-use
+ticket. Both a launcher-issued restricted native credential and the actual
+LoginGate-verified game connection are required; a UID or a game-server key alone
+cannot log anyone into the platform. Neither the launcher OAuth token nor the
+restricted credential enters HTML. The proof and ticket each expire in 30 seconds.
+
+Native code submits the ticket/verifier as a POST from the same browser's exact main
+frame at `https://mc.muxigame.com/api/v1/auth/terminal`, after checking the same game
+connection is still active. MCEF's multiplexed load handler is used; no credential
+enters webpage JavaScript or the DOM. No credential
+is carried in a URL, browser storage, command-line argument, or application log.
+The platform redeems the ticket server-to-server using its existing confidential
+OIDC client and issues its own host-only HttpOnly `bmc_session`, then returns to
+`/account.html`. The standalone muxi-auth account page is not the destination.
+
+Missing/disabled/expired authentication, old clients, disabled LoginGate, network
+errors and a rejected exchange all fall back to the existing platform login.
+Deployment requires separately approved auth/platform feature flags and updated
+launcher/Core/terminal builds; this working copy does not enable or deploy them.
 
 ## Build
 

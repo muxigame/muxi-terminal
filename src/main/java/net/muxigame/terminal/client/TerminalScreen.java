@@ -33,8 +33,8 @@ public final class TerminalScreen extends Screen {
     }
 
     private void layout() {
-        int availableWidth = Math.max(180, (int)(width * 0.68f));
-        int availableHeight = Math.max(120, (int)(height * 0.62f));
+        int availableWidth = Math.max(180, (int)(width * 0.58f));
+        int availableHeight = Math.max(120, (int)(height * 0.54f));
         double ratio = 16.0 / 10.0;
         int outerWidth = availableWidth;
         int outerHeight = (int) Math.round(outerWidth / ratio);
@@ -81,6 +81,7 @@ public final class TerminalScreen extends Screen {
 
     @Override
     public void onClose() {
+        TerminalPassportNavigation.clear();
         browser.setFocus(false);
         super.onClose();
     }

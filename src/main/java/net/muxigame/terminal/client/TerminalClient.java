@@ -55,13 +55,21 @@ public final class TerminalClient {
         boolean main = mc.player.getMainHandItem().is(MuxiTerminal.PLAYER_TERMINAL.get());
         boolean off = mc.player.getOffhandItem().is(MuxiTerminal.PLAYER_TERMINAL.get());
         if (!main && !off) return;
+        // The live held display must exist before the player ever opens the UI.
+        if (MCEF.isInitialized() && TerminalBrowserSession.current() == null)
+            TerminalBrowserSession.getOrCreate();
 
         // Terminal follows map-like behaviour: one hand is enough. It only expands to
         // a two-hand tablet pose when the other hand is empty.
         if ((event.getHand() == net.minecraft.world.InteractionHand.MAIN_HAND && main)
             || (event.getHand() == net.minecraft.world.InteractionHand.OFF_HAND && off)) {
             HAND_RENDERER.render(event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(),
-                event.getSwingProgress(), event.getEquipProgress());
+                event.getSwingProgress(), event.getEquipProgress(),
+                event.getHand() == net.minecraft.world.InteractionHand.MAIN_HAND);
+            event.setCanceled(true);
+        } else if (mc.player.getItemInHand(event.getHand()).isEmpty()) {
+            // The terminal renderer supplies both supporting arms. Suppress the
+            // vanilla empty-hand pass, especially when the terminal is offhand.
             event.setCanceled(true);
         }
     }
@@ -70,4 +78,3 @@ public final class TerminalClient {
         if (event.getLevel().isClientSide()) TerminalBrowserSession.close();
     }
 }
-

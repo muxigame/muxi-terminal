@@ -85,9 +85,11 @@ const $ = s => document.querySelector(s);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-function native(command){
+async function native(command){
+  const deadline=Date.now()+2500;
+  while(typeof window.cefQuery!=='function' && Date.now()<deadline) await sleep(50);
   return new Promise((resolve,reject)=>{
-    if(typeof window.cefQuery!=='function'){resolve({ok:false,offline:true});return;}
+    if(typeof window.cefQuery!=='function'){reject(new Error('终端桥接尚未就绪，请稍后重试'));return;}
     window.cefQuery({request:command,onSuccess:r=>{try{resolve(JSON.parse(r))}catch{resolve(r)}},onFailure:(c,m)=>reject(new Error(`${c}: ${m}`))});
   });
 }
@@ -118,7 +120,10 @@ document.querySelectorAll('[data-open]').forEach(el=>el.addEventListener('click'
 const resourceCache=new Map();
 async function resourceData(id){
   if(resourceCache.has(id))return resourceCache.get(id);
-  const promise=native('resource.data:'+id).catch(()=>null);
+  const promise=native('resource.data:'+id).then(data=>{
+    if(typeof data==='string' && /^data:image\//.test(data)) return data;
+    resourceCache.delete(id);return null;
+  }).catch(()=>{resourceCache.delete(id);return null;});
   resourceCache.set(id,promise);
   return promise;
 }
@@ -127,9 +132,8 @@ async function hydrateImages(root=document){
   const nodes=[...root.querySelectorAll('img[data-resource]')];
   await Promise.all(nodes.map(async img=>{
     if(img.dataset.loaded)return;
-    img.dataset.loaded='1';
     const data=await resourceData(img.dataset.resource);
-    if(data){img.src=data;img.hidden=false;const fallback=img.parentElement?.querySelector('.mod-fallback');if(fallback)fallback.hidden=true;}
+    if(data){img.dataset.loaded='1';img.src=data;img.hidden=false;const fallback=img.parentElement?.querySelector('.mod-fallback');if(fallback)fallback.hidden=true;}
     else img.hidden=true;
   }));
 }
@@ -196,12 +200,12 @@ function rewardHtml(reward){
 
 function renderTasks(state){
   const rows=state.rows||[];
-  $('#taskMeta').textContent=state.supported?'服务器任务已连接':'当前服务器不支持任务协议';
+  $('#taskMeta').textContent=state.error|| (state.supported?'服务器任务已连接':'当前服务器不支持任务协议');
   $('#taskCountdown').textContent=state.loading?'正在读取任务…':`刷新倒计时 ${state.remaining||'--:--:--'}`;
   $('#rerollAllowance').textContent=state.loading?'':`今日可换 ${state.rerollsRemaining??0} 次`;
   const list=$('#taskList');
   if(state.loading){list.innerHTML='<div class="task-empty">正在读取每日任务…</div>';}
-  else if(!rows.length){list.innerHTML=`<div class="task-empty">${esc(state.notice||'今天没有可显示的每日任务。')}</div>`;}
+  else if(!rows.length){list.innerHTML=`<div class="task-empty">${esc(state.error||state.notice||'今天没有可显示的每日任务。')}</div>`;}
   else{
     list.innerHTML=rows.map(row=>{
       const percent=Math.max(0,Math.min(100,Math.round((row.progress/Math.max(1,row.goal))*100)));
@@ -249,23 +253,64 @@ document.querySelectorAll('[data-task-tab]').forEach(button=>button.addEventList
 }));
 
 $('#challengeOpen').addEventListener('click',()=>native('challenge.open').catch(error=>setStatus(error.message)));
-$('#passportApp').addEventListener('click',()=>window.muxi.openExternal('https://account.muxigame.com/account').catch(error=>setStatus(error.message)));
+$('#passportApp').addEventListener('click',()=>native('passport.open').catch(error=>setStatus(error.message)));
 
 
-// 手持终端导航：数字键选择主界面应用，回车确认，避免必须点击网页。
-const homeApps=['guide','tasks','passportApp'];
-let selectedApp=0;
-function updateAppSelection(){
-  document.querySelectorAll('.app-card').forEach((e,i)=>e.classList.toggle('keyboard-selected',i===selectedApp));
+// Full keyboard / handheld navigation. Arrow keys move between actionable
+// controls, Enter activates, Backspace/Escape go back, Delete always returns
+// to the terminal home screen.
+let navIndex=0;
+function navItems(){
+  const page=document.querySelector('.page.page-active');
+  if(!page)return [];
+  return [...page.querySelectorAll('button:not(:disabled),input:not(:disabled),[tabindex]:not([tabindex="-1"])')]
+    .filter(el=>!el.hidden && el.offsetParent!==null);
+}
+function selectNav(index,scroll=true){
+  const items=navItems(); if(!items.length)return;
+  navIndex=(index+items.length)%items.length;
+  items.forEach((el,i)=>el.classList.toggle('keyboard-selected',i===navIndex));
+  const el=items[navIndex];
+  if(el.focus)el.focus({preventScroll:true});
+  if(scroll)el.scrollIntoView({block:'nearest',inline:'nearest'});
+}
+function moveNav(key){
+  const items=navItems(); if(!items.length)return;
+  const current=items[navIndex]||items[0], r=current.getBoundingClientRect();
+  const cx=r.left+r.width/2, cy=r.top+r.height/2;
+  const horizontal=key==='ArrowLeft'||key==='ArrowRight';
+  const sign=(key==='ArrowRight'||key==='ArrowDown')?1:-1;
+  let best=-1,bestScore=Infinity;
+  items.forEach((el,i)=>{
+    if(el===current)return;
+    const q=el.getBoundingClientRect(), x=q.left+q.width/2, y=q.top+q.height/2;
+    const primary=horizontal?(x-cx)*sign:(y-cy)*sign;
+    if(primary<=2)return;
+    const cross=horizontal?Math.abs(y-cy):Math.abs(x-cx);
+    const score=primary+cross*2.4;
+    if(score<bestScore){bestScore=score;best=i;}
+  });
+  selectNav(best>=0?best:navIndex+sign);
+}
+function backRoute(){
+  const route=routeFromHash();
+  if(route==='guideDetail')navigate('guide');
+  else if(route!=='home')navigate('home');
 }
 window.addEventListener('keydown',e=>{
-  if(!$('#home').classList.contains('page-active')) return;
-  if(e.key>='1'&&e.key<='3'){
-    selectedApp=Number(e.key)-1; updateAppSelection(); e.preventDefault();
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){
+    moveNav(e.key);e.preventDefault();return;
   }
   if(e.key==='Enter'){
-    const el=document.querySelectorAll('.app-card')[selectedApp];
-    if(el) el.click();
+    const items=navItems(), el=items[navIndex];
+    if(el && el.tagName!=='INPUT'){el.click();e.preventDefault();}
+    return;
+  }
+  if(e.key==='Delete'){
+    navigate('home');navIndex=0;setTimeout(()=>selectNav(0,false),0);e.preventDefault();return;
+  }
+  if(e.key==='Escape'||(e.key==='Backspace'&&document.activeElement?.tagName!=='INPUT')){
+    backRoute();navIndex=0;setTimeout(()=>selectNav(0,false),0);e.preventDefault();
   }
 });
 

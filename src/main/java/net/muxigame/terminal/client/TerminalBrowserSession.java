@@ -25,6 +25,7 @@ public final class TerminalBrowserSession {
     }
 
     public static synchronized void home() {
+        TerminalPassportNavigation.clear();
         if (browser != null) browser.loadURL(HOME_URL);
     }
 
@@ -48,6 +49,7 @@ public final class TerminalBrowserSession {
     }
 
     public static synchronized void close() {
+        TerminalPassportNavigation.clear();
         if (browser == null) return;
         browser.close();
         browser = null;

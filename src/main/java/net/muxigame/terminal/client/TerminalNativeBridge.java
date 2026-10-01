@@ -30,6 +30,7 @@ public final class TerminalNativeBridge {
         if (router != null) return;
         router = CefMessageRouter.create(new Handler());
         MCEF.getClient().getHandle().addMessageRouter(router);
+        TerminalPassportNavigation.install();
     }
 
     private static final class Handler extends CefMessageRouterHandlerAdapter {
@@ -41,6 +42,13 @@ public final class TerminalNativeBridge {
             if(frameUrl==null || !frameUrl.startsWith("mod://muxi_terminal/")) {
                 callback.failure(403,"Native bridge is available only to local Muxi Terminal apps");
                 return true;
+            }
+            if(request.equals("passport.open")) {
+                var current=TerminalBrowserSession.current();
+                if(current==null || browser.getIdentifier()!=current.getIdentifier() || !frame.isMain()) {
+                    callback.failure(403,"Passport is available only in the terminal main frame");return true;
+                }
+                mc.execute(TerminalPassportNavigation::open);callback.success("{\"ok\":true}");return true;
             }
             if (request.equals("terminal.home")) {
                 mc.execute(TerminalBrowserSession::home);
@@ -62,7 +70,7 @@ public final class TerminalNativeBridge {
                 return true;
             }
             if(request.equals("tasks.snapshot")) {
-                callback.success(invokeTaskString("snapshotJson"));
+                mc.execute(() -> callback.success(invokeTaskString("snapshotJson")));
                 return true;
             }
             if(request.equals("tasks.request")) {
