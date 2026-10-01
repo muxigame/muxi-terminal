@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 import argparse,ctypes,datetime,hashlib,json,os,shutil,subprocess,sys,time,uuid,zipfile
-from qa_fml_config import configure_file
+from qa_fml_config import configure_file,patch_properties
 HERE=Path(__file__).resolve().parent
 REPO=HERE.parents[1]
 ROOT=Path(r"C:\Users\ranzh\workspace\dev\muxigame")
@@ -52,7 +52,7 @@ def config(lab,audible=False):
     configure_file(lab/"config/fml.toml")
     (lab/"options.txt").write_text("lang:zh_cn\nguiScale:2\nmaxFps:45\nenableVsync:false\nonboardAccessibility:false\nsoundCategory_master:"+("0.25" if audible else "0.0")+"\nfullscreen:false\npauseOnLostFocus:false\nrenderDistance:3\nsimulationDistance:5\ngraphicsMode:0\n",encoding="utf-8")
     (lab/"config/mcef").mkdir(parents=True,exist_ok=True)
-    (lab/"config/mcef/mcef.properties").write_text("skip-download=true\nuse-cache=false\nuser-agent=\ndownload-mirror=\n",encoding="utf-8")
+    patch_properties(lab/"config/mcef/mcef.properties",{"skip-download":"true","use-cache":"false","user-agent":"","download-mirror":""})
 def testmod(lab,classes,mode):
     container=mode=="container"
     definitions=[{"required":True,"minVersion":"0.8","package":"net.muxigame.terminal.qa.mixin","compatibilityLevel":"JAVA_21","client":["OfflineMcefMixin"] if container else ["OfflineMcefMixin","ArmProbeMixin","PoseProbeMixin","BridgeProbeMixin"],"injectors":{"defaultRequire":1}}]
@@ -155,7 +155,7 @@ def main():
             for directory in ["config","shaderpacks","resourcepacks","defaultconfigs","kubejs","tacz"]:
                 source=args.pack/directory
                 if source.is_dir():shutil.copytree(source,lab/directory,dirs_exist_ok=True)
-            (lab/"config/iris.properties").write_text("enableShaders=true\nshaderPack=Better MC - Low\ndisableUpdateMessage=true\n",encoding="utf-8")
+            patch_properties(lab/"config/iris.properties",{"enableShaders":"true","shaderPack":"Better MC - Low","disableUpdateMessage":"true"})
             sources=list((HERE/"java").rglob("*.java"))
             provenance.update({"referencePack":"1.4.26","optionalSelection":"released defaultOn; enable FirstPerson only in firstperson mode","fixtureTasks":False,"fixtureIcons":False,"samplerGlobalRouter":False,"samplerHydration":False})
             timeout=900;result_name="runtime-result.json"

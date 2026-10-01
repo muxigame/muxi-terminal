@@ -12,3 +12,11 @@ def configure_file(path: Path):
         if re.search(pattern,root):root=re.sub(pattern,lambda match:match.group(1)+value,root,count=1)
         else:root=root.rstrip('\r\n')+'\n'+key+' = '+value+'\n'
     path.write_text(root+rest,encoding='utf-8')
+
+def patch_properties(path: Path,overrides):
+    text=path.read_text(encoding='utf-8') if path.exists() else ''
+    for key,value in overrides.items():
+        pattern=r'(?m)^(\s*'+re.escape(key)+r'\s*[=:]\s*)[^\r\n]*'
+        if re.search(pattern,text):text=re.sub(pattern,lambda match:match.group(1)+value,text,count=1)
+        else:text=text.rstrip('\r\n')+'\n'+key+'='+value+'\n'
+    path.write_text(text,encoding='utf-8')
