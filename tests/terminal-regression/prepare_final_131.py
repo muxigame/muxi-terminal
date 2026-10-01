@@ -5,7 +5,7 @@ import hashlib,json,os,shutil,subprocess,sys,urllib.parse,urllib.request
 OWN=Path(r'C:\Users\ranzh\Documents\Codex\release-unified-task14-20261001')
 ROOT=Path(r'C:\Users\ranzh\workspace\dev\muxigame')
 JDK=Path(r'C:\Users\ranzh\Documents\Codex\terminal-integration-task6-20261001\tools\jdk\jdk-21.0.12.1+1')
-COMMITS={'muxi-minigames':'4cac96a711bd077b5b8b2452f418a16866c3d34f','muxi-zombie-challenge':'a3e70ae03be27942cbd4f46c08b0cff48f92081f','muxi-game-core':'030fad9714af275f9ea6c89457f4847d8052a428','muxi-outbreak':'148e436b8209c77fed4ba4b6409e799277fd66e5','muxi-terminal':'bc415775dd50762262098d6a41f0a942df7ef157'}
+COMMITS={'muxi-minigames': 'de711f9fe93a614efee9d3c95d6d37e6d31b9238', 'muxi-zombie-challenge': 'b39845e8f3a3209b3754e703dbba61a0d33b4e1d', 'muxi-game-core': '5c45ca34877a3ead61a71a0bba794a2491e3d937', 'muxi-outbreak': 'afbeb63afd735499e1ef9d1a039f681c84aad208', 'muxi-terminal': 'bc415775dd50762262098d6a41f0a942df7ef157'}
 def digest(path,kind='sha256'):return hashlib.new(kind,path.read_bytes()).hexdigest()
 def command(args,cwd=None):return subprocess.run(list(map(str,args)),cwd=cwd,check=True)
 def main():
@@ -37,6 +37,7 @@ def main():
         release=json.loads((repo/'build/release.json').read_text(encoding='utf-8'))
         artifact=repo/'build/libs'/release['artifact']
         report['artifacts'][name]={'path':str(artifact),'name':artifact.name,'sha256':digest(artifact),'sha1':digest(artifact,'sha1'),'size':artifact.stat().st_size}
+    command([sys.executable,OWN/'muxi-minigames/tests/run_runtime_boundaries.py','--server',ROOT/'bmc5server','--java-home',JDK])
     base=json.loads((Path(__file__).parent/'release-baseline.json').read_text(encoding='utf-8'))
     destination=OWN/'candidate-pack';destination.mkdir(exist_ok=True)
     oldprefix=('muxi-game-core-','muxi-terminal-','muxi-outbreak-','muxi-minigames-','muxi-zombie-challenge-')
