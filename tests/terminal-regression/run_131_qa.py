@@ -106,7 +106,7 @@ def main():
     if missing:raise SystemExit("Missing existing client libraries: "+json.dumps(missing[:10]))
     home=OWN/"qa-runtime";home.mkdir(exist_ok=True)
     lab=home/(args.mode+"-"+datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S")+"-"+uuid.uuid4().hex[:8]);lab.mkdir()
-    write(home/("active-"+args.mode+".json"),{"lab":str(lab),"mode":args.mode,"prepareOnly":args.prepare_only})
+    write(home/(("prepared-" if args.prepare_only else "active-")+args.mode+".json"),{"lab":str(lab),"mode":args.mode,"prepareOnly":args.prepare_only})
     provenance={"sourceBase":BASE,"gitHead":head,"terminal":str(terminal),"terminalSha256":EXPECTED,"session":session.value,"computer":os.environ["COMPUTERNAME"],"mode":args.mode,"prepareOnly":args.prepare_only,"game":str(args.game),"pack":str(args.pack),"jdk":str(args.jdk),"productionServerOperations":False}
     write(lab/"inputs.json",provenance)
     natives=args.game/"versions/BatterMC5Remake/BatterMC5Remake-natives"

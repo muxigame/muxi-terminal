@@ -12,4 +12,3 @@ def configure_file(path: Path):
         if re.search(pattern,root):root=re.sub(pattern,lambda match:match.group(1)+value,root,count=1)
         else:root=root.rstrip('\r\n')+'\n'+key+' = '+value+'\n'
     path.write_text(root+rest,encoding='utf-8')
-
