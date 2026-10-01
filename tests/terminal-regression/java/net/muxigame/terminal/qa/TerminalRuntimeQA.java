@@ -60,7 +60,7 @@ public final class TerminalRuntimeQA {
  private static boolean inTerminal;
  private static int probeStage;
  private static final String[] names={"empty","block","main-right-two","main-right-other","off-left-other","off-left-two","main-left-two","main-left-other","off-right-other","off-right-two","dual-terminal","swing","ui-home","guide","tasks","reopen-home","reopen-tasks","repeat-guide","repeat-tasks","closed-held","shader-night","vanilla-night","vanilla-day","graphics-options","after-empty","after-block","held-guide-day","held-tasks-day","held-opening","held-closing","held-tasks-night","held-tasks-night-off","after-content-block","held-night-opening","held-night-closing","held-night-off-opening","held-night-off-closing","after-night-content-block","held-day-off-opening","held-day-off-closing","after-all-content-block"};
- public TerminalRuntimeQA(){NeoForge.EVENT_BUS.addListener(this::tick);NeoForge.EVENT_BUS.addListener(this::renderFrame);}
+ public TerminalRuntimeQA(){if(System.getProperty("qa.mode","").equals("guns")){new GunDiagnosticRuntime();return;}NeoForge.EVENT_BUS.addListener(this::tick);NeoForge.EVENT_BUS.addListener(this::renderFrame);}
  public static void before(PoseStack stack){inTerminal=true;String key=names[Math.min(probeStage,names.length-1)];probes.add(key,new JsonObject());pose=new Matrix4f(stack.last().pose());normal=new Matrix3f(stack.last().normal());depth=depth(stack);state=gl();}
  public static void after(PoseStack stack){
   inTerminal=false;String key=names[Math.min(probeStage,names.length-1)];JsonObject p=probes.has(key)?probes.getAsJsonObject(key):new JsonObject();

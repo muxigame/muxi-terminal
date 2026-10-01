@@ -1,4 +1,4 @@
-﻿param([ValidateSet('preflight','full','firstperson','all')][string]$Mode='all')
+﻿param([ValidateSet('preflight','full','firstperson','guns','all')][string]$Mode='all')
 $ErrorActionPreference='Stop'
 if($env:COMPUTERNAME -ne 'JBC_FCRL' -or (Get-Process -Id $PID).SessionId -eq 0){throw 'Run visibly on the 131 desktop; session 0 cannot launch QA'}
 $python='C:\Python38\python.exe'

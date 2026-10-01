@@ -68,7 +68,7 @@ def main():
     global EXPECTED
     sys.stdout.reconfigure(encoding="utf-8",errors="replace")
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode",choices=["preflight","full","firstperson"])
+    parser.add_argument("mode",choices=["preflight","full","firstperson","guns"])
     parser.add_argument("--prepare-only",action="store_true")
     parser.add_argument("--jdk",type=Path,default=Path(r"C:\Users\ranzh\Documents\Codex\terminal-integration-task6-20261001\tools\jdk\jdk-21.0.12.1+1"))
     parser.add_argument("--game",type=Path,default=ROOT/"_client_test/game")
@@ -159,7 +159,7 @@ def main():
             sources=list((HERE/"java").rglob("*.java"))
             provenance.update({"referencePack":"1.4.26","optionalSelection":"released defaultOn; enable FirstPerson only in firstperson mode","fixtureTasks":False,"fixtureIcons":False,"samplerGlobalRouter":False,"samplerHydration":False})
             timeout=900;result_name="runtime-result.json"
-        config(lab,audible=args.mode=="full");shutil.copy2(terminal,lab/"mods"/terminal.name)
+        config(lab,audible=args.mode in ("full","guns"));shutil.copy2(terminal,lab/"mods"/terminal.name)
         fps=lab/"config/sodiumextras-client.toml"
         if fps.exists():
             raw=fps.read_text(encoding="utf-8");fps.write_text(re.sub(r'(fpsDisplay\s*=\s*)"[^"]*"',r'\1"OFF"',raw),encoding="utf-8")
@@ -199,6 +199,8 @@ def main():
     if args.prepare_only:print(json.dumps({"prepared":True,"lab":str(lab),"clientStarted":False},ensure_ascii=False));return
     print(json.dumps({"phase":"launch","lab":str(lab),"visible":True,"timeoutSeconds":timeout},ensure_ascii=False),flush=True)
     own_env=dict(os.environ);own_env.pop("MUXI_TERMINAL_GAME_CREDENTIAL",None);timed_out=False
+    if args.mode != "preflight":
+        own_env["ALSOFT_LOGLEVEL"]="3";own_env["ALSOFT_LOGFILE"]=str(lab/"openal-diagnostic.log")
     try:
         with (lab/"boot.log").open("w",encoding="utf-8") as log:
             process=subprocess.Popen([str(runtime),"@"+str(lab/"launch.args")],cwd=lab,env=own_env,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT)
