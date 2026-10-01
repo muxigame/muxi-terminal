@@ -1,0 +1,60 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>终端容器动画接入验证</title>
+<link rel="stylesheet" href="../../src/main/resources/assets/muxi_terminal/html/terminal/styles.css">
+<link rel="stylesheet" href="../../src/main/resources/assets/muxi_terminal/html/terminal/app-transition.css">
+<style>
+html,body{background:#282c23;overflow:auto}body{padding:30px;display:flex;gap:30px;align-items:center;min-height:100vh;color:#ddd8c5}
+.frame{width:760px;height:600px;border:5px solid #68634b;padding:10px;background:#35392e;box-shadow:8px 8px #14180f}
+.shell{display:flex;flex-direction:column}.statusbar{flex-shrink:0}#app-content{position:relative;flex:1;min-height:0;overflow:hidden}#home{height:100%}
+#child-view{position:absolute;inset:0;width:100%;height:100%;z-index:101;border:0;background:#ded7c2}#child-view[hidden]{display:none}
+.notes{max-width:320px;font-size:13px;line-height:1.8}.notes h1{font-size:24px;margin-bottom:20px}.notes button{display:block;padding:10px;margin:12px 0;background:#526540;color:#edecd9;border:2px solid #9cac7d;cursor:pointer}
+@media(max-width:700px){body{padding:12px;display:block}.frame{width:100%;height:600px}.notes{margin-top:25px}}
+</style></head><body><div class="frame"><main class="shell"><header class="statusbar"><div class="brand"><span class="brand-dot"></span>玩家终端</div><div class="status-right"><span id="statusText">接入审阅</span><span>12:30</span></div></header><div id="app-content"><section id="home" class="page page-active"><div class="hero"><div><div class="eyebrow">PLAYER TERMINAL</div><h1>持久终端外壳</h1><p>独立子视图 · 打开与返回</p></div></div><div class="section-title">应用</div><div class="app-grid"><button id="guide-launch" class="app-card"><span class="app-icon guide-icon"><i></i><i></i><i></i></span><span class="app-name">游戏指南</span></button><button id="tasks-launch" class="app-card"><span class="app-icon task-icon"><i></i><i></i><i></i></span><span class="app-name">任务</span></button><button id="web-launch" class="app-card"><span class="app-icon passport-icon"><i></i></span><span class="app-name">自定义应用</span></button></div></section><iframe id="child-view" title="独立内容视图" hidden></iframe></div></main></div><aside class="notes"><h1>容器 + 动画</h1><p>此页面运行实际 app-container.js 和原动画模块。测试桥模拟原生 generation 丢弃规则；原生 CEF 合成由独立隐藏客户端另行验证。</p><button onclick="terminalReturnHome()">返回 / 收回</button><button onclick="bridge.fail()">模拟加载失败</button><p id="scenario">等待操作</p></aside>
+<script>
+const contentView=false;
+const $=selector=>document.querySelector(selector);
+function setStatus(message){$('#statusText').textContent=message;}
+const bridge=(()=>{
+  let generation=0,viewId=0,state=null,visible=false,mode='success',drops=0;
+  const calls=[],timers=[];const child=$('#child-view');
+  function later(fn,ms){timers.push(setTimeout(fn,ms));}
+  function emit(patch){state={...state,...patch};window.terminalOnViewState?.({...state});}
+  function close(){generation++;state={generation,kind:'HOME',launchToken:'',viewId:0,loading:false,rendered:false,error:''};visible=false;child.hidden=true;emit({});}
+  function native(command){
+    const captured=generation;calls.push({command,captured});
+    return new Promise((resolve,reject)=>later(()=>{
+      if(captured!==generation || api.dropNext){api.dropNext=false;drops++;return;}
+      if(command.startsWith('terminal.launch:')){
+        const app=JSON.parse(command.slice(command.indexOf(':')+1));
+        if(app.id==='invalid'){reject(new Error('应用不存在'));return;}
+        resolve({ok:true});generation+=2;viewId++;
+        state={generation,kind:app.kind.toUpperCase(),launchToken:app.token,viewId,loading:true,rendered:false,error:''};visible=false;child.hidden=true;
+        child.srcdoc='<html lang="zh-CN"><body style="background:#ded7c2;font:18px Microsoft YaHei;padding:32px;color:#2d2a22"><h1>'+app.id+'</h1><p>独立子内容视图已显示</p></body></html>';
+        emit({});const token=app.token;const requested=mode;
+        if(requested==='hold')return;
+        later(()=>{if(state.launchToken!==token)return;if(requested==='error'){emit({loading:false,error:'加载失败，可重试'});return;}emit({loading:false});later(()=>{if(state.launchToken===token)emit({rendered:true});},70);},140);
+      } else if(command.startsWith('terminal.cancel-launch:')){
+        const token=command.split(':')[1];resolve({ok:true});if(state?.launchToken===token)close();
+      } else if((command==='terminal.home' || command==='terminal.home:reduced')){
+        resolve({ok:true});close();window.terminalContainerCancel?.();
+      } else if(command.startsWith('terminal.reveal:')){
+        const data=JSON.parse(command.slice(command.indexOf(':')+1));
+        const valid=state?.launchToken===data.token && state?.viewId===data.viewId;
+        if(valid){visible=data.visible;child.hidden=!visible;}resolve({ok:valid});
+      } else resolve({ok:true});
+    },35));
+  }
+  const api={native,calls,dropNext:false,
+    get state(){return {...state};},get visible(){return visible;},get drops(){return drops;},
+    mode(value){mode=value;},emit,fail(){emit({loading:false,error:'加载失败，可重试'});},
+    reset(){calls.length=0;drops=0;mode='success';api.dropNext=false;},
+    launch(id='guide',kind='builtin'){return terminalLaunch({id,kind,name:({guide:'游戏指南',tasks:'任务',web:'自定义应用'})[id]||id,source:$('#'+(id==='web'?'web':id)+'-launch')});}
+  };return api;
+})();
+function native(command){return bridge.native(command);}
+</script>
+<script src="../../src/main/resources/assets/muxi_terminal/html/terminal/app-transition.js"></script>
+<script>document.write('<script src="'+(new URLSearchParams(location.search).has('baseline')?'baseline/':'../../')+'src/main/resources/assets/muxi_terminal/html/terminal/app-container.js"><\/script>');</script>
+<script>
+['guide','tasks','web'].forEach(id=>$('#'+id+'-launch').addEventListener('click',()=>bridge.launch(id,id==='web'?'web':'builtin').catch(setStatus)));
+</script><script src="tests.js"></script></body></html>
