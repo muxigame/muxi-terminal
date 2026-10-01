@@ -85,6 +85,11 @@ final class TerminalHandRenderer {
     }
 
     private static void drawScreen(Matrix4f matrix, MCEFBrowser browser) {
+        // Screen glass is opaque. Do not let transparent world layers (clouds,
+        // particles) blend through the browser texture.
+        RenderSystem.disableBlend();
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthMask(false);
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.setShaderTexture(0, browser.getRenderer().getTextureID());
         BufferBuilder b = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
@@ -95,6 +100,7 @@ final class TerminalHandRenderer {
         b.addVertex(matrix,x0,y1,z).setUv(0,0).setColor(255,255,255,255);
         BufferUploader.drawWithShader(b.buildOrThrow());
         RenderSystem.setShaderTexture(0, 0);
+        RenderSystem.depthMask(true);
     }
 
     private static void quad(BufferBuilder b, Matrix4f m, float x0,float y0,float x1,float y1,float z,

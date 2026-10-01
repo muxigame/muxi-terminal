@@ -21,7 +21,7 @@ public final class TerminalScreen extends Screen {
     private int left, top, contentWidth, contentHeight;
 
     public TerminalScreen(MCEFBrowser browser) {
-        super(Component.literal("Muxi Terminal"));
+        super(Component.literal("玩家终端"));
         this.browser = browser;
     }
 
@@ -33,8 +33,8 @@ public final class TerminalScreen extends Screen {
     }
 
     private void layout() {
-        int availableWidth = Math.max(180, (int)(width * 0.78f));
-        int availableHeight = Math.max(120, (int)(height * 0.72f));
+        int availableWidth = Math.max(180, (int)(width * 0.68f));
+        int availableHeight = Math.max(120, (int)(height * 0.62f));
         double ratio = 16.0 / 10.0;
         int outerWidth = availableWidth;
         int outerHeight = (int) Math.round(outerWidth / ratio);
@@ -87,7 +87,8 @@ public final class TerminalScreen extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        graphics.fill(0, 0, width, height, 0x30101217);
+        // The terminal is a physical tablet, not a fullscreen shader overlay.
+        // Avoid tinting the world behind it.
     }
 
     @Override
@@ -96,8 +97,8 @@ public final class TerminalScreen extends Screen {
 
         int x0 = left - FRAME, y0 = top - TOP;
         int x1 = left + contentWidth + FRAME, y1 = top + contentHeight + FRAME;
-        graphics.fill(x0, y0, x1, y1, 0xFF171B22);
-        graphics.fill(x0 + 2, y0 + 2, x1 - 2, y1 - 2, 0xFF252B34);
+        graphics.fill(x0, y0, x1, y1, 0xFF17120D);
+        graphics.fill(x0 + 2, y0 + 2, x1 - 2, y1 - 2, 0xFF6A4B28);
         graphics.fill(left - 2, top - 2, left + contentWidth + 2, top + contentHeight + 2, 0xFF080B10);
         graphics.fill(x0 + 7, y0 + 7, x0 + 11, y0 + 11, 0xFF64D7E8);
         graphics.drawString(font,"玩家终端",x0+16,y0+5,0xFFFFD45A,false);
