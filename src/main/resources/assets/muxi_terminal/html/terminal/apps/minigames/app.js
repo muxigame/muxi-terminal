@@ -34,7 +34,8 @@
     const selected=game(),step=stage();
     const signature=JSON.stringify([snapshot.games,snapshot.activeGame,snapshot.platform,snapshot.resultPending,snapshot.allowed,snapshot.actionSupported,snapshot.loading,snapshot.protocol,context,!!pending]);
     if(signature===lastRenderSignature)return;lastRenderSignature=signature;
-    el('mg-platform').innerHTML=`<div><small>平台累计积分</small><strong>${M.esc(M.platformText(snapshot.platform))}</strong></div><p>独立于战术点与兑换币，当前不兑换商品。${snapshot.resultPending>0?` ${M.esc(snapshot.resultPending)} 条结算等待确认。`:''}</p>`;
+    const last=snapshot.lastResult,lastTitle=last?games.find(entry=>entry.id===last.game)?.title||last.game:'';
+    el('mg-platform').innerHTML=`<div><small>平台累计积分</small><strong>${M.esc(M.platformText(snapshot.platform))}</strong></div><p>独立于战术点与兑换币，当前不兑换商品。${snapshot.resultPending>0?` ${M.esc(snapshot.resultPending)} 条结算等待确认。`:''}${last?` 最近记录：${M.esc(lastTitle)} · ${last.win?'通关':'未通关'}。`:''}</p>`;
     for(const tab of root.querySelectorAll('[data-mg-page]')){const active=tab.dataset.mgPage===context.page;tab.setAttribute('aria-pressed',String(active));tab.classList.toggle('task-tab-active',active);}
     el('mg-stepbar').hidden=context.page!=='lobby';
     el('mg-stepbar').innerHTML=['mode','map','create','room'].map((value,index)=>`<button class="task-tab ${step===value?'task-tab-active':''}" data-mg-stage="${value}" ${value!=='mode'&&!selected?'disabled':''}>${index+1}. ${['模式','地图','创建','队伍'][index]}</button>`).join('');
@@ -45,7 +46,7 @@
     if(context.page==='shop'){
       content=games.map(entry=>`<div class="section-title">${M.esc(entry.ui?.shop?.title||entry.title)}</div>${sections(entry,'shop').map(section=>sectionHtml(entry.id,section)).join('')}`).join('');
     }else if(step==='mode'){
-      content=games.map(entry=>sections(entry).filter(section=>['rooms','recovery'].includes(section.role)).map(section=>`<div class="section-title">${M.esc(entry.title)}</div>${sectionHtml(entry.id,section)}`).join('')).join('');
+      content=games.map(entry=>sections(entry).filter(section=>['rooms','recovery','result'].includes(section.role)).map(section=>`<div class="section-title">${M.esc(entry.title)}</div>${sectionHtml(entry.id,section)}`).join('')).join('');
     }else if(selected&&step==='map'){
       const owner=createSection(selected),maps=owner?.fields?.find(field=>field.id==='map')?.options||[];
       content=`<section class="detail-card"><div class="detail-section"><h3>${M.esc(selected.title)} · 选择地图</h3><p>地图来自当前服务器。选择后确认难度并创建房间。</p></div><div class="mg-fields">${owner?fieldsHtml(selected.id,owner,field=>field.id==='mode'):''}</div><div class="guide-list">${maps.map(map=>`<button class="guide-card" data-mg-map="${M.esc(map.value)}"><h3>${M.esc(map.label)}</h3><p>选择此地图</p></button>`).join('')||'<p>当前没有可用地图，请刷新或联系管理员。</p>'}</div></section>`;
