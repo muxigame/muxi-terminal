@@ -39,7 +39,7 @@ public class TerminalScreen extends Screen {
         super.init();
         layout();
         closeButton = addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
-            Component.literal("关闭终端"), button -> onClose()).bounds(left + contentWidth - 70, top - TOP + 3, 78, 18)
+            Component.literal("X"), button -> onClose()).bounds(left + contentWidth - 10, top - TOP + 3, 18, 18)
             .tooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal("Esc 退出并保留页面；F6 聚焦关闭按钮"))).build());
         focusBrowser();
     }
