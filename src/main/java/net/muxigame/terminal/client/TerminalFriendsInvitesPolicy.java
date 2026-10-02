@@ -32,7 +32,7 @@ final class TerminalFriendsInvitesPolicy {
                 var room=roomItem.getAsJsonObject();if(!yes(room,"socialManaged") || room.get("session")==null || room.get("host")==null)continue;
                 String session=uuid(text(room,"session")),host=uuid(text(room,"host")),phase=text(room,"phase");
                 var copy=new JsonObject();copy.addProperty("game",id);copy.addProperty("session",session);copy.addProperty("host",host);copy.addProperty("mine",yes(room,"mine"));copy.addProperty("socialManaged",true);copy.addProperty("phase",phase);
-                boolean waiting=id.equals("zombie-challenge")?Set.of("LOBBY","BUILDING").contains(phase):yes(room,"lobbyWaiting")&&Set.of("PREPARING","COUNTDOWN").contains(phase);
+                boolean waiting=id.equals("zombie-challenge")?Set.of("LOBBY","BUILDING").contains(phase):yes(room,"lobbyWaiting")&&Set.of("WAITING","PREPARING","COUNTDOWN").contains(phase);
                 copy.addProperty("inviteable",waiting && yes(room,"mine") && host.equals(out.get("selfUuid").getAsString()));out.getAsJsonArray("rooms").add(copy);
             }
         }

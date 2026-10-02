@@ -7,12 +7,29 @@
     return {game:safeGame(value?.game)?value.game:'',page:value?.page==='shop'?'shop':'lobby',drafts};
   }
   function values(game,owner,drafts){
-    const result={};for(const field of owner.fields||[]){
-      const options=field.options||[],saved=drafts[game+':'+field.id];
+    const ordered=[...(owner.fields||[])].sort((a,b)=>Number(b.id==='mode')-Number(a.id==='mode'));
+    const result={};for(const field of ordered){
+      const options=fieldOptions(field,result),saved=drafts[game+':'+field.id];
       result[field.id]=options.some(option=>String(option.value)===saved)?saved:String(field.selected??options[0]?.value??'');
       if(!options.some(option=>String(option.value)===result[field.id]))result[field.id]=String(options[0]?.value??'');
     }return result;
   }
+  function fieldOptions(field,selected={}){
+    return (field.options||[]).filter(option=>!Array.isArray(option.modes)||!selected.mode||option.modes.includes(selected.mode));
+  }
+  const sections=(item,page='lobby')=>item?.ui?.[page]?.sections||[];
+  const createSection=item=>sections(item).find(section=>section.role==='create'||(section.actions||[]).some(button=>/^create/.test(button.action)));
+  const ownRoom=item=>(item?.state?.rooms||[]).find(room=>room.mine===true);
+  function role(section){
+    if(section.role)return section.role;
+    const actions=[...(section.actions||[]),...(section.cards||[]).flatMap(card=>card.actions||[])];
+    if(actions.some(button=>/^create/.test(button.action)))return 'create';
+    if(actions.some(button=>button.action==='invite'))return 'invite';
+    if(actions.some(button=>button.action==='join'))return 'rooms';
+    if(actions.some(button=>['start','difficulty'].includes(button.action)))return 'room';
+    return '';
+  }
+  function waiting(room){return !!room&&(['WAITING','LOBBY','BUILDING'].includes(room.phase)||(room.lobbyWaiting===true&&['PREPARING','COUNTDOWN'].includes(room.phase)));}
   function actionValue(game,button,owner,drafts){
     const selected=values(game,owner,drafts);
     if(button.jsonFields){const keys=String(button.fields||'').split(',');const data={};for(const key of keys){if(!(key in selected))throw new Error('请选择完整创建参数');data[key]=selected[key];}return JSON.stringify(data);}
@@ -28,6 +45,6 @@
       if(button)return {game:target.game,button,owner};
     }return null;
   }
-  const api={esc,safeGame,cleanContext,values,actionValue,blocked,platformText,currentAction};
+  const api={esc,safeGame,cleanContext,values,fieldOptions,sections,createSection,ownRoom,role,waiting,actionValue,blocked,platformText,currentAction};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.MuxiMinigamesModel=api;
 })(typeof window!=='undefined'?window:globalThis);

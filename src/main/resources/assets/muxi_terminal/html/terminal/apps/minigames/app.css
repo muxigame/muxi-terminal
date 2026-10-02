@@ -10,6 +10,10 @@
 .mg-content .detail-actions{margin-top:12px;flex-wrap:wrap}
 .mg-content .guide-list{margin-top:10px}
 .mg-content .guide-card{display:block;cursor:default}
+.mg-map-list .guide-card{cursor:pointer;text-align:left;color:inherit}
+.mg-lobby-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 14px}
+.mg-lobby-heading h3{margin:0}
+.mg-lobby-heading button,.mg-room-invitations button{padding:7px 12px;cursor:pointer}
 .mg-content .guide-card .detail-actions{margin-top:9px}
 .mg-content .guide-card h4{margin:0 0 6px;font-size:var(--font-body,15px)}
 .mg-fields{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0}

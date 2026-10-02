@@ -18,4 +18,11 @@ check('unknown platform amount does not become zero',()=>assert.equal(M.platform
 check('labels escape injected HTML',()=>assert.equal(M.esc('<img onerror="x">'),'&lt;img onerror=&quot;x&quot;&gt;'));
 check('context persists one APP internal shop page',()=>assert.deepEqual(M.cleanContext({game:'zombie-challenge',page:'shop',drafts:{'zombie-challenge:map':'mysterious_camp'}}),{game:'zombie-challenge',page:'shop',drafts:{'zombie-challenge:map':'mysterious_camp'}}));
 check('context drops unsafe navigation fields',()=>assert.deepEqual(M.cleanContext({game:'https://evil',page:'account',uid:10000,drafts:{'bad/path':'x'}}),{game:'',page:'lobby',drafts:{}}));
+check('mode-map filtering does not depend on server field order',()=>{
+  const owner={fields:[{id:'map',selected:'campaign-only',options:[{value:'campaign-only',modes:['CAMPAIGN']},{value:'survival-only',modes:['SURVIVAL']}]},{id:'mode',selected:'CAMPAIGN',options:[{value:'CAMPAIGN'},{value:'SURVIVAL'}]}]};
+  assert.deepEqual(M.values('outbreak',owner,{'outbreak:mode':'SURVIVAL','outbreak:map':'campaign-only'}),{mode:'SURVIVAL',map:'survival-only'});
+});
+check('active room never exposes invitations even if a stale waiting flag remains',()=>assert.equal(M.waiting({phase:'ACTIVE',lobbyWaiting:true}),false));
+check('native waiting phases expose invitations',()=>assert.equal(M.waiting({phase:'WAITING',lobbyWaiting:true}),true));
+check('legacy waiting countdown remains compatible',()=>assert.equal(M.waiting({phase:'COUNTDOWN',lobbyWaiting:true}),true));
 console.log(`Minigames terminal model: ${passed} meaningful boundary checks passed`);
