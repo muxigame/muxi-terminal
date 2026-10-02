@@ -3,7 +3,7 @@
 .minigames-app .toolbar .secondary{margin-left:auto;padding:7px 12px;cursor:pointer}
 .mg-notice{min-height:38px;line-height:1.55}
 .mg-platform strong,.mg-currencies strong{display:block}
-.mg-platform p,.mg-currencies p{font-size:10px;color:var(--muted);line-height:1.6}
+.mg-platform p,.mg-currencies p{font-size:var(--font-small,12px);color:var(--muted);line-height:1.6}
 .mg-currencies{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-bottom:12px}
 .mg-content .detail-card{max-width:none;margin-bottom:12px;padding:14px}
 .mg-content .detail-section{padding:5px 0}
@@ -11,9 +11,9 @@
 .mg-content .guide-list{margin-top:10px}
 .mg-content .guide-card{display:block;cursor:default}
 .mg-content .guide-card .detail-actions{margin-top:9px}
-.mg-content .guide-card h4{margin:0 0 6px;font-size:12px}
+.mg-content .guide-card h4{margin:0 0 6px;font-size:var(--font-body,15px)}
 .mg-fields{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0}
-.mg-field{display:grid;gap:5px;font-size:11px;min-width:150px}
+.mg-field{display:grid;gap:5px;font-size:var(--font-body,15px);min-width:150px}
 .mg-field .detail-actions{margin-top:0}
 .mg-stepbar{margin:6px 0 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .mg-mode-list{margin-bottom:12px}

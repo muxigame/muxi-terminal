@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="./styles.css" />
   <link rel="stylesheet" href="./app-transition.css" />
   <link rel="stylesheet" href="./apps/minigames/app.css" />
+  <link rel="stylesheet" href="./camera-app.css" />
+  <link rel="stylesheet" href="./album-app.css" />
+  <link rel="stylesheet" href="./friends-app.css" />
+  <link rel="stylesheet" href="./settings.css" />
 </head>
 <body>
   <main id="app" class="shell">
@@ -26,7 +30,7 @@
         <div class="cover-frame"><img src="./cover.png" alt="玩家终端"></div>
       </div>
 
-      <div class="section-title"><span>应用</span><small>4 个已安装</small></div>
+      <div class="section-title"><span>应用</span><small id="installedAppCount">4 个已安装</small></div>
       <div class="app-grid">
         <button class="app-card" data-open="guide">
           <span class="app-icon guide-icon"><i></i><i></i><i></i></span>
@@ -46,6 +50,10 @@
         <button class="app-card" data-open="games">
           <span class="app-icon minigames-icon"><i></i><i></i><i></i></span>
           <span class="app-name">小游戏</span><span class="app-desc">大厅、队伍与玩法商店</span>
+        </button>
+        <button class="app-card" data-open="music">
+          <span class="app-icon music-icon" aria-hidden="true"><i></i></span>
+          <span class="app-name">音乐</span><span class="app-desc">游戏音乐 · 本地曲库</span>
         </button>
       </div>
 
@@ -142,14 +150,25 @@
       <div id="mg-currencies" class="mg-currencies"></div><div id="mg-content" class="mg-content"></div>
       <div id="mg-confirm" class="mg-confirm" hidden><div class="detail-card" role="dialog" aria-modal="true" aria-labelledby="mg-confirm-text"><h3>确认操作</h3><p id="mg-confirm-text"></p><div class="detail-actions"><button id="mg-confirm-cancel" class="secondary">取消</button><button id="mg-confirm-ok" class="primary">继续</button></div></div></div>
     </section>
+    <section id="music" class="page"></section>
     </div>
   </main>
   <script src="./app-transition.js"></script>
   <script src="./app.js"></script>
   <script src="./app-container.js"></script>
+  <script src="./camera-controller.js"></script>
+  <script src="./camera-app.js"></script>
+  <script src="./album-controller.js"></script>
+  <script src="./album-app.js"></script>
   <script src="./web-apps.js"></script>
+  <script src="./settings.js"></script>
+  <script src="./music-app.js"></script>
+  <script src="./friends-controller.js"></script>
+  <script src="./friends-app.js"></script>
   <script src="./apps/minigames/model.js"></script>
   <script src="./apps/minigames/app.js"></script>
+  <script src="./friends-invites-controller.js"></script>
+  <script src="./friends-invites.js"></script>
 </body>
 </html>
 

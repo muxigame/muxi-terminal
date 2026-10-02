@@ -29,7 +29,7 @@ public final class MuxiTerminal {
         ITEMS.register(modBus);
         NeoForge.EVENT_BUS.addListener(this::onPlayerLogin);
         if (FMLEnvironment.dist.isClient()) {
-            net.muxigame.terminal.client.TerminalClient.bootstrap();
+            net.muxigame.terminal.client.TerminalClient.bootstrap(modBus);
         }
     }
 

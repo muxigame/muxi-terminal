@@ -14,11 +14,19 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 
 /** Full-screen tablet shell around one persistent MCEF browser session. */
-public final class TerminalScreen extends Screen {
+public class TerminalScreen extends Screen {
     private static final int FRAME = 10;
-    private static final int TOP = 12;
+    private static final int TOP = 24;
     private static final int APP_BAR = 22;
-    private final MCEFBrowser browser;
+    protected final MCEFBrowser browser;
+    protected net.minecraft.client.gui.components.Button closeButton;
+    private final TerminalKeyCapture<MCEFBrowser> keyCapture = new TerminalKeyCapture<>(new TerminalKeyCapture.Channel<>() {
+        public boolean usable(MCEFBrowser target) { return TerminalBrowserSession.owns(target); }
+        public void focus(MCEFBrowser target, boolean value) { target.setFocus(value); }
+        public void press(MCEFBrowser target, int key, int scan, int modifiers) { target.sendKeyPress(key, scan, modifiers); }
+        public void release(MCEFBrowser target, int key, int scan, int modifiers) { target.sendKeyRelease(key, scan, modifiers); }
+        public void type(MCEFBrowser target, char character, int modifiers) { target.sendKeyTyped(character, modifiers); }
+    });
     private int left, top, contentWidth, contentHeight;
 
     public TerminalScreen(MCEFBrowser browser) {
@@ -30,7 +38,17 @@ public final class TerminalScreen extends Screen {
     protected void init() {
         super.init();
         layout();
-        browser.setFocus(true);
+        closeButton = addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
+            Component.literal("关闭终端"), button -> onClose()).bounds(left + contentWidth - 70, top - TOP + 3, 78, 18)
+            .tooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal("Esc 退出并保留页面；F6 聚焦关闭按钮"))).build());
+        focusBrowser();
+    }
+
+    @Override
+    protected void setInitialFocus() {
+        setFocused(null);
+        if (closeButton != null) closeButton.setFocused(false);
+        focusBrowser();
     }
 
     private void layout() {
@@ -82,10 +100,33 @@ public final class TerminalScreen extends Screen {
 
     @Override
     public void onClose() {
+        net.muxigame.terminal.client.music.TerminalMusicService.closeLocal();
         TerminalPassportNavigation.clear();
-        TerminalBrowserSession.closeContent();
-        browser.setFocus(false);
+        releaseBrowserKeys();
+        net.minecraft.client.KeyMapping.releaseAll();
+        TerminalBrowserSession.resizeViews(640, 400, 32);
         super.onClose();
+    }
+
+    @Override
+    public void removed() {
+        releaseBrowserKeys();
+        net.minecraft.client.KeyMapping.releaseAll();
+        super.removed();
+    }
+
+    @Override
+    public void tick() {
+        if (minecraft.player == null || !minecraft.player.isAlive() || minecraft.getConnection() == null) { onClose(); return; }
+        focusBrowser();
+    }
+
+    private void releaseBrowserKeys() { keyCapture.clear(); }
+
+    protected final MCEFBrowser focusBrowser() {
+        MCEFBrowser next = TerminalBrowserSession.activeBrowser();
+        keyCapture.bind(next, closeButton == null || !closeButton.isFocused());
+        return next;
     }
 
     @Override
@@ -105,7 +146,7 @@ public final class TerminalScreen extends Screen {
         graphics.fill(left - 2, top - 2, left + contentWidth + 2, top + contentHeight + 2, 0xFF080B10);
         graphics.fill(x0 + 7, y0 + 7, x0 + 11, y0 + 11, 0xFF64D7E8);
         graphics.drawString(font,"玩家终端",x0+16,y0+5,0xFFFFD45A,false);
-        graphics.drawString(font,"⌂",x1-18,y0+5,0xFF9DAAB5,false);
+
 
         graphics.flush();
         drawBrowser(graphics,browser,left,top,contentWidth,contentHeight,1);
@@ -156,11 +197,6 @@ public final class TerminalScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double x, double y, int button) {
-        int x0=left-FRAME, y0=top-TOP, x1=left+contentWidth+FRAME;
-        if(button==0 && y>=y0 && y<top && x>=x1-34 && x<x1) {
-            TerminalBrowserSession.requestHome();
-            return true;
-        }
         if(button==0 && TerminalBrowserSession.content()!=null && y>=top && y<top+APP_BAR && x>=left && x<left+contentWidth){
             if(x<left+40)TerminalBrowserSession.back();
             else if(x<left+84)TerminalBrowserSession.requestHome();
@@ -169,8 +205,9 @@ public final class TerminalScreen extends Screen {
         if (inside(x, y)) {
             var target=TerminalBrowserSession.activeBrowser();
             if(TerminalBrowserSession.content()!=null && y<top+APP_BAR)return true;
-            target.sendMousePress(browserX(x), browserY(y), button);
-            target.setFocus(true);
+            setFocused(null);
+            closeButton.setFocused(false);
+            focusBrowser().sendMousePress(browserX(x), browserY(y), button);
         }
         return super.mouseClicked(x, y, button);
     }
@@ -195,22 +232,34 @@ public final class TerminalScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if(keyCode==256 /* GLFW_KEY_ESCAPE */ && TerminalBrowserSession.content()!=null){TerminalBrowserSession.requestHome();return true;}
-        TerminalBrowserSession.activeBrowser().sendKeyPress(keyCode, scanCode, modifiers);
-        TerminalBrowserSession.activeBrowser().setFocus(true);
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        if (keyCode == 256 || (keyCode == 87 && (modifiers & 2) != 0)) { onClose(); return true; }
+        if (keyCode == 295) { // F6 switches between web content and the permanent close button.
+            boolean focused = !closeButton.isFocused();
+            setFocused(focused ? closeButton : null);
+            closeButton.setFocused(focused);
+            focusBrowser();
+            return true;
+        }
+        if (closeButton.isFocused()) return super.keyPressed(keyCode, scanCode, modifiers);
+        focusBrowser();
+        if (keyCode == 263 && (modifiers & 4) != 0) { // Alt+Left is native navigation, including external pages.
+            TerminalBrowserSession.back();
+            return true;
+        }
+        keyCapture.press(keyCode, scanCode, modifiers);
+        return true;
     }
 
     @Override
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-        TerminalBrowserSession.activeBrowser().sendKeyRelease(keyCode, scanCode, modifiers);
-        return super.keyReleased(keyCode, scanCode, modifiers);
+        keyCapture.release(keyCode, scanCode, modifiers);
+        return true;
     }
 
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
-        TerminalBrowserSession.activeBrowser().sendKeyTyped(codePoint, modifiers);
-        return super.charTyped(codePoint, modifiers);
+        focusBrowser();
+        keyCapture.type(codePoint, modifiers);
+        return true;
     }
 }
-

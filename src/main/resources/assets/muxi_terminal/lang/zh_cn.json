@@ -2,6 +2,7 @@
   "item.muxi_terminal.player_terminal": "玩家终端",
   "muxi_terminal.received": "已发放玩家终端。右键打开终端首页。",
   "muxi_terminal.mcef_wait": "终端浏览器正在初始化，请稍后再次打开。",
-  "muxi_terminal.mcef_failed": "MCEF 初始化失败，暂时无法打开玩家终端。"
+  "muxi_terminal.mcef_failed": "MCEF 初始化失败，暂时无法打开玩家终端。",
+  "key.muxi_terminal.held_interact": "手持终端交互",
+  "key.categories.muxi_terminal": "木夕终端"
 }
-

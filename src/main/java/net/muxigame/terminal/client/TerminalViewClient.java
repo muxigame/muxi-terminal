@@ -86,7 +86,7 @@ final class TerminalViewClient {
                 if(f.isMain() && code!=ErrorCode.ERR_ABORTED)TerminalBrowserSession.loaded(b,failed,false,"网页加载失败："+text);
             }
         });
-        if(kind==TerminalBrowserSession.Kind.HOME || kind==TerminalBrowserSession.Kind.BUILTIN)TerminalNativeBridge.attach(client);
+        if(kind==TerminalBrowserSession.Kind.HOME || kind==TerminalBrowserSession.Kind.BUILTIN){TerminalNativeBridge.attach(client);TerminalSettingsBridge.attach(client);}
         if(kind==TerminalBrowserSession.Kind.ACCOUNT)TerminalPassportNavigation.install(wrapper);
         browser=new MCEFBrowser(wrapper,kind==TerminalBrowserSession.Kind.BUILTIN?TerminalBrowserSession.HOME_URL:url,false){
             @Override public void onPaint(CefBrowser b,boolean popup,java.awt.Rectangle[] dirty,java.nio.ByteBuffer buffer,int width,int height){

@@ -12,7 +12,7 @@ public final class TerminalBrowserSession {
     public record State(long generation,Kind kind,String title,String url,boolean loading,String error,long viewId,String launchToken,boolean rendered) {}
     private static TerminalViewClient shell,app;
     private static long generation;
-    private static int viewWidth=1280,viewHeight=720,barHeight=44;
+    private static int viewWidth=640,viewHeight=400,barHeight=32;
     private static State state=new State(0,Kind.HOME,"主页",HOME_URL,false,"",0,"",false);
     private static long viewSerial;
     private static String pendingLaunchToken="";
@@ -67,6 +67,7 @@ public final class TerminalBrowserSession {
     }
 
     public static synchronized void closeContent(){
+        net.muxigame.terminal.client.music.TerminalMusicService.closeLocal();
         TerminalPassportNavigation.clear();generation++;
         TerminalViewClient old=app;app=null;
         pendingLaunchToken="";contentVisible=true;contentClosing=false;motion.reset();
@@ -99,6 +100,7 @@ public final class TerminalBrowserSession {
         if(app==null || !contentVisible || reduced){home();return;}
         if(contentClosing)return;
         // Disarm native/SSO access immediately. Keep only this view's pixels for the fade.
+        net.muxigame.terminal.client.music.TerminalMusicService.closeLocal();
         TerminalPassportNavigation.clear();generation++;contentClosing=true;motion.close(false);
         app.browser.setFocus(false);app.browser.stopLoad();shell.browser.setFocus(true);
     }
@@ -108,8 +110,8 @@ public final class TerminalBrowserSession {
     }
 
     public static synchronized void openApp(String app) {
-        if(!"tasks".equals(app) && !"guide".equals(app) && !"games".equals(app)){home();return;}
-        open(Kind.BUILTIN,HOME_URL+"#/"+app,"games".equals(app)?"小游戏":"tasks".equals(app)?"任务":"游戏指南");
+        if(!"tasks".equals(app) && !"guide".equals(app) && !"games".equals(app) && !"camera".equals(app) && !"friends".equals(app) && !"album".equals(app) && !"settings".equals(app) && !"music".equals(app)){home();return;}
+        open(Kind.BUILTIN,HOME_URL+"#/"+app,"friends".equals(app)?"平台好友":"music".equals(app)?"音乐":"settings".equals(app)?"设置":"album".equals(app)?"相册":"camera".equals(app)?"相机":"games".equals(app)?"小游戏":"tasks".equals(app)?"任务":"游戏指南");
     }
 
     public static synchronized boolean openWebApp(String value,String name){

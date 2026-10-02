@@ -50,6 +50,17 @@ public final class TerminalNativeBridge {
                 @Override public void success(String response){if(valid())callback.success(response);}
                 @Override public void failure(int code,String message){if(valid())callback.failure(code,message);}
             };
+            Object musicScreen=mc.screen, musicConnection=mc.getConnection();
+            boolean musicOwner=browser==TerminalBrowserSession.content()
+                && TerminalBrowserSession.state().kind()==TerminalBrowserSession.Kind.BUILTIN
+                && musicScreen instanceof TerminalScreen;
+            java.util.function.BooleanSupplier musicValid=()->mc.screen==musicScreen
+                && mc.getConnection()==musicConnection && mc.player!=null && mc.player.isAlive()
+                && TerminalBrowserSession.generation()==epoch && TerminalBrowserSession.trusted(browser,frame)
+                && document.equals(frame.getURL()) && TerminalBrowserSession.activeBrowser()==browser
+                && TerminalBrowserSession.contentVisible();
+            if(net.muxigame.terminal.client.music.TerminalMusicBridge.handle(browser,frame,musicOwner,
+                    request,guarded,musicValid))return true;
             mc.execute(()->{
                 if(TerminalBrowserSession.generation()!=epoch || !TerminalBrowserSession.trusted(browser,frame) || !document.equals(frame.getURL()))return;
                 dispatch(mc,browser,frame,request,guarded);
@@ -58,6 +69,9 @@ public final class TerminalNativeBridge {
         }
 
         private void dispatch(Minecraft mc,CefBrowser browser,CefFrame frame,String request,CefQueryCallback callback){
+            if(TerminalFriendsBridge.dispatch(browser,frame,request,callback))return;
+            if(TerminalAlbumBridge.dispatch(browser,frame,request,callback))return;
+            if(TerminalCameraBridge.dispatch(browser,frame,request,callback))return;
             if(request.startsWith("terminal.launch:") || request.startsWith("terminal.reveal:") || request.startsWith("terminal.cancel-launch:")){
                 if(!TerminalBrowserSession.isShell(browser)){callback.failure(403,"Only the trusted shell controls views");return;}
                 try{
@@ -69,7 +83,7 @@ public final class TerminalNativeBridge {
                         callback.success("{\"ok\":"+ok+"}");return;
                     }
                     String kind=data.get("kind").getAsString(),id=data.get("id").getAsString();
-                    if(kind.equals("builtin") && (id.equals("guide") || id.equals("tasks") || id.equals("games"))){
+                    if(kind.equals("builtin") && (id.equals("guide") || id.equals("tasks") || id.equals("games") || id.equals("camera") || id.equals("friends") || id.equals("album") || id.equals("settings") || id.equals("music"))){
                         callback.success("{\"ok\":true}");TerminalBrowserSession.beginLaunch(token,TerminalBrowserSession.Kind.BUILTIN,id);TerminalBrowserSession.openApp(id);return;
                     }
                     if(kind.equals("web")){
@@ -120,6 +134,7 @@ public final class TerminalNativeBridge {
                 return;
             }
             if (request.equals("terminal.close")) {
+                net.muxigame.terminal.client.music.TerminalMusicService.closeLocal();
                 mc.execute(() -> mc.setScreen(null));
                 callback.success("{\"ok\":true}");
                 return;
@@ -156,7 +171,7 @@ public final class TerminalNativeBridge {
             if(request.equals("challenge.open")) {
                 mc.execute(Handler::openChallenge); callback.success("{\"ok\":true}"); return;
             }
-            if(TerminalGameAppsBridge.dispatch(request,callback))return;
+            if(TerminalGameAppsBridge.dispatch(browser,frame,request,callback))return;
             if(request.startsWith("manual.open:")) {
                 String manual=request.substring("manual.open:".length());
                 if(manual.startsWith("patchouli:")) {

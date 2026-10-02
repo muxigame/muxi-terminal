@@ -70,7 +70,7 @@
     try{
       await bridge('games.request');const data=await bridge('games.snapshot');if(stopped||serial!==readSerial)return;
       snapshot=data;
-      if(pending&&data.operation?.request===pending.request){const result=data.operation;pending=null;notice(result.notice|| (result.status==='completed'?'操作已完成':'操作未完成'));render();return;}
+      if(pending&&data.operation?.request===pending.request && ['completed','failed'].includes(data.operation.status)){const result=data.operation;pending=null;notice(result.notice|| (result.status==='completed'?'操作已完成':'操作未完成'));render();return;}
       render();if(!pending)notice(availabilityNotice());
     }catch(error){if(!stopped&&serial===readSerial){pending=null;render();notice(error.message);}}
   }

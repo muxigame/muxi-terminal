@@ -25,7 +25,7 @@ const win={MuxiMinigamesModel:M,addEventListener:(name,fn)=>events[name]=fn,muxi
     return Promise.resolve(JSON.parse(JSON.stringify(server)));
   }
   if(command.startsWith('games.action:')){
-    const action=JSON.parse(command.slice(13));const request='request-'+requests.length;receiptDelay=2;
+    const action=JSON.parse(command.slice(13));const request='request-'+requests.length;receiptDelay=2;server.operation={request,status:'pending',notice:'server pending'};
     if(action.action==='createConfigured'){assert.deepEqual(JSON.parse(action.value),{map:'camp',difficulty:'1',mode:'SURVIVAL'});server.activeGame='game-a';server.games[0].state.rooms=[{mine:true,id:'room1'}];server.games[0].ui.lobby.sections=[create,team,invite];}
     newReceipt={request,status:action.action==='buy'?'failed':'completed',notice:action.action==='buy'?'insufficient local coins':'server confirmed'};
     return Promise.resolve({ok:true,request});
