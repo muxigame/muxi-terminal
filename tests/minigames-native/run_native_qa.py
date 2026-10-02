@@ -244,7 +244,7 @@ def main():
                 command(role,'open')
                 before_leave=command(observer,'observe')
                 prior_leave=next(p for p in before_leave['players'] if p['name']==('10000' if role=='host' else '10001'))['games'].get('operation',{}).get('request')
-                command(role,'js',"await window.MuxiMinigamesApp.activate();const leave=[...document.querySelectorAll('[data-mg-action]')].find(b=>/\u9000\u51fa|\u79bb\u5f00/.test(b.textContent));if(!leave)throw Error('No leave action');leave.click();document.getElementById('mg-confirm-ok').click();for(let i=0;i<100;i++){await wait(200);const s=await q('games.snapshot');if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed'&&!s.activeGame)return s;}throw Error('Leave not confirmed');",transition=True)
+                command(role,'js',"await window.MuxiMinigamesApp.activate();const room=document.querySelector('[data-mg-open-room]');if(room){room.click();await wait(300);await window.MuxiMinigamesApp.activate();}const leave=[...document.querySelectorAll('[data-mg-action]')].find(b=>/\u9000\u51fa|\u79bb\u5f00/.test(b.textContent));if(!leave)throw Error('No leave action');leave.click();document.getElementById('mg-confirm-ok').click();for(let i=0;i<100;i++){await wait(200);const s=await q('games.snapshot');if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed'&&!s.activeGame)return s;}throw Error('Leave not confirmed');",transition=True)
                 for attempt in range(200):
                     after_leave=command(observer,'observe')
                     left=next(p for p in after_leave['players'] if p['name']==('10000' if role=='host' else '10001'))['games']
