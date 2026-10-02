@@ -1,0 +1,80 @@
+{
+  "acceptance": "FAILED_AT_REAL_CEF_ALBUM; RETEST_REQUIRED",
+  "privatePid": 15204,
+  "session": 2,
+  "productSha256": "12486281f751cf90c4392c2ad71f009f680efb77bae2a13bc6b9a7dafdfa3516",
+  "qaSha256": "9f70a49bfaba6b2d1b84cf93a3840b0629c85f1ba4336d6b8ddd77b57a35b92a",
+  "realChecksPassed": 45,
+  "photos": 6,
+  "uniqueNames": true,
+  "rawPngHashesMatchRemote": true,
+  "shaderPackInUse": true,
+  "gpuRenderer": "NVIDIA GeForce RTX 4090/PCIe/SSE2",
+  "normalExitCode": 0,
+  "photoUiComparisons": [
+    {
+      "photo": "shot-00-forward-photo.png",
+      "sameFrameWorldCenterExactMatch": true,
+      "uiDifferencePixels": 34295,
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "photo": "shot-01-selfie-photo.png",
+      "sameFrameWorldCenterExactMatch": true,
+      "uiDifferencePixels": 34295,
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "photo": "shot-02-forward-photo.png",
+      "sameFrameWorldCenterExactMatch": true,
+      "uiDifferencePixels": 34295,
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "photo": "shot-03-selfie-photo.png",
+      "sameFrameWorldCenterExactMatch": true,
+      "uiDifferencePixels": 34295,
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "photo": "shot-04-forward-photo.png",
+      "sameFrameWorldCenterExactMatch": true,
+      "uiDifferencePixels": 34295,
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "photo": "shot-05-selfie-photo.png",
+      "sameFrameWorldCenterExactMatch": true,
+      "uiDifferencePixels": 34295,
+      "dimensions": [
+        1280,
+        720
+      ]
+    }
+  ],
+  "visualReview": "Native UI contains only MC buttons, viewfinder corners and local status. Raw PNGs contain no native controls or ordinary HUD. All selfies only show sky: YSM self-portrait acceptance NOT passed; initial world/profile synchronization was still running during capture.",
+  "failure": "java.lang.IllegalStateException: real CEF album viewer failed: {\"ok\":false,\"error\":\"Error: -1:Unexpected call to CefQueryCallback_N::finalize()\",\"action\":\"album-open\"}",
+  "notExecuted": [
+    "album viewer/recycle/restore",
+    "album same-viewer camera return",
+    "F1 initially hidden HUD capture",
+    "physical focus loss/regain",
+    "cancel pending readback",
+    "explicit disconnect restoration/resource checks"
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "product": "muxi-terminal-0.2.4-task22-native-camera.2.jar",
+  "productSha256": "26846f6090ce4f6945710251390ef728c8b200bfa3daa4a468b73153e19f2413",
+  "qa": "task22-camera-native-qa-only.jar",
+  "qaSha256": "b4dad5cf04e73b59e591d85a015c8fb486fc4e5f477daf87e208969f4dd265cd"
+}

@@ -1,0 +1,77 @@
+diff --git a/src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java b/src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java
+--- a/src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java
++++ b/src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java
+@@ -108,8 +108,8 @@
+     }
+ 
+     public static synchronized void openApp(String app) {
+-        if(!"tasks".equals(app) && !"guide".equals(app)){home();return;}
+-        open(Kind.BUILTIN,HOME_URL+"#/"+app,"tasks".equals(app)?"任务":"游戏指南");
++        if(!"tasks".equals(app) && !"guide".equals(app) && !"camera".equals(app)){home();return;}
++        open(Kind.BUILTIN,HOME_URL+"#/"+app,"camera".equals(app)?"相机":"tasks".equals(app)?"任务":"游戏指南");
+     }
+ 
+     public static synchronized boolean openWebApp(String value,String name){
+diff --git a/src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java b/src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java
+--- a/src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java
++++ b/src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java
+@@ -58,6 +58,7 @@
+         }
+ 
+         private void dispatch(Minecraft mc,CefBrowser browser,CefFrame frame,String request,CefQueryCallback callback){
++            if(TerminalCameraBridge.dispatch(browser,frame,request,callback))return;
+             if(request.startsWith("terminal.launch:") || request.startsWith("terminal.reveal:") || request.startsWith("terminal.cancel-launch:")){
+                 if(!TerminalBrowserSession.isShell(browser)){callback.failure(403,"Only the trusted shell controls views");return;}
+                 try{
+@@ -69,7 +70,7 @@
+                         callback.success("{\"ok\":"+ok+"}");return;
+                     }
+                     String kind=data.get("kind").getAsString(),id=data.get("id").getAsString();
+-                    if(kind.equals("builtin") && (id.equals("guide") || id.equals("tasks"))){
++                    if(kind.equals("builtin") && (id.equals("guide") || id.equals("tasks") || id.equals("camera"))){
+                         callback.success("{\"ok\":true}");TerminalBrowserSession.beginLaunch(token,TerminalBrowserSession.Kind.BUILTIN,id);TerminalBrowserSession.openApp(id);return;
+                     }
+                     if(kind.equals("web")){
+diff --git a/src/main/resources/assets/muxi_terminal/html/terminal/app.js b/src/main/resources/assets/muxi_terminal/html/terminal/app.js
+--- a/src/main/resources/assets/muxi_terminal/html/terminal/app.js
++++ b/src/main/resources/assets/muxi_terminal/html/terminal/app.js
+@@ -115,8 +115,8 @@
+ function navigate(id,source){
+   if(typeof window.muxiTerminalQuery==='function'){
+     if(contentView && id==='home'){native('terminal.home').catch(error=>setStatus(error.message));return;}
+-    if(!contentView && ['tasks','guide'].includes(id)){
+-      if(window.terminalLaunch)window.terminalLaunch({kind:'builtin',id,name:id==='tasks'?'任务':'游戏指南',source}).catch(error=>setStatus(error.message));
++    if(!contentView && ['tasks','guide','camera'].includes(id)){
++      if(window.terminalLaunch)window.terminalLaunch({kind:'builtin',id,name:id==='camera'?'相机':id==='tasks'?'任务':'游戏指南',source}).catch(error=>setStatus(error.message));
+       else native('terminal.app:'+id).catch(error=>setStatus(error.message));return;
+     }
+   }
+@@ -334,7 +334,7 @@
+ 
+ function routeFromHash(){
+   const route=(location.hash||'#/home').replace(/^#\/?/,'');
+-  return ['home','guide','guideDetail','tasks'].includes(route)?route:'home';
++  return ['home','guide','guideDetail','tasks','camera'].includes(route)?route:'home';
+ }
+ window.addEventListener('hashchange',()=>show(routeFromHash()));
+ 
+diff --git a/src/main/resources/assets/muxi_terminal/html/terminal/index.html b/src/main/resources/assets/muxi_terminal/html/terminal/index.html
+--- a/src/main/resources/assets/muxi_terminal/html/terminal/index.html
++++ b/src/main/resources/assets/muxi_terminal/html/terminal/index.html
+@@ -6,6 +6,7 @@
+   <title>玩家终端</title>
+   <link rel="stylesheet" href="./styles.css" />
+   <link rel="stylesheet" href="./app-transition.css" />
++  <link rel="stylesheet" href="./camera-app.css" />
+ </head>
+ <body>
+   <main id="app" class="shell">
+@@ -133,6 +134,8 @@
+   <script src="./app-transition.js"></script>
+   <script src="./app.js"></script>
+   <script src="./app-container.js"></script>
++  <script src="./camera-controller.js"></script>
++  <script src="./camera-app.js"></script>
+   <script src="./web-apps.js"></script>
+ </body>
+ </html>

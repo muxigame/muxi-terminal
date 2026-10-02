@@ -1,0 +1,43 @@
+diff --git a/src/main/java/net/muxigame/terminal/client/TerminalClient.java b/src/main/java/net/muxigame/terminal/client/TerminalClient.java
+--- a/src/main/java/net/muxigame/terminal/client/TerminalClient.java
++++ b/src/main/java/net/muxigame/terminal/client/TerminalClient.java
+@@ -54,6 +54,10 @@
+         Minecraft mc = Minecraft.getInstance();
+         if (MCEF.isInitialized()) {
+             var browser=TerminalBrowserSession.getOrCreate();
++            if("camera".equals(app)){
++                if(!(mc.screen instanceof TerminalScreen))mc.setScreen(new TerminalScreen(browser));
++                TerminalCamera.begin();return;
++            }
+             TerminalBrowserSession.openApp(app);
+             mc.setScreen(new TerminalScreen(browser));
+             return;
+@@ -64,6 +68,7 @@
+ 
+         MCEF.scheduleForInit(success -> mc.execute(() -> {
+             if (success) {
++                if("camera".equals(app)){openApp(app);return;}
+                 var browser=TerminalBrowserSession.getOrCreate();
+                 TerminalBrowserSession.openApp(app);
+                 mc.setScreen(new TerminalScreen(browser));
+diff --git a/src/main/resources/assets/muxi_terminal/html/terminal/app.js b/src/main/resources/assets/muxi_terminal/html/terminal/app.js
+--- a/src/main/resources/assets/muxi_terminal/html/terminal/app.js
++++ b/src/main/resources/assets/muxi_terminal/html/terminal/app.js
+@@ -116,6 +116,7 @@
+ 
+ function navigate(id,source){
+   if(typeof window.muxiTerminalQuery==='function'){
++    if(id==='camera'){native('camera.open').catch(error=>setStatus(error.message));return;}
+     if(contentView && id==='home'){native('terminal.home').catch(error=>setStatus(error.message));return;}
+     if(!contentView && ['tasks','guide','games','camera','friends','album','settings','music'].includes(id)){
+       if(window.terminalLaunch)window.terminalLaunch({kind:'builtin',id,name:id==='friends'?'平台好友':id==='album'?'相册':id==='music'?'音乐':id==='settings'?'设置':id==='camera'?'相机':id==='games'?'小游戏':id==='tasks'?'任务':'游戏指南',source}).catch(error=>setStatus(error.message));
+diff --git a/src/main/resources/META-INF/neoforge.mods.toml b/src/main/resources/META-INF/neoforge.mods.toml
+--- a/src/main/resources/META-INF/neoforge.mods.toml
++++ b/src/main/resources/META-INF/neoforge.mods.toml
+@@ -35,3 +35,6 @@
+ [[mixins]]
+ config="muxi_terminal.music.mixins.json"
+ 
++[[mixins]]
++config="muxi_terminal.camera.mixins.json"
++

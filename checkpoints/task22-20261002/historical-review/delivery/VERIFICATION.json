@@ -1,0 +1,76 @@
+{
+  "owner": "task6",
+  "worktree": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-01\\task-22\\camera-worktree",
+  "worktreeBranch": "task22-camera",
+  "checkoutHead": "a0ba0ec",
+  "patchBase": "task6 unified-terminal snapshot, NOT the shared main checkout",
+  "newFiles": [
+    "src/main/java/net/muxigame/terminal/client/TerminalCamera.java",
+    "src/main/java/net/muxigame/terminal/client/TerminalCameraBridge.java",
+    "src/main/java/net/muxigame/terminal/client/TerminalPhotoStore.java",
+    "src/main/resources/assets/muxi_terminal/html/terminal/camera-app.css",
+    "src/main/resources/assets/muxi_terminal/html/terminal/camera-app.js",
+    "src/main/resources/assets/muxi_terminal/html/terminal/camera-controller.js",
+    "tests/camera/PhotoStoreTest.java",
+    "tests/camera/controller.test.cjs",
+    "tests/camera/prepare-browser-qa.py",
+    "tests/camera/run-browser-qa.mjs",
+    "tests/camera/run-native-tests.py"
+  ],
+  "wiringFiles": [
+    "src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java",
+    "src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java",
+    "src/main/resources/assets/muxi_terminal/html/terminal/app.js",
+    "src/main/resources/assets/muxi_terminal/html/terminal/index.html"
+  ],
+  "baseHashes": {
+    "src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java": "6c4569887a538831855037a55d62a3ef6edf2152d6b7400ca32e1ba2c5c824ca",
+    "src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java": "f8005747435873b36610bfaa0fcac25cd41858656a6a7eec47ef8fbb099558cf",
+    "src/main/resources/assets/muxi_terminal/html/terminal/app.js": "7ad855df98d70f664e931bb245bc3b2cf914bac4927603797ab1f8be80593a1c",
+    "src/main/resources/assets/muxi_terminal/html/terminal/index.html": "43e2e245f7e8adff3c30f887b0d295a963031f7dea108bc628524f25feb24544"
+  },
+  "resultHashes": {
+    "src/main/java/net/muxigame/terminal/client/TerminalCamera.java": "06b4d4b42d72ac304ad9405545cfa9a08d641420a698bdd12580070cf18dbc85",
+    "src/main/java/net/muxigame/terminal/client/TerminalCameraBridge.java": "57a9eb252052a374734f58547ad8ffa45b86ea22da214e235a0b2c11494f1b25",
+    "src/main/java/net/muxigame/terminal/client/TerminalPhotoStore.java": "5b118d3b4fb73d026c70ad27c5b5a927750101d970c04ab3c27d22d732887048",
+    "src/main/resources/assets/muxi_terminal/html/terminal/camera-app.css": "3ae6b59210f3cad1d713e40acb5b06eff5b017438af0fb0a7d01a5e584272394",
+    "src/main/resources/assets/muxi_terminal/html/terminal/camera-app.js": "4e78b5d43ae454a07606dc4f63686478a7c0d9c01b435a99bac783b01bb27188",
+    "src/main/resources/assets/muxi_terminal/html/terminal/camera-controller.js": "c48b1b07afd13f31dd8a668e36f4c76ad46490dfaf2a8caf0f8882156ee621bb",
+    "tests/camera/PhotoStoreTest.java": "15a8f4a9be347e025ec06f644c17d3ed8f21746af54e7fa625d0655ff26f26b2",
+    "tests/camera/controller.test.cjs": "26b2c1bc3ce2b630c34b5a3e06c50b9f832666fa1ad7f76d4fb495b97b5c1adc",
+    "tests/camera/prepare-browser-qa.py": "a789698e37d9a72783f938ac6abfdb057dcc053b2634fe5d097268d886822668",
+    "tests/camera/run-browser-qa.mjs": "6f7d49c4b91fb57b20896e937c66eeea86a710753c4e18fe6be93ced67835d84",
+    "tests/camera/run-native-tests.py": "af4627508e8adee4079adf499c40d86f4b470f3613ef98b119f84332329ed2e9",
+    "src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java": "a869237f8dba2ba8483d8eb6227cb6ebefe123f87b09f8254f8bd07d9311ac2b",
+    "src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java": "a0ff860696653152416a671331e53a2e9d0d98dd5f5bb0fc67e491d25e617a3f",
+    "src/main/resources/assets/muxi_terminal/html/terminal/app.js": "69674a56a088cbe18f546ee2ad9f0d7c8d2b9f4e7bbfcb7e39e1dfbde72ae813",
+    "src/main/resources/assets/muxi_terminal/html/terminal/index.html": "937684f18f00f4c93591a2fb45249c2d92e617159e39d6abfbf94cf26c1aad79"
+  },
+  "unchangedSharedSourceVerified": true,
+  "cleanPatchApplyAndSourceEquality": true,
+  "reviewJar": {
+    "name": "muxi-terminal-camera-0.2.1-review.jar",
+    "sha256": "2ec963e2569f160f6a4744fcac2c5515e84f9e4bebe002d46d2613c9c400f74c",
+    "bytes": 397350,
+    "published": false
+  },
+  "checks": {
+    "controller": 14,
+    "browserSynthetic": 13,
+    "concurrentPhotoSaves": 80,
+    "photoStore": {
+      "success": true,
+      "concurrentSaves": 80,
+      "checks": 12,
+      "symlinkTests": true
+    },
+    "ssoAdapter": 84,
+    "nativeContentTransition": 20,
+    "offlineJavaCompilation": true,
+    "javascriptSyntax": true
+  },
+  "realGameValidation": {
+    "run": false,
+    "blocker": "131 GUI channel absent; parent must coordinate task14 slot. No heavy client started on 008 or 131."
+  }
+}
