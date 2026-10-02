@@ -212,6 +212,21 @@ def main():
     report['additionalRequiredDependencies']=[{'path':str(p),'sha256':digest(p),'reason':dependency_reasons[str(p)]} for p in required_dependencies]
     if dedicated:
         server=home/'dedicated-server';server.mkdir();(server/'mods').mkdir();(server/'config').mkdir()
+        if '--reuse-owned-world' in sys.argv:
+            previous_home=Path(sys.argv[sys.argv.index('--reuse-owned-world')+1]).resolve()
+            if previous_home.parent!=Path(tempfile.gettempdir()).resolve() or not previous_home.name.startswith('mgqa-'):raise ValueError('Only an owned private native QA world may be reused')
+            previous_result=json.loads((previous_home/'run-result.json').read_text(encoding='utf-8'))
+            if not previous_result.get('normalExit') or any(code!=0 for code in previous_result['exitCodes'].values()):raise ValueError('Owned previous world must have normal MC/server exits')
+            previous_server=Path(previous_result['prepared']['dedicatedServer']['root'])
+            world=previous_server/'minigames-private-qa'
+            geometry_hash='b5ed34a3518eef58d43d8d85b3fac16a72247813a88196432474834210a3b966'
+            marker=world/'data/muxi-outbreak'/('geometry-'+geometry_hash+'.done')
+            if marker.read_text(encoding='utf-8').splitlines()!=[geometry_hash,'2010053']:raise ValueError('Full original geometry completion marker not present')
+            if 'OUTBREAK_GEOMETRY_READY map=lostschool blocks=2010053 structures=401 decorations=2736' not in (previous_server/'boot.log').read_text(encoding='utf-8'):raise ValueError('Actual original geometry installation log not present')
+            shutil.copytree(world,server/world.name)
+            copied_hashes={str(p.relative_to(world)).replace('\\','/'):digest(p) for p in world.rglob('*') if p.is_file()}
+            if any(digest(server/world.name/path)!=sha for path,sha in copied_hashes.items()):raise ValueError('Owned private world copy mismatch')
+            write(home/'owned-private-world-reuse.json',{'source':str(world),'previousResult':str(previous_home/'run-result.json'),'originalGeometryHash':geometry_hash,'originalGeometryBlocks':2010053,'sourceWorldFileHashes':copied_hashes,'actualOriginalGeometryInstalled':True,'productionWorldUsed':False,'backendCredentialFilesCopied':False})
         for source in (WORK/'bmc5server/mods').glob('*.jar'):
             if source.name.startswith(('muxi-terminal-','muxi-minigames-','muxi-game-core-','muxi-outbreak-','muxi-zombie-challenge-','muxi-champion-companions-')):continue
             shutil.copy2(source,server/'mods'/source.name)

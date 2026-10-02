@@ -220,8 +220,15 @@ def main():
             waiting=command(observer,'observe');same_inventory_and_location(baseline,waiting)
             checks.append(game+': second real client joined waiting room; both retained original world and inventory')
             command('host','js',"await window.MuxiMinigamesApp.activate();for(let i=0;i<6000;i++){await wait(200);await window.MuxiMinigamesApp.activate();const start=[...document.querySelectorAll('[data-mg-action]')].find(b=>b.textContent.includes('\u5f00\u59cb'));if(start&&!start.disabled){const prior=(await q('games.snapshot')).operation?.request;start.click();for(let j=0;j<50;j++){await wait(200);const s=await q('games.snapshot');if(s.operation?.request===prior)continue;if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed')return s;}throw Error('Start not confirmed');}}throw Error('Host start unavailable after full original-map preparation wait');",timeout=1320)
-            started=command(observer,'observe');write(home/(stage+'-started-real-players.json'),started)
-            assert all(p['dimension']!=next(b for b in baseline['players'] if b['uuid']==p['uuid'])['dimension'] for p in started['players'])
+            start_trace=[]
+            for attempt in range(1200):
+                started=command(observer,'observe')
+                if attempt%10==0:start_trace.append({'observedUTC':datetime.now(timezone.utc).isoformat(),'players':[{k:p[k] for k in ['name','dimension','x','y','z','returnsPending']} for p in started['players']]})
+                if len(started['players'])==2 and all(p['dimension']!=next(b for b in baseline['players'] if b['uuid']==p['uuid'])['dimension'] for p in started['players']):break
+                time.sleep(.5)
+            write(home/(stage+'-start-transition-trace.json'),start_trace)
+            write(home/(stage+'-started-real-players.json'),started)
+            assert len(started['players'])==2 and all(p['dimension']!=next(b for b in baseline['players'] if b['uuid']==p['uuid'])['dimension'] for p in started['players']), 'Actual started room did not finish native arena preparation and move both players'
             checks.append(game+': only explicit host Start sent both real players into the map')
             for role in ['guest','host']:
                 command(role,'js',"await window.MuxiMinigamesApp.activate();const leave=[...document.querySelectorAll('[data-mg-action]')].find(b=>/\u9000\u51fa|\u79bb\u5f00/.test(b.textContent));if(!leave)throw Error('No leave action');leave.click();document.getElementById('mg-confirm-ok').click();for(let i=0;i<100;i++){await wait(200);const s=await q('games.snapshot');if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed'&&!s.activeGame)return s;}throw Error('Leave not confirmed');")
