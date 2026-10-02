@@ -66,6 +66,7 @@ def main():
     fixes=Path(extras['originalFixDirectory'])
     audio=next(p for p in fixes.glob('*.jar') if digest(p)==extras['audioSha256'])
     shutil.copy2(audio,artifact_dir/audio.name)
+    gunpack=next(p for p in fixes.glob('*.zip') if digest(p)==extras['gunSha256'])
     meta=json.loads((game/'versions/BatterMC5Remake/BatterMC5Remake.json').read_text(encoding='utf-8'))
     libs=[game/'libraries'/x['downloads']['artifact']['path'] for x in meta['libraries'] if reviewed.allowed(x.get('rules')) and x.get('downloads',{}).get('artifact')]
     libs=list(dict.fromkeys(libs+[game/'versions/BatterMC5Remake/BatterMC5Remake.jar']))
@@ -90,6 +91,8 @@ def main():
         for directory in ['config','resourcepacks','defaultconfigs','kubejs','tacz']:
             if (pack/directory).is_dir():shutil.copytree(pack/directory,lab/directory,dirs_exist_ok=True)
         for source in artifact_dir.glob('*.jar'):shutil.copy2(source,lab/'mods'/source.name)
+        (lab/'tacz').mkdir(exist_ok=True)
+        shutil.copy2(gunpack,lab/'tacz/muxi-phoenix-six-netnew-20261001.zip')
         reviewed.config(lab)
         (lab/'config/iris.properties').write_text('enableShaders=false\ndisableUpdateMessage=true\n',encoding='utf-8')
         with zipfile.ZipFile(lab/'mods/minigames-qa-only.jar','w',zipfile.ZIP_DEFLATED) as archive:
@@ -114,7 +117,7 @@ def main():
         args+=expand(meta['arguments']['jvm'])+[meta['mainClass']]+expand(meta['arguments']['game'])
         reviewed.argfile(lab/'launch.args',args)
         clients.append({'role':role,'username':name,'uuid':str(offline_uuid),'lab':str(lab),'java':str(runtime),'args':str(lab/'launch.args')})
-    report={'prepared':True,'clientStarted':False,'home':str(home),'coordinator':str(coordinator),'port':port,'clients':clients,'fakePlayers':False,'syntheticSSO':False,'productionOperations':False,'terminalCompiledSource':str(terminal_source),'terminalCompiledSha256':digest(terminal_source),'terminalResourcesOverlaid':own_resources,'artifacts':{key:{'path':str(value),'sha256':digest(value)} for key,value in artifacts.items()}}
+    report={'prepared':True,'clientStarted':False,'home':str(home),'coordinator':str(coordinator),'port':port,'clients':clients,'fakePlayers':False,'syntheticSSO':False,'productionOperations':False,'terminalCompiledSource':str(terminal_source),'terminalCompiledSha256':digest(terminal_source),'terminalResourcesOverlaid':own_resources,'gunpackSha256':digest(gunpack),'artifacts':{key:{'path':str(value),'sha256':digest(value)} for key,value in artifacts.items()}}
     write(home/'prepared.json',report);write(REPO/'build/minigames-native/latest-prepared.json',report)
     print(json.dumps(report,ensure_ascii=False,indent=2))
 
