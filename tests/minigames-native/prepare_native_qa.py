@@ -222,7 +222,7 @@ def main():
             geometry_hash='b5ed34a3518eef58d43d8d85b3fac16a72247813a88196432474834210a3b966'
             marker=world/'data/muxi-outbreak'/('geometry-'+geometry_hash+'.done')
             if marker.read_text(encoding='utf-8').splitlines()!=[geometry_hash,'2010053']:raise ValueError('Full original geometry completion marker not present')
-            if 'OUTBREAK_GEOMETRY_READY map=lostschool blocks=2010053 structures=401 decorations=2736' not in (previous_server/'boot.log').read_text(encoding='utf-8'):raise ValueError('Actual original geometry installation log not present')
+            if b'OUTBREAK_GEOMETRY_READY map=lostschool blocks=2010053 structures=401 decorations=2736' not in (previous_server/'boot.log').read_bytes():raise ValueError('Actual original geometry installation log not present')
             shutil.copytree(world,server/world.name)
             copied_hashes={str(p.relative_to(world)).replace('\\','/'):digest(p) for p in world.rglob('*') if p.is_file()}
             if any(digest(server/world.name/path)!=sha for path,sha in copied_hashes.items()):raise ValueError('Owned private world copy mismatch')
