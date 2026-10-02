@@ -43,33 +43,40 @@ public final class SettingsTest {
     static void reload()throws Exception{
         check(!TerminalSettings.ui().get("soundEnabled").getAsBoolean()&&TerminalSettings.ui().get("soundVolume").getAsDouble()==.27,"prefs survive new JVM");
         TerminalSettings.saveUi(json("{\"soundEnabled\":true}"));var mc=Minecraft.getInstance();
-        TerminalSettings.sound("hover");TerminalSettings.sound("select");check(mc.sounds.plays==1,"native 90ms throttle");
-        Thread.sleep(100);mc.options.volume.set(0.0);TerminalSettings.sound("select");check(mc.sounds.plays==1,"MC master mute wins");
+        // Warm the sound classes before measuring the short throttle window.
+        TerminalSettings.sound("hover");Thread.sleep(100);mc.sounds.plays=0;
+        long started=System.nanoTime();TerminalSettings.sound("hover");TerminalSettings.sound("select");long elapsed=System.nanoTime()-started;
+        check(mc.sounds.plays>=1 && mc.sounds.plays<=2 && (elapsed>=90_000_000L || mc.sounds.plays==1),"native 90ms throttle within measured window");
+        int audible=mc.sounds.plays;Thread.sleep(100);mc.options.volume.set(0.0);TerminalSettings.sound("select");check(mc.sounds.plays==audible,"MC master mute wins");
     }
     static final class Reply implements CefQueryCallback{volatile String success;volatile int code;public void success(String s){success=s;}public void failure(int c,String m){code=c;}}
     static org.cef.CefClient client;static CefFrame frame;
-    static Reply call(CefBrowser b,CefFrame f,String cmd,boolean persistent){var r=new Reply();client.router.handler.onQuery(b,f,1,cmd,persistent,r);Minecraft.getInstance().flush();return r;}
+    static Reply call(CefBrowser b,CefFrame f,String cmd,boolean persistent){var r=new Reply();org.cef.browser.CefBrowser.live=f;client.router.handler.onQuery(b,f,1,cmd,persistent,r);Minecraft.getInstance().flush();return r;}
     static Reply call(String cmd){return call(TerminalBrowserSession.app,frame,cmd,false);}
     static void await(Reply r)throws Exception{long until=System.nanoTime()+15_000_000_000L;while(r.success==null&&r.code==0&&System.nanoTime()<until){Thread.sleep(5);Minecraft.getInstance().flush();}check(r.success!=null||r.code!=0,"async completion");}
     static void bridge(Path game)throws Exception{
         Files.deleteIfExists(TerminalSettings.file("wallpaper.png"));
-        client=new org.cef.CefClient();TerminalSettingsBridge.attach(client);frame=new CefFrame();frame.url=TerminalBrowserSession.HOME_URL+"#/settings";
+        client=new org.cef.CefClient();TerminalSettingsBridge.attach(client);frame=new CefFrame();frame.url=TerminalBrowserSession.HOME_URL+"#/settings";org.cef.browser.CefBrowser.live=frame;
         check(call("settings.snapshot").success!=null,"owned settings accepted");
+        var detached=new CefFrame();detached.url=frame.url;var frameReply=new Reply();
+        client.router.handler.onQuery(TerminalBrowserSession.app,detached,2,"settings.snapshot",false,frameReply);detached.dispose();Minecraft.getInstance().flush();
+        check(frameReply.success!=null,"disposed callback wrapper does not invalidate independent current main frame");
+        Minecraft.getInstance().focused=false;check(call("settings.apply:{\"fov\":99}").code==403,"unfocused page cannot change options");Minecraft.getInstance().focused=true;
         check(call(new CefBrowser(),frame,"settings.snapshot",false).code==403,"foreign browser rejected");
         frame.main=false;check(call("wallpaper.choose").code==403,"subframe rejected");frame.main=true;
         frame.url="https://example.com/";check(call("wallpaper.choose").code==403,"external page rejected");
         frame.url=TerminalBrowserSession.HOME_URL;check(call("settings.apply:{}").code==403,"outside settings cannot mutate");
-        check(call("ui.snapshot").success!=null,"shell UI preference read accepted");frame.url=TerminalBrowserSession.HOME_URL+"#/settings";
+        check(call("ui.snapshot").success!=null,"shell UI preference read accepted");frame.url=TerminalBrowserSession.HOME_URL+"#/settings";org.cef.browser.CefBrowser.live=frame;
         check(call("ui.save:{\"soundEnabled\":true}").success!=null&&TerminalBrowserSession.shell.scripts.getLast().contains("terminalSettingsUi"),"UI preferences broadcast to persistent shell");
         check(call(TerminalBrowserSession.app,frame,"settings.snapshot",true).code==400,"persistent requests rejected");
         check(call("x".repeat(2049)).code==400,"bounded bridge requests");
         var stale=new Reply();client.router.handler.onQuery(TerminalBrowserSession.app,frame,1,"settings.apply:{\"fov\":99}",false,stale);TerminalBrowserSession.epoch++;Minecraft.getInstance().flush();
-        check(stale.success==null&&Minecraft.getInstance().options.fov.get()==83,"stale queued mutation discarded");
+        check(stale.code==409&&stale.success==null&&Minecraft.getInstance().options.fov.get()==83,"stale queued mutation discarded");
         TinyFileDialogs.selected=null;var cancelled=call("wallpaper.choose");await(cancelled);
         check(json(cancelled.success).get("cancelled").getAsBoolean()&&!Files.exists(TerminalSettings.file("wallpaper.png")),"cancel preserves default");
         Path pic=game.resolve("test-source-secret-name.png");ImageIO.write(new BufferedImage(100,50,BufferedImage.TYPE_INT_RGB),"png",pic.toFile());
         TinyFileDialogs.selected=pic.toString();var picked=call("wallpaper.choose");await(picked);
-        check(Files.exists(TerminalSettings.file("wallpaper.png")),"local normalized persistence");
+        check(Files.exists(TerminalSettings.file("wallpaper.png")),"local normalized persistence; native reply="+picked.success+" code="+picked.code);
         check(!picked.success.contains("secret")&&!picked.success.contains(game.toString()),"selection response has no path");
         var read=call("wallpaper.read");await(read);check(json(read.success).get("data").getAsString().startsWith("data:image/png;base64,"),"restart read gives image only");
         byte[] original=Files.readAllBytes(TerminalSettings.file("wallpaper.png"));
@@ -80,7 +87,7 @@ public final class SettingsTest {
         check(call("wallpaper.choose").code==409,"no duplicate chooser");
         TerminalBrowserSession.epoch++;TinyFileDialogs.gate.countDown();TinyFileDialogs.gate=null;
         for(int i=0;i<20;i++){Thread.sleep(10);Minecraft.getInstance().flush();}
-        check(pending.success==null&&java.util.Arrays.equals(original,Files.readAllBytes(TerminalSettings.file("wallpaper.png"))),"closed generation cannot commit chooser result");
+        check(pending.code==409&&pending.success==null&&java.util.Arrays.equals(original,Files.readAllBytes(TerminalSettings.file("wallpaper.png"))),"closed generation cannot commit chooser result");
         var staleRead=new Reply();var mc=Minecraft.getInstance();
         client.router.handler.onQuery(TerminalBrowserSession.app,frame,1,"wallpaper.read",false,staleRead);
         mc.queue.remove().run();long deadline=System.nanoTime()+15_000_000_000L;

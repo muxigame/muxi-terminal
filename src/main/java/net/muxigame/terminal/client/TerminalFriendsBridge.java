@@ -39,7 +39,7 @@ public final class TerminalFriendsBridge {
                 var target=connection.getPlayerInfo(TerminalFriendsPolicy.playerUuid(uid));if(target==null)throw new IllegalArgumentException("好友已离线，请刷新");
                 if(!TerminalFriendsInvitesBridge.verifiedPeer(uid))throw new IllegalArgumentException("当前连接尚未核实这个在线好友，请刷新");
                 var tree=connection.getCommands().getRoot();String prefill=TerminalFriendsPolicy.chatPrefill(saved.snapshot(),uid,target.getProfile().getId(),target.getProfile().getName(),tree.getChild("msg")!=null,tree.getChild("tell")!=null);
-                if(!valid.getAsBoolean())return true;
+                if(!valid.getAsBoolean()){callback.failure(409,"Terminal context changed");return true;}
                 callback.success("{\"ok\":true,\"openedChat\":true,\"prefillOnly\":true}");mc.setScreen(new ChatScreen(prefill));return true;
             }
             TerminalFriendsPolicy.Action action=request.startsWith("friends.action:")?TerminalFriendsPolicy.action(request.substring(15)):null;
@@ -48,20 +48,20 @@ public final class TerminalFriendsBridge {
             if(!BUSY.compareAndSet(false,true)){callback.failure(429,"好友操作处理中，请稍后刷新");return true;}
             IO.execute(()->{
                 try{
-                    if(!valid.getAsBoolean())return;String cookie=TRANSPORT.cookie();if(!valid.getAsBoolean())return;
+                    if(!valid.getAsBoolean()){callback.failure(409,"Terminal context changed");return;}String cookie=TRANSPORT.cookie();if(!valid.getAsBoolean()){callback.failure(409,"Terminal context changed");return;}
                     // Authenticate and bind the actor again with the very same cookie before each write.
-                    var snapshot=TerminalFriendsPolicy.snapshot(TRANSPORT.read(cookie),self);if(!valid.getAsBoolean())return;
+                    var snapshot=TerminalFriendsPolicy.snapshot(TRANSPORT.read(cookie),self);if(!valid.getAsBoolean()){callback.failure(409,"Terminal context changed");return;}
                     var result=action==null?snapshot:TerminalFriendsPolicy.receipt(TRANSPORT.write(cookie,action),action);
                     if(peers){var projected=new JsonObject();for(String key:java.util.List.of("version","selfUid","presenceAvailable","friends","onlinePlayers"))projected.add(key,snapshot.get(key));result=projected;}
                     final JsonObject reply=result;
                     mc.execute(()->{
-                        if(!valid.getAsBoolean())return;
+                        if(!valid.getAsBoolean()){callback.failure(409,"Terminal context changed");return;}
                         if(peers){try{reply.add("runtime",TerminalFriendsInvitesBridge.snapshot());}catch(RuntimeException unavailable){callback.failure(503,"当前小游戏邀请协议不可用，请刷新核实");return;}}
                         if(action==null && !peers){cache=new Cache(snapshot,new WeakReference<>(browser),new WeakReference<>(screen),new WeakReference<>(connection),generation,System.nanoTime());decorateMessages(snapshot,connection);}
                         else if(action!=null)cache=null;
                         callback.success(reply.toString());
                     });
-                }catch(Exception error){mc.execute(()->{if(valid.getAsBoolean()){cache=null;callback.failure(error instanceof TerminalFriendsTransport.Failure failure?failure.code:400,error instanceof IllegalArgumentException || error instanceof IllegalStateException?error.getMessage():"好友请求未确认，请刷新核实");}});}
+                }catch(Exception error){mc.execute(()->{if(valid.getAsBoolean()){cache=null;callback.failure(error instanceof TerminalFriendsTransport.Failure failure?failure.code:400,error instanceof IllegalArgumentException || error instanceof IllegalStateException?error.getMessage():"好友请求未确认，请刷新核实");}else callback.failure(409,"Terminal context changed");});}
                 finally{BUSY.set(false);}
             });
         }catch(Exception error){callback.failure(400,error instanceof IllegalArgumentException?error.getMessage():"好友功能不可用，请刷新");}

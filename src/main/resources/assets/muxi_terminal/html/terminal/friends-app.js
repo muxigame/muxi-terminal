@@ -6,19 +6,19 @@
   page.innerHTML=`<div id="friendsBody"><div class="toolbar"><button id="friendsHome" class="back" aria-label="返回主页">‹</button><div><div class="eyebrow">APP / FRIENDS</div><h2>平台好友</h2></div><button id="friendsRefresh" class="secondary">刷新</button></div>
     <p class="friends-note">好友按平台 UID 保存，与临时小游戏队伍和领地队伍分开。</p><div class="task-tabs friends-actions"><button data-friends-tab="friends" class="task-tab task-tab-active" aria-pressed="true">我的好友</button><button data-friends-tab="requests" class="task-tab" aria-pressed="false">好友申请</button><button data-friends-tab="add" class="task-tab" aria-pressed="false">添加好友</button><button data-friends-tab="blocked" class="task-tab" aria-pressed="false">已屏蔽</button></div>
     <p id="friendsStatus" role="status" aria-live="polite">正在读取好友…</p><p id="friendsPresence" class="friends-presence"></p>
-    <div class="friends-actions"><button id="friendsLogin" class="secondary">打开玩家中心登录</button><button id="friendsRetry" class="secondary" hidden>重试未确认操作</button><button id="friendsAbandon" class="secondary" hidden>放弃本次重试</button></div>
+    <div class="friends-actions"><button id="friendsLogin" class="secondary">玩家中心</button><button id="friendsRetry" class="secondary" hidden>重试未确认操作</button><button id="friendsAbandon" class="secondary" hidden>放弃本次重试</button></div>
     <label id="friendsSearchLabel">筛选 UID / 昵称<input id="friendsSearch" type="search" maxlength="80" autocomplete="off"></label>
     <form id="friendsAddForm" class="detail-card" hidden><label for="friendsUid">对方平台 UID</label><input id="friendsUid" type="text" inputmode="numeric" maxlength="16" pattern="[1-9][0-9]{4,15}" autocomplete="off" placeholder="5–16 位 UID" required><p>昵称仅用于显示；对方接受申请后才成为好友。</p><div class="detail-actions"><button id="friendsRequest" type="submit" class="primary">发送好友申请</button></div></form><div id="friendsList"></div></div>
     <div id="friendsConfirm" hidden><div class="detail-card" role="dialog" aria-modal="true" aria-labelledby="friendsConfirmTitle"><h3 id="friendsConfirmTitle"></h3><p id="friendsConfirmText"></p><div class="detail-actions"><button id="friendsCancel" class="secondary">取消</button><button id="friendsConfirmOk" class="primary">确认</button></div></div></div>`;
   host.append(page);const el=id=>document.getElementById(id),active=()=>contentView && location.hash==='#/friends';
   let disposed=false,tab='friends',view={},signature='',confirmation=null,backgroundButtons=null,returnFocus=null;
-  async function invoke(command){let timer;try{return await Promise.race([native(command),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('好友响应超时，结果未确认')),15000);})]);}finally{clearTimeout(timer);}}
+  async function invoke(command){let timer;try{return await Promise.race([native(command),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('好友响应超时，结果未确认')),60000);})]);}finally{clearTimeout(timer);}}
   function run(work){work().catch(error=>{if(active() && !disposed)el('friendsStatus').textContent=controller.getState().error || error.message;});}
   function canWrite(){return !!view.snapshot && !view.busy && !view.needsRefresh && !view.retry;}
   function row(peer,buttons){const name=esc(peer.displayName),id=esc(peer.uid);return `<article class="detail-card friends-row"><div><h3>${name}</h3><p class="friends-uid">UID ${id} · <span class="${peer.online?'friends-online':'friends-offline'}">${peer.online?'在线':'离线'}</span></p></div><div class="detail-actions">${buttons.map(([op,label,enabled=true])=>`<button class="secondary" data-friends-op="${op}" data-friends-uid="${id}" ${!canWrite() || !enabled?'disabled':''}>${label}</button>`).join('')}</div></article>`;}
   function render(){
     if(disposed)return;const snapshot=view.snapshot,query=el('friendsSearch').value.trim().toLowerCase();
-    el('friendsStatus').textContent=view.error || (view.busy?'正在读取 / 核实操作…':snapshot?'当前平台 UID '+snapshot.selfUid+(view.lastReceipt?' · 操作回执已确认':''):'请先登录玩家中心，再刷新好友');
+    el('friendsStatus').textContent=view.error || (view.busy?'正在读取 / 核实操作…':snapshot?'当前平台 UID '+snapshot.selfUid+(view.lastReceipt?' · 操作回执已确认':''):'正在恢复客户端会话，请稍候');
     el('friendsPresence').textContent=snapshot?.presenceAvailable?'在线状态来自服务器；离线好友不能接收临时邀请。':'在线状态暂不可用，临时邀请和快捷私信已停用。';
     el('friendsRetry').hidden=el('friendsAbandon').hidden=!view.retry;el('friendsRetry').disabled=view.busy || view.needsRefresh;el('friendsAbandon').disabled=view.busy;
     el('friendsRequest').disabled=!canWrite();el('friendsRefresh').disabled=view.busy;el('friendsLogin').disabled=view.busy;

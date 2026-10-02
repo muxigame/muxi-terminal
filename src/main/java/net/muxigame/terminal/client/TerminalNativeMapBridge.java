@@ -19,13 +19,19 @@ final class TerminalNativeMapBridge {
             callback.failure(403,"地图入口仅限当前终端的本地页面");return true;
         }
         if(!request.equals("map.open")){callback.failure(404,"未知地图操作");return true;}
-        long generation=TerminalBrowserSession.generation();String document=frame.getURL();Object connection=mc.getConnection();
+        long generation=TerminalBrowserSession.generation(),frameId=frame.getIdentifier();String document=frame.getURL();Object connection=mc.getConnection();
         try{
             NativeMapLauncher.open(()->mc.getConnection()==connection && TerminalBrowserSession.generation()==generation
-                && TerminalBrowserSession.trusted(browser,frame) && document.equals(frame.getURL()));
+                && currentDocument(browser,frameId,document));
             callback.success("{\"ok\":true,\"nativeMap\":true,\"teleportRequested\":false}");
         }catch(ReflectiveOperationException|LinkageError unavailable){callback.failure(503,"当前 Xaero 地图版本不可用，请检查客户端模组");}
         catch(RuntimeException unavailable){callback.failure(409,"地图未就绪或终端页面已变化，请稍后重试");}
         return true;
+    }
+    private static boolean currentDocument(CefBrowser browser,long frameId,String document){
+        // The callback frame is released when the query settles; map return happens later.
+        CefFrame live=browser.getMainFrame();if(live==null)return false;
+        try{return live.getIdentifier()==frameId && TerminalBrowserSession.trusted(browser,live) && document.equals(live.getURL());}
+        finally{live.dispose();}
     }
 }
