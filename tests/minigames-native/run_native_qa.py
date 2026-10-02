@@ -188,11 +188,15 @@ def main():
             checks.append('Actual Auth POST consume returned 200 for both initial connections, independently of social proof')
         for role in ['host','guest']:command(role,'open')
         if dedicated:
-            previews=command('host','js',"document.querySelector('[data-mg-page=\"shop\"]').click();await window.MuxiMinigamesApp.activate();for(let i=0;i<100;i++){await wait(200);const cards=[...document.querySelectorAll('.mg-card-preview')];const loaded=cards.map(c=>({label:c.querySelector('figcaption')?.textContent,width:c.querySelector('img')?.naturalWidth||0,height:c.querySelector('img')?.naturalHeight||0,fallback:getComputedStyle(c.querySelector('.mg-preview-unavailable')).display}));if(loaded.length>=5&&loaded.every(c=>c.width===256&&c.height===192&&c.fallback==='none'))return {actualProviderCards:true,previews:loaded};}throw Error('Actual horse preview PNGs failed to load/hide fallback');")
+            previews=command('host','js',"document.querySelector('[data-mg-page=\"shop\"]').click();await window.MuxiMinigamesApp.activate();for(let i=0;i<100;i++){await wait(200);const cards=[...document.querySelectorAll('.mg-card-preview')];const loaded=cards.map(c=>({label:c.querySelector('figcaption')?.textContent,width:c.querySelector('img')?.naturalWidth||0,height:c.querySelector('img')?.naturalHeight||0,fallback:getComputedStyle(c.querySelector('.mg-preview-unavailable')).display}));if(loaded.length>=5&&loaded.every(c=>c.width===256&&c.height===192&&c.fallback==='none')){cards[0].scrollIntoView({block:'center'});await wait(1000);return {actualProviderCards:true,previews:loaded};}}throw Error('Actual horse preview PNGs failed to load/hide fallback');")
             write(home/'actual-mcef-horse-preview-shop.json',previews)
             checks.append('Actual provider horse catalog previews load in real MCEF through the shared PNG resource bridge')
             command('host','js',"document.querySelector('[data-mg-page=\"lobby\"]').click();await window.MuxiMinigamesApp.activate();return {page:'lobby'};")
         command('host','js',"await wait(1000);return {snapshot:await q('games.snapshot'),clean:document.getElementById('mg-games').hidden&&document.getElementById('mg-room-invitations').hidden&&!document.querySelector('[data-mg-choice]')};")
+        for role in ['host','guest']:
+            admission=command(role,'js',"for(let i=0;i<300;i++){await window.MuxiMinigamesApp.activate();const s=await q('games.snapshot');if(s.allowed&&s.platform?.available)return {allowed:s.allowed,platform:s.platform};await wait(200);}throw Error('Actual platform participation never became available');",timeout=120)
+            write(home/('actual-platform-ready-'+role+'.json'),admission)
+        checks.append('Both real MCEF clients show actual platform participation allowed and authoritative point balances')
         for round_index,game in enumerate(['outbreak','zombie-challenge','outbreak'],1):
             stage=f'round-{round_index}-{game}'
             print(json.dumps({'testing':game}),flush=True)

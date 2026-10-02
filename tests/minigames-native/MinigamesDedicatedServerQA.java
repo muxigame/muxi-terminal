@@ -36,6 +36,11 @@ public final class MinigamesDedicatedServerQA {
                 player.addProperty("inventory",p.getInventory().save(new net.minecraft.nbt.ListTag()).toString());player.addProperty("returnsPending",PlayerReturns.pending(p));
                 player.addProperty("connected",p.connection.isAcceptingMessages());player.addProperty("transport",p.connection.getConnection().getRemoteAddress().toString());
                 player.addProperty("resultPending",GamePlatform.pendingCount(p));
+                player.addProperty("serverThread",server.isSameThread());player.addProperty("playerServerMatches",p.server==server);
+                player.addProperty("currentPlayerMatches",server.getPlayerList().getPlayer(p.getUUID())==p);
+                player.addProperty("profileBanned",server.getPlayerList().getBans().isBanned(p.getGameProfile()));
+                player.addProperty("ipBanned",server.getPlayerList().getIpBans().isBanned(p.connection.getRemoteAddress()));
+                player.addProperty("whitelistAllows",server.getPlayerList().isWhiteListed(p.getGameProfile()));
                 String lastResult=GamePlatform.last(p);if(!lastResult.isEmpty())player.add("lastActualResult",JsonParser.parseString(lastResult));
                 try{player.addProperty("admittedUid",TrustedAccounts.uid(p));}catch(IllegalArgumentException unknown){player.addProperty("admittedUid",-1);}
                 try{player.addProperty("socialUid",TrustedAccounts.socialUid(p));}catch(IllegalArgumentException unknown){player.addProperty("socialUid",-1);}

@@ -194,7 +194,9 @@ def main():
         if dedicated:
             args=[a for a in args if not a.startswith(('-Dhttp.proxy','-Dhttps.proxy'))]
             args+=['-Dqa.minigames.dedicated=true','-Dmuxi.sso.nativeAuthURL='+backend['auth_url'],'-Dmuxi.sso.siteURL='+backend['site_url'],'-Dmuxi.sso.directTls=true','-Dmuxi.sso.sitePort='+str(backend['site_port']),'-Dmuxi.sso.spki='+backend['spki'],'-Djavax.net.ssl.trustStore='+backend['truststore'],'-Djavax.net.ssl.trustStorePassword=isolated-synthetic']
-        args+=expand(meta['arguments']['jvm'])+[meta['mainClass']]+expand(meta['arguments']['game'])
+        inherited_jvm=expand(meta['arguments']['jvm'])
+        if dedicated:inherited_jvm=[a for a in inherited_jvm if not a.startswith('-Djava.net.preferIPv6Addresses=')]+['-Djava.net.preferIPv6Addresses=false']
+        args+=inherited_jvm+[meta['mainClass']]+expand(meta['arguments']['game'])
         reviewed.argfile(lab/'launch.args',args)
         clients.append({'role':role,'username':name,'uuid':str(offline_uuid),'lab':str(lab),'java':str(runtime),'args':str(lab/'launch.args')})
     report={'prepared':True,'clientStarted':False,'home':str(home),'coordinator':str(coordinator),'port':port,'clients':clients,'heapPerClient':'6G','fakePlayers':False,'syntheticSSO':False,'productionOperations':False,'accountAuthentication':'private-offline-LAN; not trusted account acceptance','terminalCompiledSource':str(terminal_source),'terminalCompiledSha256':compiled_sha256,'terminalResourcesOverlaid':own_resources,'gunpackSha256':digest(gunpack),'artifacts':{key:{'path':str(value),'sha256':digest(value)} for key,value in artifacts.items()}}
@@ -222,7 +224,9 @@ def main():
         library_prefix=(installed/'libraries').as_posix()
         server_args=[a.replace('libraries/',library_prefix+'/') if 'libraries/' in a else a for a in server_args]
         server_args=[('-DlibraryDirectory='+library_prefix) if a=='-DlibraryDirectory=libraries' else a for a in server_args]
-        reviewed.argfile(server/'server-launch.args',['-Xms512M','-Xmx4G','-XX:ActiveProcessorCount=2','-Dfile.encoding=UTF-8','-Dqa.minigames.coordinator='+str(coordinator),'-Dmuxi.sso.nativeAuthURL='+backend['auth_url'],'-Djavax.net.ssl.trustStore='+backend['truststore'],'-Djavax.net.ssl.trustStorePassword=isolated-synthetic',*server_args])
+        server_args=[a for a in server_args if not a.startswith('-Djava.net.preferIPv6Addresses=')]
+        reviewed.argfile(server/'server-launch.args',['-Xms512M','-Xmx4G','-XX:ActiveProcessorCount=2','-Dfile.encoding=UTF-8','-Djava.net.preferIPv6Addresses=false','-Dqa.minigames.coordinator='+str(coordinator),'-Dmuxi.sso.nativeAuthURL='+backend['auth_url'],'-Djavax.net.ssl.trustStore='+backend['truststore'],'-Djavax.net.ssl.trustStorePassword=isolated-synthetic',*server_args])
+        report['qaNetworkingIsolation']['loopbackAddressPreference']='IPv4 first only in private dedicated/client JVMs; same localhost TLS origin, CA and SPKI remain enforced. Actual JDK probe proves inherited system preference connects to unbound ::1.'
         report['dedicatedServer']={'root':str(server),'java':str(runtime),'args':str(server/'server-launch.args'),'nogui':True,'loginGateEnabled':True,'sharedBackendOwner':str(REPO/'build/minigames-native/shared-backend-owner.json'),'mods':len(list((server/'mods').glob('*.jar')))}
         report['qaNetworkingIsolation']['e4mcPublicRelay']='No hook isolation used; external dedicated server. Original installed server pack has no Luna jar.'
         report['accountAuthentication']='actual RpcHost A/B with late join grants and actual Core LoginGate; not yet tested'
