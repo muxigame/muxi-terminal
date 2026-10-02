@@ -66,8 +66,8 @@ def main():
             if time.monotonic()-last>10:print(json.dumps({'waiting':path.name,'pids':{role:p.pid for role,p in processes.items()}}),flush=True);last=time.monotonic()
             time.sleep(.2)
         raise TimeoutError(str(path))
-    def command(role,kind,body='',timeout=90):
-        ids[role]+=1;ident=ids[role];write(coordinator/f'command-{role}.json',{'id':ident,'type':kind,'body':body})
+    def command(role,kind,body='',timeout=90,transition=False):
+        ids[role]+=1;ident=ids[role];write(coordinator/f'command-{role}.json',{'id':ident,'type':kind,'body':body,'allowViewTransition':transition})
         data=wait_file(coordinator/f'result-{role}-{ident}.json',timeout)
         if not data.get('ok'):raise RuntimeError(data)
         return data.get('value',data)
@@ -200,6 +200,8 @@ def main():
             write(home/('actual-platform-ready-'+role+'.json'),admission)
         checks.append('Both real MCEF clients show actual platform participation allowed and authoritative point balances')
         for round_index,game in enumerate(['zombie-challenge','outbreak','outbreak'],1):
+            if round_index>1:
+                for role in ['host','guest']:command(role,'open')
             stage=f'round-{round_index}-{game}'
             print(json.dumps({'testing':game}),flush=True)
             created=command('host','js',"document.getElementById('mg-back').click();document.querySelector('[data-mg-create]').click();document.querySelector('[data-mg-game=\""+game+"\"]').click();const maps=[...document.querySelectorAll('[data-mg-map]')];const map=maps.find(b=>['campaign_city_zero','metro_escape','research_lab'].includes(b.dataset.mgMap))||maps[0];if(!map)throw Error('No map');map.click();document.querySelector('[data-mg-action]').click();document.querySelector('[data-mg-action]').click();for(let i=0;i<100;i++){await wait(200);const s=await q('games.snapshot');const g=s.games.find(g=>g.id==='"+game+"');if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed'&&g.state.rooms.some(r=>r.mine)){return {snapshot:s,room:g.state.rooms.find(r=>r.mine),selected:map.dataset.mgMap};}}throw Error('Create not confirmed');")
@@ -219,7 +221,9 @@ def main():
             write(home/(stage+'-join.json'),joined)
             waiting=command(observer,'observe');same_inventory_and_location(baseline,waiting)
             checks.append(game+': second real client joined waiting room; both retained original world and inventory')
-            command('host','js',"await window.MuxiMinigamesApp.activate();for(let i=0;i<6000;i++){await wait(200);await window.MuxiMinigamesApp.activate();const start=[...document.querySelectorAll('[data-mg-action]')].find(b=>b.textContent.includes('\u5f00\u59cb'));if(start&&!start.disabled){const prior=(await q('games.snapshot')).operation?.request;start.click();for(let j=0;j<50;j++){await wait(200);const s=await q('games.snapshot');if(s.operation?.request===prior)continue;if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed')return s;}throw Error('Start not confirmed');}}throw Error('Host start unavailable after full original-map preparation wait');",timeout=1320)
+            before_start=command(observer,'observe')
+            prior_start=next(p for p in before_start['players'] if p['name']=='10000')['games'].get('operation',{}).get('request')
+            command('host','js',"await window.MuxiMinigamesApp.activate();for(let i=0;i<6000;i++){await wait(200);await window.MuxiMinigamesApp.activate();const start=[...document.querySelectorAll('[data-mg-action]')].find(b=>b.textContent.includes('\u5f00\u59cb'));if(start&&!start.disabled){const prior=(await q('games.snapshot')).operation?.request;start.click();for(let j=0;j<50;j++){await wait(200);const s=await q('games.snapshot');if(s.operation?.request===prior)continue;if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed')return s;}throw Error('Start not confirmed');}}throw Error('Host start unavailable after full original-map preparation wait');",timeout=1320,transition=True)
             start_trace=[]
             for attempt in range(1200):
                 started=command(observer,'observe')
@@ -233,9 +237,21 @@ def main():
             write(home/(stage+'-start-transition-trace.json'),start_trace)
             write(home/(stage+'-started-real-players.json'),started)
             assert len(started['players'])==2 and all(p['dimension']!=next(b for b in baseline['players'] if b['uuid']==p['uuid'])['dimension'] for p in started['players']), 'Actual started room did not finish native arena preparation and move both players'
-            checks.append(game+': only explicit host Start sent both real players into the map')
+            start_receipt=next(p for p in started['players'] if p['name']=='10000')['games'].get('operation',{})
+            assert start_receipt.get('request')!=prior_start and start_receipt.get('status')=='completed', 'Actual server did not independently confirm the Start operation'
+            checks.append(game+': only explicit host Start sent both real players into the map; actual server independently confirmed its new operation receipt')
             for role in ['guest','host']:
-                command(role,'js',"await window.MuxiMinigamesApp.activate();const leave=[...document.querySelectorAll('[data-mg-action]')].find(b=>/\u9000\u51fa|\u79bb\u5f00/.test(b.textContent));if(!leave)throw Error('No leave action');leave.click();document.getElementById('mg-confirm-ok').click();for(let i=0;i<100;i++){await wait(200);const s=await q('games.snapshot');if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed'&&!s.activeGame)return s;}throw Error('Leave not confirmed');")
+                command(role,'open')
+                before_leave=command(observer,'observe')
+                prior_leave=next(p for p in before_leave['players'] if p['name']==('10000' if role=='host' else '10001'))['games'].get('operation',{}).get('request')
+                command(role,'js',"await window.MuxiMinigamesApp.activate();const leave=[...document.querySelectorAll('[data-mg-action]')].find(b=>/\u9000\u51fa|\u79bb\u5f00/.test(b.textContent));if(!leave)throw Error('No leave action');leave.click();document.getElementById('mg-confirm-ok').click();for(let i=0;i<100;i++){await wait(200);const s=await q('games.snapshot');if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed'&&!s.activeGame)return s;}throw Error('Leave not confirmed');",transition=True)
+                for attempt in range(200):
+                    after_leave=command(observer,'observe')
+                    left=next(p for p in after_leave['players'] if p['name']==('10000' if role=='host' else '10001'))['games']
+                    if not left.get('activeGame') and left.get('operation',{}).get('request')!=prior_leave and left.get('operation',{}).get('status')=='completed':break
+                    time.sleep(.2)
+                write(home/(stage+'-leave-'+role+'-real-players.json'),after_leave)
+                assert not left.get('activeGame') and left.get('operation',{}).get('request')!=prior_leave and left.get('operation',{}).get('status')=='completed', 'Actual server did not independently confirm Leave'
             for attempt in range(200):
                 restored=command(observer,'observe')
                 try:same_inventory_and_location(baseline,restored);break

@@ -41,6 +41,8 @@ public final class MinigamesNativeQA {
     private int ticks,lastCommand=-1,delay,stopAt,worldReadyTicks;
     private JsonObject command;
     private long generation;
+    private String dispatchedDimension;
+    private int focusWait;
     private volatile JsonObject sampled;
     public MinigamesNativeQA(){NeoForge.EVENT_BUS.addListener(this::tick);}
     private void write(Path path,JsonObject data)throws Exception {
@@ -82,7 +84,7 @@ public final class MinigamesNativeQA {
             if(command==null&&Files.isRegularFile(coordinator.resolve("command-"+role+".json"))){
                 JsonObject next=JsonParser.parseString(Files.readString(coordinator.resolve("command-"+role+".json"))).getAsJsonObject();
                 if(next.get("id").getAsInt()>lastCommand){
-                    command=next;lastCommand=next.get("id").getAsInt();sampled=null;delay=0;
+                    command=next;lastCommand=next.get("id").getAsInt();sampled=null;delay=0;focusWait=0;
                     if(!next.get("type").getAsString().equals("stop")){
                         GLFW.glfwShowWindow(mc.getWindow().getWindow());GLFW.glfwRestoreWindow(mc.getWindow().getWindow());GLFW.glfwFocusWindow(mc.getWindow().getWindow());
                     }
@@ -158,17 +160,28 @@ public final class MinigamesNativeQA {
                     }catch(Exception e){e.printStackTrace();}
                 });return;
             }
-            if(!mc.isWindowActive()){if(++delay>200)throw new IllegalStateException("Real window focus not obtained");return;}
+            if(!mc.isWindowActive()){if(++focusWait>200)throw new IllegalStateException("Real window focus not obtained");return;}
             if(type.equals("open")){
+                if(mc.screen instanceof net.minecraft.client.gui.screens.ReceivingLevelScreen)return;
                 if(delay++==0){TerminalClient.openApp("games");return;}
                 var state=TerminalBrowserSession.state();
                 if(TerminalBrowserSession.content()==null||!state.rendered()||state.loading()||!TerminalBrowserSession.contentVisible())return;
                 if(delay<60)return;
                 JsonObject row=status(mc);row.addProperty("ok",true);row.addProperty("url",TerminalBrowserSession.content().getURL());write(coordinator.resolve("result-"+role+"-"+lastCommand+".json"),row);command=null;return;
             }
-            var browser=TerminalBrowserSession.content();if(browser==null)throw new IllegalStateException("No real MCEF app");
+            var browser=TerminalBrowserSession.content();
+            if(browser==null && delay>0 && command.has("allowViewTransition") && command.get("allowViewTransition").getAsBoolean()
+                && !mc.level.dimension().location().toString().equals(dispatchedDimension)) {
+                JsonObject row=status(mc);row.addProperty("ok",true);row.addProperty("actualMcefDispatched",true);
+                row.addProperty("browserClosedDuringRealDimensionTransition",true);row.addProperty("fromDimension",dispatchedDimension);
+                row.addProperty("toDimension",mc.level.dimension().location().toString());
+                row.addProperty("requiresIndependentServerOperationAndPositionConfirmation",true);
+                write(coordinator.resolve("result-"+role+"-"+lastCommand+".json"),row);command=null;return;
+            }
+            if(browser==null)throw new IllegalStateException("No real MCEF app");
             if(delay++==0){
                 generation=TerminalBrowserSession.generation();
+                dispatchedDimension=mc.level.dimension().location().toString();
                 String js="(async()=>{const q=request=>window.muxi.invoke(request);const wait=ms=>new Promise(r=>setTimeout(r,ms));let result;try{result={ok:true,value:await(async()=>{"+command.get("body").getAsString()+"})()};}catch(e){result={ok:false,error:String(e)};}result.url=location.href;result.text=document.body.innerText;result.generation="+generation+";document.documentElement.setAttribute('data-minigames-qa-"+lastCommand+"',btoa(unescape(encodeURIComponent(JSON.stringify(result)))));})()";
                 browser.executeJavaScript(js,browser.getURL(),0);
             }
