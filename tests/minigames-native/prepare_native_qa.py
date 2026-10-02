@@ -7,6 +7,7 @@ from __future__ import annotations
 import ctypes
 import hashlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -42,25 +43,34 @@ def main():
     game=WORK/'_client_test/game'
     pack=FROZEN/'candidate-pack'
     extras=json.loads((DESKTOP/'unified-inputs.json').read_text(encoding='utf-8'))
-    home=REPO/'build/minigames-native'/datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
+    # Keep copied shader/material paths below Windows MAX_PATH without system changes.
+    home=Path(tempfile.gettempdir())/('mgqa-'+datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S'))
     home.mkdir(parents=True)
     coordinator=home/'coordinator';coordinator.mkdir()
     artifact_dir=home/'pinned-artifacts';artifact_dir.mkdir()
     # Pin the existing compiled terminal, then overlay only this owner's UI resources.
     terminal_source=REPO/'build/libs/muxi-terminal-0.2.4-task14-social-qa.1.jar'
+    compiled_bytes=terminal_source.read_bytes()
+    compiled_sha256=hashlib.sha256(compiled_bytes).hexdigest()
     terminal=artifact_dir/terminal_source.name
     own_resources=['apps/minigames/app.js','apps/minigames/app.css','apps/minigames/model.js','friends-invites.js','index.html']
     prefix='assets/muxi_terminal/html/terminal/'
     overrides={prefix+name:(REPO/'src/main/resources'/prefix/name).read_bytes() for name in own_resources}
-    with zipfile.ZipFile(terminal_source) as source,zipfile.ZipFile(terminal,'w',zipfile.ZIP_DEFLATED) as target:
+    with zipfile.ZipFile(io.BytesIO(compiled_bytes)) as source,zipfile.ZipFile(terminal,'w',zipfile.ZIP_DEFLATED) as target:
         for entry in source.infolist():target.writestr(entry,overrides.pop(entry.filename,source.read(entry.filename)))
         for name,data in overrides.items():target.writestr(name,data)
     artifacts={'muxi_terminal':terminal}
     for row in extras['artifacts']:
         if row['id']=='muxi_terminal':continue
         source=Path(extras['stage'])/row['path']
-        if row['id']=='muxi_minigames':source=REPO.parent/'muxi-minigames/build/libs'/row['artifact']
-        elif row['id']=='muxi_outbreak':source=FROZEN/'muxi-outbreak/build/libs'/row['artifact']
+        owner_repo={'muxi_minigames':REPO.parent/'muxi-minigames',
+                    'muxi_game_core':REPO.parent/'muxi-game-core',
+                    'muxi_zombie_challenge':FROZEN/'muxi-zombie-challenge',
+                    'muxi_outbreak':FROZEN/'muxi-outbreak'}.get(row['id'])
+        if owner_repo:
+            release=json.loads((owner_repo/'build/release.json').read_text(encoding='utf-8'))
+            source=owner_repo/'build/libs'/release['artifact']
+            if digest(source)!=release['sha256']:raise ValueError('Owner build receipt mismatch: '+row['id'])
         elif digest(source)!=row['sha256']:raise ValueError('Frozen artifact mismatch: '+row['id'])
         destination=artifact_dir/source.name;shutil.copy2(source,destination);artifacts[row['id']]=destination
     fixes=Path(extras['originalFixDirectory'])
@@ -74,7 +84,7 @@ def main():
     expected=json.loads((DESKTOP/'expected-pack.json').read_text(encoding='utf-8'))['files']
     with socket.socket() as listener:listener.bind(('127.0.0.1',0));port=listener.getsockname()[1]
     classes=home/'classes'
-    sources=[HERE/'MinigamesNativeQA.java']+[DESKTOP/'java/net/muxigame/terminal/qa/mixin'/name for name in ['OfflineMcefMixin.java','HardwareWmiTimeoutQAMixin.java']]
+    sources=[HERE/name for name in ['MinigamesNativeQA.java','LanPublishDiagnosticsMixin.java','PrivateRelayIsolationMixin.java','PrivateRelayIsolationPlugin.java']]+[DESKTOP/'java/net/muxigame/terminal/qa/mixin'/name for name in ['OfflineMcefMixin.java','HardwareWmiTimeoutQAMixin.java']]
     cp=[terminal,artifacts['muxi_minigames'],game/'libraries/net/neoforged/neoforge/21.1.250/neoforge-21.1.250-client.jar',game/'libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-srg.jar',*libs,*list((WORK/'bmc5server/libraries').rglob('*.jar')),*list((pack/'mods').glob('*.jar'))]
     build.compile_java(compiler,sources,classes,os.pathsep.join(map(str,cp)),home/'compile.args')
     clients=[]
@@ -88,7 +98,7 @@ def main():
             if hashlib.sha1(source.read_bytes()).hexdigest()!=row['sha1']:raise ValueError('Frozen pack mismatch: '+row['path'])
             if source.name.startswith(('muxi-terminal-','muxi-minigames-','muxi-game-core-','muxi-outbreak-','muxi-zombie-challenge-')):continue
             shutil.copy2(source,lab/'mods'/source.name)
-        for directory in ['config','resourcepacks','defaultconfigs','kubejs','tacz']:
+        for directory in ['config','shaderpacks','resourcepacks','defaultconfigs','kubejs','tacz']:
             if (pack/directory).is_dir():shutil.copytree(pack/directory,lab/directory,dirs_exist_ok=True)
         for source in artifact_dir.glob('*.jar'):shutil.copy2(source,lab/'mods'/source.name)
         (lab/'tacz').mkdir(exist_ok=True)
@@ -97,7 +107,7 @@ def main():
         (lab/'config/iris.properties').write_text('enableShaders=false\ndisableUpdateMessage=true\n',encoding='utf-8')
         with zipfile.ZipFile(lab/'mods/minigames-qa-only.jar','w',zipfile.ZIP_DEFLATED) as archive:
             archive.writestr('META-INF/neoforge.mods.toml','modLoader="javafml"\nloaderVersion="[4,)"\nlicense="MIT"\n[[mods]]\nmodId="minigames_native_qa"\nversion="1.0.0"\ndisplayName="Private real minigames QA"\n[[mixins]]\nconfig="minigames_native_qa.mixins.json"\n')
-            archive.writestr('minigames_native_qa.mixins.json',json.dumps({'required':True,'minVersion':'0.8','package':'net.muxigame.terminal.qa.mixin','compatibilityLevel':'JAVA_21','client':['OfflineMcefMixin','HardwareWmiTimeoutQAMixin'],'injectors':{'defaultRequire':1}}))
+            archive.writestr('minigames_native_qa.mixins.json',json.dumps({'required':True,'minVersion':'0.8','package':'net.muxigame.terminal.qa.mixin','plugin':'net.muxigame.terminal.qa.mixin.PrivateRelayIsolationPlugin','compatibilityLevel':'JAVA_21','client':['OfflineMcefMixin','HardwareWmiTimeoutQAMixin','LanPublishDiagnosticsMixin','PrivateRelayIsolationMixin'],'injectors':{'defaultRequire':1}}))
             for source in classes.rglob('*.class'):archive.write(source,source.relative_to(classes).as_posix())
         offline_uuid=uuid.UUID(bytes=hashlib.md5(('OfflinePlayer:'+name).encode()).digest(),version=3)
         subs={'auth_player_name':name,'auth_uuid':offline_uuid.hex,'auth_access_token':'0','version_name':'BatterMC5Remake','game_directory':str(lab),'assets_root':str(game/'assets'),'assets_index_name':meta['assetIndex']['id'],'clientid':'','auth_xuid':'','user_type':'legacy','version_type':'release','resolution_width':'1280','resolution_height':'720','natives_directory':str(lab/'natives'),'launcher_name':'private-real-minigames-qa','launcher_version':'1','classpath':os.pathsep.join(map(str,libs)),'library_directory':str(game/'libraries'),'classpath_separator':os.pathsep}
@@ -113,11 +123,12 @@ def main():
                     if '${' in value:raise ValueError('Unresolved argument: '+value)
                     result.append(value)
             return result
-        args=['-Xms512M','-Xmx3G','-XX:ActiveProcessorCount=2','-Dfile.encoding=UTF-8','-Dhttp.proxyHost=127.0.0.1','-Dhttp.proxyPort=9','-Dhttps.proxyHost=127.0.0.1','-Dhttps.proxyPort=9','-Dqa.minigames.role='+role,'-Dqa.minigames.coordinator='+str(coordinator),'-Dqa.minigames.port='+str(port)]
+        args=['-Xms512M','-Xmx6G','-XX:ActiveProcessorCount=2','-Dfile.encoding=UTF-8','-Dhttp.proxyHost=127.0.0.1','-Dhttp.proxyPort=9','-Dhttps.proxyHost=127.0.0.1','-Dhttps.proxyPort=9','-Dqa.minigames.role='+role,'-Dqa.minigames.coordinator='+str(coordinator),'-Dqa.minigames.port='+str(port)]
         args+=expand(meta['arguments']['jvm'])+[meta['mainClass']]+expand(meta['arguments']['game'])
         reviewed.argfile(lab/'launch.args',args)
         clients.append({'role':role,'username':name,'uuid':str(offline_uuid),'lab':str(lab),'java':str(runtime),'args':str(lab/'launch.args')})
-    report={'prepared':True,'clientStarted':False,'home':str(home),'coordinator':str(coordinator),'port':port,'clients':clients,'fakePlayers':False,'syntheticSSO':False,'productionOperations':False,'terminalCompiledSource':str(terminal_source),'terminalCompiledSha256':digest(terminal_source),'terminalResourcesOverlaid':own_resources,'gunpackSha256':digest(gunpack),'artifacts':{key:{'path':str(value),'sha256':digest(value)} for key,value in artifacts.items()}}
+    report={'prepared':True,'clientStarted':False,'home':str(home),'coordinator':str(coordinator),'port':port,'clients':clients,'heapPerClient':'6G','fakePlayers':False,'syntheticSSO':False,'productionOperations':False,'accountAuthentication':'private-offline-LAN; not trusted account acceptance','terminalCompiledSource':str(terminal_source),'terminalCompiledSha256':compiled_sha256,'terminalResourcesOverlaid':own_resources,'gunpackSha256':digest(gunpack),'artifacts':{key:{'path':str(value),'sha256':digest(value)} for key,value in artifacts.items()}}
+    report['qaNetworkingIsolation']={'e4mcPublicRelay':'one source-tagged startup hook skipped in QA-only mod','originalModJarsModified':False,'sableUdpDisabled':False,'candidateDefaultLanAcceptance':False,'knownDefaultLanFailure':'Luna/e4mc recursively invokes startTcpServerListener; Sable binds the same UDP port twice'}
     write(home/'prepared.json',report);write(REPO/'build/minigames-native/latest-prepared.json',report)
     print(json.dumps(report,ensure_ascii=False,indent=2))
 

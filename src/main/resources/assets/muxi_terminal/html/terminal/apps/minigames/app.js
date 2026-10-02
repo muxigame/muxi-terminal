@@ -18,16 +18,17 @@
   const stage=()=>['mode','map','create','room'].includes(context.drafts['minigames:stage'])?context.drafts['minigames:stage']:'lobby';
   const setStage=value=>{context.drafts['minigames:stage']=value;};
   const busy=()=>!!(pending||unconfirmed||invitationBusy);
-  function buttonHtml(id,button,owner){
-    const key=String(actions.size);actions.set(key,{game:id,button,owner});
-    return `<button data-mg-action="${key}" ${M.blocked(snapshot,id,button)||busy()?'disabled':''} class="${button.safe?'secondary':'primary'}">${M.esc(button.label)}</button>`;
+  const iconHtml=(icon,label='')=>icon&&typeof icon==='object'?window.TerminalIcons?.html({...icon,label:icon.label||label})||'':'';
+  function buttonHtml(id,button,owner,displayOwner=owner){
+    const key=String(actions.size);actions.set(key,{game:id,button,owner,icon:button.icon||displayOwner.icon});
+    return `<button data-mg-action="${key}" ${M.blocked(snapshot,id,button)||busy()?'disabled':''} class="${button.safe?'secondary':'primary'}">${iconHtml(button.icon,button.label)}${M.esc(button.label)}</button>`;
   }
   function fieldsHtml(id,owner,filter=()=>true){
     const selected=M.values(id,owner,context.drafts);
     return (owner.fields||[]).filter(filter).map(field=>`<div class="mg-field"><span>${M.esc(field.label)}</span><div class="detail-actions">${M.fieldOptions(field,selected).map(option=>`<button class="task-tab ${String(option.value)===selected[field.id]?'task-tab-active':''}" data-mg-choice="${M.esc(id+':'+field.id)}" data-mg-value="${M.esc(option.value)}" ${busy()?'disabled':''} aria-pressed="${String(option.value)===selected[field.id]}">${M.esc(option.label)}</button>`).join('')}</div></div>`).join('');
   }
   function sectionHtml(id,section){
-    return `<section class="detail-card"><div class="detail-section"><h3>${M.esc(section.title)}</h3><p>${M.esc(section.text)}</p></div><div class="mg-fields">${fieldsHtml(id,section)}</div><div class="detail-actions">${(section.actions||[]).map(button=>buttonHtml(id,button,section)).join('')}</div><div class="guide-list">${(section.cards||[]).map(card=>`<article class="guide-card"><h4>${M.esc(card.title)}</h4><p>${M.esc(card.text)}</p><div class="detail-actions">${(card.actions||[]).map(button=>buttonHtml(id,button,section)).join('')}</div></article>`).join('')}</div></section>`;
+    return `<section class="detail-card"><div class="detail-section"><h3>${iconHtml(section.icon,section.title)}${M.esc(section.title)}</h3><p>${M.esc(section.text)}</p></div><div class="mg-fields">${fieldsHtml(id,section)}</div><div class="detail-actions">${(section.actions||[]).map(button=>buttonHtml(id,button,section)).join('')}</div><div class="guide-list">${(section.cards||[]).map(card=>`<article class="guide-card"><h4>${iconHtml(card.icon,card.title)}${M.esc(card.title)}</h4><p>${M.esc(card.text)}</p><div class="detail-actions">${(card.actions||[]).map(button=>buttonHtml(id,button,section,card)).join('')}</div></article>`).join('')}</div></section>`;
   }
   function currencyHtml(item){return (item?.ui?.currencies||[]).map(currency=>`<article class="task-intro"><div><small>${M.esc(currency.label)} \u00b7 ${M.esc(currency.scope)}</small><strong>${M.esc(currency.value)}</strong><p>${M.esc(currency.note)}</p></div></article>`).join('');}
   function mapOptions(item){const owner=M.createSection(item),selected=M.values(item.id,owner||{},context.drafts);return M.fieldOptions(owner?.fields?.find(field=>field.id==='map')||{},selected);}
@@ -47,6 +48,7 @@
     el('mg-games').hidden=context.page!=='lobby'||currentStep!=='mode';
     el('mg-games').innerHTML=games.map(entry=>`<button class="guide-card" data-mg-game="${M.esc(entry.id)}" ${!M.createSection(entry)||busy()||owned()?'disabled':''}><h3>${M.esc(entry.title)}</h3><p>${text.mode}</p></button>`).join('')||'<div class="guide-intro">\u7b49\u5f85\u670d\u52a1\u5668\u52a0\u8f7d\u53ef\u7528\u6a21\u5f0f\u3002</div>';
     el('mg-currencies').hidden=context.page!=='shop';
+    window.TerminalIcons?.release(el('mg-currencies'));
     el('mg-currencies').innerHTML=context.page==='shop'?games.map(currencyHtml).join(''):'';
     actions.clear();let content='';
     if(context.page==='shop'){
@@ -75,7 +77,8 @@
       const social=snapshot.social?.enabled===true&&snapshot.social?.authenticated===true;
       content=`<div class="section-title">${text.room} \u00b7 ${M.esc(selected.title)}</div>`+M.sections(selected).filter(section=>['room','recovery','result'].includes(M.role(section))||(M.role(section)==='invite'&&M.waiting(room)&&!social)).map(section=>sectionHtml(selected.id,section)).join('');
     }
-    el('mg-content').innerHTML=content;
+    window.TerminalIcons?.release(el('mg-content'));el('mg-content').innerHTML=content;
+    void window.TerminalIcons?.hydrate(el('mg-content'));void window.TerminalIcons?.hydrate(el('mg-currencies'));
     const inviteVisible=context.page==='lobby'&&currentStep==='room'&&M.waiting(room);
     const inviteMount=el('mg-room-invitations');if(inviteMount)inviteMount.hidden=!inviteVisible;
     window.MuxiRoomInvites?.show({visible:inviteVisible,game:selected?.id||'',session:room?.session||''});remember();
@@ -148,11 +151,11 @@
     const step=event.target.closest('[data-mg-stage]');if(step){if(!busy()){setStage(step.dataset.mgStage);render();}return;}
     const page=event.target.closest('[data-mg-page]');if(page){context.page=page.dataset.mgPage;render();return;}
     const button=event.target.closest('[data-mg-action]');if(!button)return;const target=actions.get(button.dataset.mgAction);if(!target)return;
-    if(target.button.confirm){confirmAction=target;el('mg-confirm-text').textContent=target.button.confirm;el('mg-confirm').hidden=false;el('mg-confirm-cancel').focus();}else execute(target);
+    if(target.button.confirm){confirmAction=target;window.TerminalIcons?.release(el('mg-confirm-text'));el('mg-confirm-text').innerHTML=iconHtml(target.icon)+`<span>${M.esc(target.button.confirm)}</span>`;void window.TerminalIcons?.hydrate(el('mg-confirm-text'));el('mg-confirm').hidden=false;el('mg-confirm-cancel').focus();}else execute(target);
   });
   el('mg-back').addEventListener('click',lobby);
   el('mg-refresh').addEventListener('click',()=>refresh(true));
-  function cancel(){el('mg-confirm').hidden=true;confirmAction=null;}
+  function cancel(){el('mg-confirm').hidden=true;window.TerminalIcons?.release(el('mg-confirm-text'));confirmAction=null;}
   el('mg-confirm-cancel').addEventListener('click',cancel);
   el('mg-confirm-ok').addEventListener('click',()=>{const target=confirmAction;cancel();if(target)execute(target);});
   root.addEventListener('keydown',event=>{if(event.key==='Escape'&&!el('mg-confirm').hidden){cancel();event.stopPropagation();}});

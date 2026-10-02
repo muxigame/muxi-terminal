@@ -71,6 +71,8 @@ window.__fx={calls:[],actions:[],fail:false,hold:true,late:null};
     else if(o.request==='friends.invites.snapshot')value={version:1,enabled:false,authenticated:false,rooms:[],onlinePlayers:[],invitations:[]};
     else if(o.request==='apps.list')value=[];
     else if(o.request.startsWith('resource.data:'))value='';
+    else if(o.request==='icons.state')value={revision:1};
+    else if(o.request.startsWith('icons.get:'))value={revision:1,src:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a4v8AAAAASUVORK5CYII='};
     else if(o.request==='tasks.snapshot')value={supported:false,loading:false,rows:[]};
     else if(o.request.startsWith('games.action:')){
       const action=JSON.parse(o.request.slice(13)),request='aaaaaaaa-aaaa-4aaa-8aaa-'+String(f.actions.length+1).padStart(12,'0');
@@ -99,6 +101,12 @@ try{
   await cdp('Page.addScriptToEvaluateOnNewDocument',{source:fixture});
   await cdp('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/index.html#/games`});
   await eventually('!!document.querySelector("[data-mg-create]")');
+  // The public owner may stage its module before wiring the shared index.
+  // Consumer-only tests use that exact module; production integration remains its owner's work.
+  if(!await js('!!window.TerminalIcons')&&fs.existsSync(path.join(assets,'terminal-icons.js'))){
+    await js(fs.readFileSync(path.join(assets,'terminal-icons.js'),'utf8'));
+    await js(`{const style=document.createElement('style');style.textContent=${JSON.stringify(fs.readFileSync(path.join(assets,'terminal-icons.css'),'utf8'))};document.head.appendChild(style);}`);
+  }
   await check('default lobby shows room list and create, hides mode/form/invitation',`document.querySelector('[data-mg-create]')&&document.querySelector('[data-mg-action]')&&!document.querySelector('[data-mg-choice]')&&document.getElementById('mg-games').hidden&&document.getElementById('mg-room-invitations').hidden`);
   await shot('01-lobby');
   await js(`document.querySelector('[data-mg-create]').click()`);
@@ -143,6 +151,16 @@ try{
   await js(`__fx.complete(false);__fx.late()`);
   await eventually(`!document.querySelector('[data-mg-action]').disabled`);
   await check('late callback resumes correlation and only final receipt unlocks',`!document.querySelector('[data-mg-action]').disabled&&document.getElementById('mg-notice').textContent.includes('\u5df2\u786e\u8ba4')`);
+  if(await js('!!window.TerminalIcons')){
+    await js(`(async()=>{__fx.late=false;const card=__fx.state.games[0].ui.shop.sections[0].cards[0];card.icon={kind:'item',id:'minecraft:enchanted_golden_apple',label:'Apple'};card.actions[0].confirm='Confirm item purchase?';await window.MuxiMinigamesApp.activate();})()`);
+    await eventually(`!!document.querySelector('#mg-content img[data-terminal-icon-id="minecraft:enchanted_golden_apple"]')&&!document.querySelector('#mg-content img[data-terminal-icon-id="minecraft:enchanted_golden_apple"]').hidden`);
+    await check('cards consume shared icon html and hydrate APIs',`document.querySelector('#mg-content img').naturalWidth>0&&__fx.calls.some(c=>c.startsWith('icons.get:'))`);
+    await js(`document.querySelector('[data-mg-action]').click()`);
+    await eventually(`!!document.querySelector('#mg-confirm-text img')&&!document.querySelector('#mg-confirm-text img').hidden`);
+    await check('confirmation inherits server card descriptor through common icon service',`document.querySelector('#mg-confirm-text img').dataset.terminalIconId==='minecraft:enchanted_golden_apple'`);await shot('10-dialog-icon-consumer-fixture');
+    await js(`document.getElementById('mg-confirm-cancel').click()`);
+    await check('closing confirmation releases its shared image attachment',`document.getElementById('mg-confirm').hidden&&!document.querySelector('#mg-confirm-text img').hasAttribute('src')`);
+  }
   await cdp('Emulation.setDeviceMetricsOverride',{width:640,height:360,deviceScaleFactor:1,mobile:false});
   await js(`document.getElementById('mg-back').click()`);await shot('09-small-lobby');
   await check('small viewport does not overflow horizontally',`document.getElementById('games').scrollWidth<=document.getElementById('games').clientWidth`);

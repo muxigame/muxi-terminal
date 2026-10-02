@@ -35,8 +35,8 @@ public final class MinigamesNativeQA {
     private final Path coordinator=Path.of(System.getProperty("qa.minigames.coordinator"));
     private final int port=Integer.getInteger("qa.minigames.port");
     private final Gson gson=new GsonBuilder().setPrettyPrinting().create();
-    private boolean starting,ready,inTick,published;
-    private int ticks,lastCommand=-1,delay,stopAt;
+    private boolean starting,ready,inTick,published,closing;
+    private int ticks,lastCommand=-1,delay,stopAt,worldReadyTicks;
     private JsonObject command;
     private long generation;
     private volatile JsonObject sampled;
@@ -54,11 +54,28 @@ public final class MinigamesNativeQA {
         if(mc.player!=null){row.addProperty("name",mc.player.getGameProfile().getName());row.addProperty("uuid",mc.player.getUUID().toString());}
         return row;
     }
+    private void closeNormally(Minecraft mc) {
+        if(closing)return;closing=true;
+        int id=lastCommand;
+        // Disconnect renders nested ticks; run it after this event callback returns.
+        mc.tell(()->{
+            try {
+                TerminalBrowserSession.close();if(mc.level!=null)mc.level.disconnect();mc.disconnect(new TitleScreen());
+                JsonObject row=status(mc);row.addProperty("ok",true);row.addProperty("normalDisconnect",true);
+                write(coordinator.resolve("result-"+role+"-"+id+".json"),row);
+                command=null;stopAt=ticks+40;
+            } catch(Throwable error) {
+                error.printStackTrace();
+                try {JsonObject row=status(mc);row.addProperty("ok",false);row.addProperty("error",error.toString());write(coordinator.resolve("normal-close-failed-"+role+".json"),row);}catch(Exception ignored){}
+            }
+        });
+    }
     private void tick(ClientTickEvent.Post event){
         if(inTick)return;inTick=true;Minecraft mc=Minecraft.getInstance();
         try {
             ticks++;
             if(stopAt>0){if(ticks>=stopAt)mc.stop();return;}
+            if(closing)return;
             if(ticks%40==0)write(coordinator.resolve("status-"+role+".json"),status(mc));
             if(command==null&&Files.isRegularFile(coordinator.resolve("command-"+role+".json"))){
                 JsonObject next=JsonParser.parseString(Files.readString(coordinator.resolve("command-"+role+".json"))).getAsJsonObject();
@@ -70,8 +87,7 @@ public final class MinigamesNativeQA {
                 }
             }
             if(command!=null&&command.get("type").getAsString().equals("stop")){
-                TerminalBrowserSession.close();if(mc.level!=null)mc.level.disconnect();mc.disconnect(new TitleScreen());
-                JsonObject row=status(mc);row.addProperty("ok",true);row.addProperty("normalDisconnect",true);write(coordinator.resolve("result-"+role+"-"+lastCommand+".json"),row);command=null;stopAt=ticks+80;return;
+                closeNormally(mc);return;
             }
             if(!MCEF.isInitialized())return;
             if(!starting&&mc.getOverlay()==null&&mc.screen instanceof TitleScreen){
@@ -86,10 +102,18 @@ public final class MinigamesNativeQA {
                 return;
             }
             if(mc.player==null||mc.level==null||mc.getOverlay()!=null)return;
+            if(!ready){
+                if(mc.screen!=null){worldReadyTicks=0;return;}
+                if(++worldReadyTicks<40)return;
+            }
             if(role.equals("host")&&!published){
                 var server=mc.getSingleplayerServer();if(server==null)return;
+                if(!server.getWorldData().getLevelName().equals("Minigames private lifecycle QA"))throw new IllegalStateException("Refusing to publish a non-QA world");
+                // Ephemeral offline LAN test world only; this does not grant account/SSO trust.
+                server.setUsesAuthentication(false);
                 if(!server.publishServer(GameType.SURVIVAL,true,port))throw new IllegalStateException("LAN publish failed");
                 JsonObject row=new JsonObject();row.addProperty("port",port);row.addProperty("isolatedWorld",true);row.addProperty("fakePlayers",false);
+                row.addProperty("accountAuthentication","private-offline-LAN; not trusted account acceptance");
                 write(coordinator.resolve("server-ready.json"),row);published=true;
             }
             if(!ready){ready=true;write(coordinator.resolve("ready-"+role+".json"),status(mc));}
@@ -137,8 +161,7 @@ public final class MinigamesNativeQA {
             }
         }catch(Throwable failure){
             failure.printStackTrace();try{JsonObject row=status(mc);row.addProperty("ok",false);row.addProperty("error",failure.toString());write(coordinator.resolve("fatal-"+role+".json"),row);}catch(Exception ignored){}
-            try{TerminalBrowserSession.close();if(mc.level!=null)mc.level.disconnect();mc.disconnect(new TitleScreen());}catch(Exception ignored){}
-            stopAt=ticks+80;
+            closeNormally(mc);
         }finally{inTick=false;}
     }
 }

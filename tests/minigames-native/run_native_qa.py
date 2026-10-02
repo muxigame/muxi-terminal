@@ -26,13 +26,11 @@ def main():
     if os.environ.get('COMPUTERNAME','').upper()!='JBC_FCRL':raise RuntimeError('131 only')
     session=ctypes.c_ulong();ctypes.windll.kernel32.ProcessIdToSessionId(os.getpid(),ctypes.byref(session))
     if session.value==0:raise RuntimeError('Actual desktop session required')
-    existing=subprocess.run(['powershell.exe','-NoProfile','-Command',"Get-CimInstance Win32_Process | Where-Object {$_.Name -match '^(java|javaw)(\\.exe)?$'} | Select-Object ProcessId,CommandLine | ConvertTo-Json -Compress"],capture_output=True,text=True,check=True).stdout.strip()
-    rows=json.loads(existing) if existing else []
-    if isinstance(rows,dict):rows=[rows]
-    blocking=[row['ProcessId'] for row in rows if 'nogui' not in (row.get('CommandLine') or '')]
-    if blocking:
-        write(REPO/'build/minigames-native/blocked-start.json',{'clientStarted':False,'blockingPids':blocking,'reason':'Other QA clients own the desktop; no extra instances or focus changes performed','utc':datetime.now(timezone.utc).isoformat()})
-        raise RuntimeError('Another QA client is active; no new clients started')
+    def live_clients():
+        existing=subprocess.run(['powershell.exe','-NoProfile','-Command',"Get-CimInstance Win32_Process | Where-Object {$_.Name -match '^(java|javaw)(\\.exe)?$'} | Select-Object ProcessId,CommandLine | ConvertTo-Json -Compress"],capture_output=True,text=True,check=True).stdout.strip()
+        rows=json.loads(existing) if existing else []
+        if isinstance(rows,dict):rows=[rows]
+        return [row['ProcessId'] for row in rows if any(marker in (row.get('CommandLine') or '') for marker in ['launch.args','neoforgeclient','forgeclient','net.minecraft.client.main.Main','--gameDir '])]
     prepared=read(REPO/'build/minigames-native/latest-prepared.json')
     home=Path(prepared['home']);coordinator=Path(prepared['coordinator'])
     if (home/'run-result.json').exists() or any(coordinator.glob('ready-*.json')):raise RuntimeError('This prepared instance already ran; results will not be overwritten')
@@ -48,6 +46,7 @@ def main():
     def wait_file(path,timeout=120):
         deadline=time.monotonic()+timeout;last=0
         while time.monotonic()<deadline:
+            if (coordinator/'cancel-run.json').exists():raise RuntimeError('QA canceled: '+str(read(coordinator/'cancel-run.json')))
             if path.exists():return read(path)
             for role,process in processes.items():
                 fatal=coordinator/f'fatal-{role}.json'
@@ -62,6 +61,15 @@ def main():
         if not data.get('ok'):raise RuntimeError(data)
         return data.get('value',data)
     def launch(role):
+        until=time.monotonic()+360
+        while True:
+            if (coordinator/'cancel-run.json').exists():raise RuntimeError('QA canceled: '+str(read(coordinator/'cancel-run.json')))
+            for loaded_role,loaded in processes.items():
+                if loaded.poll() is not None:raise RuntimeError(f'{loaded_role} exited while waiting for a client slot: {loaded.returncode}')
+            slots=live_clients()
+            if len(slots)<4:break
+            if time.monotonic()>until:raise TimeoutError('Four client slots occupied by PIDs '+str(slots))
+            print(json.dumps({'waitingForClientSlot':role,'occupiedPids':slots,'maximum':4}),flush=True);time.sleep(5)
         row=next(r for r in prepared['clients'] if r['role']==role);lab=Path(row['lab'])
         logs[role]=(lab/'boot.log').open('w',encoding='utf-8')
         env={key:value for key,value in os.environ.items() if not key.startswith('MUXI_')}
@@ -77,8 +85,19 @@ def main():
             assert all(abs(player[axis]-original[axis])<.6 for axis in ['x','y','z']),(original['name'],'position changed before start')
             assert player['returnsPending']==original['returnsPending']
     try:
-        launch('host');wait_file(coordinator/'server-ready.json',360);wait_file(coordinator/'ready-host.json',60)
-        launch('guest');wait_file(coordinator/'ready-guest.json',360)
+        # Reserve enough visible-client capacity for a genuine pair before loading
+        # either JVM; do not occupy the fourth slot indefinitely with only a host.
+        until=time.monotonic()+360
+        while len(live_clients())>2:
+            if (coordinator/'cancel-run.json').exists():raise RuntimeError('QA canceled: '+str(read(coordinator/'cancel-run.json')))
+            if time.monotonic()>until:raise TimeoutError('Two client slots unavailable; existing PIDs '+str(live_clients()))
+            print(json.dumps({'waitingForTwoClientSlots':live_clients(),'maximum':4}),flush=True);time.sleep(5)
+        launch('host');launch('guest')
+        wait_file(coordinator/'server-ready.json',900);wait_file(coordinator/'ready-host.json',60)
+        wait_file(coordinator/'ready-guest.json',360)
+        if '--await-ui-window' in sys.argv:
+            write(coordinator/'ready-for-ui.json',{'pids':{role:p.pid for role,p in processes.items()},'ready':True,'requestedSeconds':120,'grantFile':str(coordinator/'ui-go.json')})
+            wait_file(coordinator/'ui-go.json',360)
         time.sleep(2)
         baseline=command('host','observe');write(home/'baseline-real-players.json',baseline)
         assert len(baseline['players'])==2 and all(p['connected'] for p in baseline['players'])

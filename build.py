@@ -93,6 +93,8 @@ def build(server: Path, java_home: Path | None = None,
     pack_mods = pack_mods or ROOT.parent / "better-mc-remake" / "pack" / "source" / "Better MC Remake [FORGE]" / "mods"
     client_cfg = deps["client"]
     client_jars = [client_game / client_cfg["neoforgePatched"], client_game / client_cfg["minecraft"]]
+    client_graphics = [p for p in (client_game / "libraries/org/lwjgl").rglob("*.jar")
+                       if "natives-" not in p.name]
     compile_only = [pack_mods / name for name in deps["compileOnly"]]
     missing = [str(p) for p in client_jars + compile_only if not p.is_file()]
     if missing:
@@ -108,7 +110,7 @@ def build(server: Path, java_home: Path | None = None,
         nested = tmp / "nested"
         nested.mkdir()
         libraries = (
-            client_jars + [neo_server] + mapped
+            client_jars + client_graphics + [neo_server] + mapped
             + [p for p in all_jars if "/net/minecraft/" not in p.as_posix() and p != neo_server]
             + nested_jars(neo, nested)
             + compile_only
