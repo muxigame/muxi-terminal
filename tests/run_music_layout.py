@@ -9,9 +9,10 @@ import websocket
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--phase', choices=['before', 'after'], default='after')
 parser.add_argument('--root', type=Path)
+parser.add_argument('--label', default='', help='Separate evidence run, e.g. short-rows')
 args = parser.parse_args()
 ROOT = args.root or Path(__file__).resolve().parents[1]
-lab = ROOT / 'build' / ('music-layout-' + args.phase)
+lab = ROOT / 'build' / ('music-layout-' + (args.label + '-' if args.label else '') + args.phase)
 lab.mkdir(parents=True, exist_ok=True)
 base = ROOT / 'src/main/resources/assets/muxi_terminal/html/terminal'
 assets = lab / 'assets'
@@ -73,7 +74,7 @@ try:
         cdp('Emulation.setDeviceMetricsOverride', {'width':width,'height':height,'deviceScaleFactor':1,'mobile':False})
         settle()
     def bounds():
-        return js("(()=>{const ids=['music','app-content','musicTitle','music-stop','music-next','musicImport','musicListScroll'];const r={viewport:[innerWidth,innerHeight]};for(const id of ids){const e=document.getElementById(id);if(!e)continue;const b=e.getBoundingClientRect();r[id]={x:b.x,y:b.y,width:b.width,height:b.height,scrollTop:e.scrollTop,scrollHeight:e.scrollHeight,clientHeight:e.clientHeight,scrollWidth:e.scrollWidth,clientWidth:e.clientWidth};}return r})()")
+        return js("(()=>{const ids=['music','app-content','musicTitle','music-stop','music-next','musicImport','musicListScroll'];const r={viewport:[innerWidth,innerHeight]};for(const id of ids){const e=document.getElementById(id);if(!e)continue;const b=e.getBoundingClientRect();r[id]={x:b.x,y:b.y,width:b.width,height:b.height,scrollTop:e.scrollTop,scrollHeight:e.scrollHeight,clientHeight:e.clientHeight,scrollWidth:e.scrollWidth,clientWidth:e.clientWidth};}const sc=document.getElementById('musicListScroll');if(sc){const b=sc.getBoundingClientRect(),rows=[...document.querySelectorAll('#musicTrackList article')];r.playlistRows={heights:rows.slice(0,5).map(e=>e.getBoundingClientRect().height),fullyVisible:rows.filter(e=>{const a=e.getBoundingClientRect();return a.top>=b.top&&a.bottom<=b.bottom}).length,width:sc.getBoundingClientRect().width};}return r})()")
     cdp('Page.enable'); cdp('Runtime.enable')
     cdp('Page.addScriptToEvaluateOnNewDocument', {'source':fixture})
     size(576,276)
@@ -95,6 +96,7 @@ try:
             check("document.getElementById('musicListScroll').scrollHeight>document.getElementById('musicListScroll').clientHeight&&getComputedStyle(document.getElementById('musicListScroll')).overflowY==='auto'",'%sx%s: long playlist has its own scroll container' % (width,height))
             measurements.append(bounds());shot('after-%sx%s.png' % (width,height))
         size(576,276)
+        check("(()=>{const b=document.getElementById('musicListScroll').getBoundingClientRect();return [...document.querySelectorAll('#musicTrackList article')].filter(e=>{const a=e.getBoundingClientRect();return a.top>=b.top&&a.bottom<=b.bottom}).length>=4})()",'actual terminal height fits at least four complete tracks in the unchanged sidebar')
         js("window.playerY=document.getElementById('music-stop').getBoundingClientRect().y;document.getElementById('musicListScroll').scrollTop=900");settle()
         check("document.getElementById('musicListScroll').scrollTop>0&&document.getElementById('music').scrollTop===0&&document.getElementById('music-stop').getBoundingClientRect().y===playerY",'scrolling a long playlist leaves player and outer page fixed')
         # Real CDP wheel input to the list; no OS foreground focus is needed.
@@ -116,7 +118,7 @@ try:
         check("fixture.calls.includes('music.select:'+focusTrack)&&document.activeElement.dataset.track===focusTrack&&document.getElementById('music').scrollTop===0",'Enter plays the focused track and changed snapshots restore row focus without outer scrolling')
         shot('after-long-list-keyboard-576x276.png')
         check("(()=>{const e=document.querySelector('#musicTrackList .task-title');return e.title===fixture.state.tracks[0].title&&getComputedStyle(e).textOverflow==='ellipsis'&&e.scrollWidth>e.clientWidth})()",'long titles use ellipsis and expose full title on hover')
-        check("[...document.querySelectorAll('#musicTrackList article')].every(e=>e.getBoundingClientRect().height<=52)",'playlist uses compact rows rather than tall cards')
+        check("[...document.querySelectorAll('#musicTrackList article')].every(e=>e.getBoundingClientRect().height<=34)",'playlist uses low single-line rows at most 34px high')
         js("document.querySelector('[data-music-library=local]').click()");settle()
         check("document.getElementById('musicTrackList').hidden&&!document.getElementById('musicLocalList').hidden&&document.getElementById('musicLocalList').querySelectorAll('[data-local]').length===40",'local library shares the independent playlist pane')
         js("document.getElementById('musicListScroll').scrollTop=280;document.querySelector('[data-music-library=tracks]').click()");settle()
