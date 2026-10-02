@@ -11,6 +11,7 @@ import io
 import json
 import os
 import random
+import re
 from pathlib import Path
 import shutil
 import socket
@@ -146,7 +147,7 @@ def main():
     if dedicated:sources += [native_sources/name for name in ['NativeIssuerEndpoint.java','NativeProofDiagnostics.java','mixin/NativeClientTransportMixin.java','mixin/NativeServerTransportMixin.java']]+[REPO.parent/'better-mc-remake/tests/terminal-mcef-environment/DirectTlsCefMixin.java',HERE/'NativeFriendsTransportMixin.java']
     cp=[terminal,artifacts['muxi_minigames'],artifacts['muxi_game_core'],game/'libraries/net/neoforged/neoforge/21.1.250/neoforge-21.1.250-client.jar',game/'libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-srg.jar',*libs,*list((WORK/'bmc5server/libraries').rglob('*.jar')),*list((pack/'mods').glob('*.jar'))]
     build.compile_java(compiler,sources,classes,os.pathsep.join(map(str,cp)),home/'compile.args')
-    clients=[]
+    clients=[];private_config_overrides=[]
     for role,name in [('host','10000'),('guest','10001')]:
         lab=home/role;lab.mkdir();(lab/'mods').mkdir();(lab/'natives').mkdir();(lab/'config').mkdir()
         shutil.copytree(game/'versions/BatterMC5Remake/BatterMC5Remake-natives',lab/'natives',dirs_exist_ok=True)
@@ -163,6 +164,12 @@ def main():
         (lab/'tacz').mkdir(exist_ok=True)
         shutil.copy2(gunpack,lab/'tacz/muxi-phoenix-six-netnew-20261001.zip')
         reviewed.config(lab)
+        metrics=lab/'config/packanalytics-common.toml'
+        if metrics.exists():
+            prior=metrics.read_bytes();changed,count=re.subn(r'(?m)^("Metrics Endpoint URL"\s*=\s*)"[^"\r\n]*"',r'\1""',prior.decode('utf-8'))
+            if count!=1:raise ValueError('Expected one exact PackAnalytics endpoint')
+            metrics.write_text(changed,encoding='utf-8',newline='')
+            private_config_overrides.append({'role':role,'file':str(metrics),'beforeSha256':hashlib.sha256(prior).hexdigest(),'afterSha256':digest(metrics),'changedKeys':['Metrics Endpoint URL'],'endpointEmpty':True})
         (lab/'config/iris.properties').write_text('enableShaders=false\ndisableUpdateMessage=true\n',encoding='utf-8')
         with zipfile.ZipFile(lab/'mods/minigames-qa-only.jar','w',zipfile.ZIP_DEFLATED) as archive:
             archive.writestr('META-INF/neoforge.mods.toml','modLoader="javafml"\nloaderVersion="[4,)"\nlicense="MIT"\n[[mods]]\nmodId="minigames_native_qa"\nversion="1.0.0"\ndisplayName="Private real minigames QA"\n[[mixins]]\nconfig="minigames_native_qa.mixins.json"\n'+('[[mixins]]\nconfig="native_sso_transport.mixins.json"\n' if dedicated else ''))
@@ -200,6 +207,7 @@ def main():
         reviewed.argfile(lab/'launch.args',args)
         clients.append({'role':role,'username':name,'uuid':str(offline_uuid),'lab':str(lab),'java':str(runtime),'args':str(lab/'launch.args')})
     report={'prepared':True,'clientStarted':False,'home':str(home),'coordinator':str(coordinator),'port':port,'clients':clients,'heapPerClient':'6G','fakePlayers':False,'syntheticSSO':False,'productionOperations':False,'accountAuthentication':'private-offline-LAN; not trusted account acceptance','terminalCompiledSource':str(terminal_source),'terminalCompiledSha256':compiled_sha256,'terminalResourcesOverlaid':own_resources,'gunpackSha256':digest(gunpack),'artifacts':{key:{'path':str(value),'sha256':digest(value)} for key,value in artifacts.items()}}
+    report['privateConfigOverrides']=private_config_overrides
     report['qaNetworkingIsolation']={'e4mcPublicRelay':'one source-tagged startup hook skipped in QA-only mod','originalModJarsModified':False,'sableUdpDisabled':False,'candidateDefaultLanAcceptance':False,'knownDefaultLanFailure':'Luna/e4mc recursively invokes startTcpServerListener; Sable binds the same UDP port twice'}
     report['additionalRequiredDependencies']=[{'path':str(p),'sha256':digest(p),'reason':dependency_reasons[str(p)]} for p in required_dependencies]
     if dedicated:

@@ -157,6 +157,8 @@ def main():
             env.update(MUXI_GAME_SOCIAL_ENABLED='1',MUXI_GAME_SOCIAL_URL=backend['site_url']+'/api/internal/game/',MUXI_GAME_SOCIAL_KEY=backend['social_key'],MUXI_GAME_PLATFORM_URL=backend['site_url']+'/api/internal/game/',MUXI_GAME_PLATFORM_KEY=backend['game_key'])
             processes['server']=subprocess.Popen([dedicated['java'],'@'+dedicated['args'],'nogui'],cwd=server_root,env=env,stdin=subprocess.PIPE,stdout=logs['server'],stderr=subprocess.STDOUT,text=True,encoding='utf-8',creationflags=subprocess.CREATE_NO_WINDOW)
             wait_file(coordinator/'server-ready.json',900)
+            processes['server'].stdin.write('muxioutbreak prepare lostschool\n');processes['server'].stdin.flush()
+            write(home/'original-map-prepare-request.json',{'command':'muxioutbreak prepare lostschool','originalProductCommand':True,'toyMap':False,'candidateMapResourcesModified':False,'requestedUTC':datetime.now(timezone.utc).isoformat()})
             # Capacity can change during the full server boot. Recheck the pair
             # immediately before creating either asynchronous launcher child.
             until=time.monotonic()+1800
@@ -197,7 +199,7 @@ def main():
             admission=command(role,'js',"for(let i=0;i<300;i++){await window.MuxiMinigamesApp.activate();const s=await q('games.snapshot');if(s.allowed&&s.platform?.available)return {allowed:s.allowed,platform:s.platform};await wait(200);}throw Error('Actual platform participation never became available');",timeout=120)
             write(home/('actual-platform-ready-'+role+'.json'),admission)
         checks.append('Both real MCEF clients show actual platform participation allowed and authoritative point balances')
-        for round_index,game in enumerate(['outbreak','zombie-challenge','outbreak'],1):
+        for round_index,game in enumerate(['zombie-challenge','outbreak','outbreak'],1):
             stage=f'round-{round_index}-{game}'
             print(json.dumps({'testing':game}),flush=True)
             created=command('host','js',"document.getElementById('mg-back').click();document.querySelector('[data-mg-create]').click();document.querySelector('[data-mg-game=\""+game+"\"]').click();const maps=[...document.querySelectorAll('[data-mg-map]')];const map=maps.find(b=>['campaign_city_zero','metro_escape','research_lab'].includes(b.dataset.mgMap))||maps[0];if(!map)throw Error('No map');map.click();document.querySelector('[data-mg-action]').click();document.querySelector('[data-mg-action]').click();for(let i=0;i<100;i++){await wait(200);const s=await q('games.snapshot');const g=s.games.find(g=>g.id==='"+game+"');if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed'&&g.state.rooms.some(r=>r.mine)){return {snapshot:s,room:g.state.rooms.find(r=>r.mine),selected:map.dataset.mgMap};}}throw Error('Create not confirmed');")
@@ -217,7 +219,7 @@ def main():
             write(home/(stage+'-join.json'),joined)
             waiting=command(observer,'observe');same_inventory_and_location(baseline,waiting)
             checks.append(game+': second real client joined waiting room; both retained original world and inventory')
-            command('host','js',"await window.MuxiMinigamesApp.activate();for(let i=0;i<150;i++){await wait(200);await window.MuxiMinigamesApp.activate();const start=[...document.querySelectorAll('[data-mg-action]')].find(b=>b.textContent.includes('\u5f00\u59cb'));if(start&&!start.disabled){const prior=(await q('games.snapshot')).operation?.request;start.click();for(let j=0;j<50;j++){await wait(200);const s=await q('games.snapshot');if(s.operation?.request===prior)continue;if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed')return s;}throw Error('Start not confirmed');}}throw Error('Host start unavailable');",timeout=120)
+            command('host','js',"await window.MuxiMinigamesApp.activate();for(let i=0;i<6000;i++){await wait(200);await window.MuxiMinigamesApp.activate();const start=[...document.querySelectorAll('[data-mg-action]')].find(b=>b.textContent.includes('\u5f00\u59cb'));if(start&&!start.disabled){const prior=(await q('games.snapshot')).operation?.request;start.click();for(let j=0;j<50;j++){await wait(200);const s=await q('games.snapshot');if(s.operation?.request===prior)continue;if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed')return s;}throw Error('Start not confirmed');}}throw Error('Host start unavailable after full original-map preparation wait');",timeout=1320)
             started=command(observer,'observe');write(home/(stage+'-started-real-players.json'),started)
             assert all(p['dimension']!=next(b for b in baseline['players'] if b['uuid']==p['uuid'])['dimension'] for p in started['players'])
             checks.append(game+': only explicit host Start sent both real players into the map')
