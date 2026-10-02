@@ -21,11 +21,12 @@
     state = next;
     const caps = next.capabilities || {};
     el('musicTitle').textContent = next.title || '当前没有音乐';
-    const names = {background: '游戏背景音乐', netmusic: '原便携播放器', local: '个人本地音乐', other: '附近播放器', idle: '游戏音乐', unavailable: '音乐不可用'};
+    const names = {game: '游戏曲目', background: '游戏背景音乐', netmusic: '原便携播放器', local: '个人本地音乐', other: '附近播放器', idle: '游戏音乐', unavailable: '音乐不可用'};
     const status = {playing: '播放中', paused: '已暂停', loading: '正在解码', idle: '已停止'};
     el('musicSource').textContent = (names[next.kind] || '游戏音乐') + ' · ' + (status[next.status] || '等待状态');
     el('musicReason').textContent = next.reason || '';
     el('musicMessage').textContent = next.message || '';
+    el('music-play').textContent = ['game', 'local'].includes(next.kind) ? '从头播放' : '播放';
     el('musicPause').textContent = next.status === 'paused' ? '继续' : '暂停';
     el('musicPause').disabled = busy || !caps.pause;
     ['play', 'stop', 'previous', 'next'].forEach(action => el('music-' + action).disabled = busy || !caps[action]);
@@ -35,6 +36,14 @@
     if (document.activeElement !== slider) slider.value = Math.round((Number(next.volume) || 0) * 100);
     el('musicVolumeValue').textContent = `${slider.value}%`;
     el('musicMute').textContent = next.muted ? '已静音 · 主音量 ' + Math.round((Number(next.master) || 0) * 100) + '%' : '主音量 ' + Math.round((Number(next.master) || 0) * 100) + '%';
+    const available = next.tracks || [], songList = el('musicTrackList');
+    el('musicTrackCount').textContent = `${available.length} 首`;
+    el('musicPlaylistReason').textContent = next.playlistReason || '';
+    const songSignature = JSON.stringify([available, caps.select, busy]);
+    if (songList.dataset.signature !== songSignature) {
+      songList.dataset.signature = songSignature;
+      songList.innerHTML = available.length ? available.map(track => `<article class="task-card"><div class="task-row-head"><strong class="task-title">${safe(track.title)}</strong><span class="pill">${track.active ? '当前曲目' : safe(track.source)}</span></div><div class="detail-actions"><button class="secondary" data-track="${safe(track.id)}" aria-label="播放 ${safe(track.title)}" ${busy || !caps.select ? 'disabled' : ''}>${track.active ? '从头播放' : '播放'}</button></div></article>`).join('') : '<div class="task-empty">当前没有可选游戏曲目或便携歌单。可导入本机音乐，或在原便携播放器装入已有歌单。</div>';
+    }
     const tracks = next.localTracks || [], signature = JSON.stringify([tracks, caps.local, busy, next.busy]);
     const list = el('musicLocalList');
     // Preserve keyboard focus on unchanged snapshots.
@@ -66,9 +75,11 @@
     if (root) return; root = section;
     root.innerHTML = `<div class="toolbar"><button class="back" data-open="home" aria-label="返回主页">‹</button><div><div class="eyebrow">APP / MUSIC</div><h2>音乐</h2></div></div>
       <article class="detail-card settings-panel"><div class="task-row-head"><div><span class="pill" id="musicSource">正在读取游戏音乐…</span><h3 id="musicTitle">当前没有音乐</h3></div></div>
-      <p class="manual-hint" id="musicReason"></p><div class="detail-actions"><button id="music-previous" class="secondary" disabled>上一首</button><button id="music-play" class="secondary" disabled>从头播放</button><button id="musicPause" class="primary" disabled>暂停</button><button id="music-stop" class="secondary" disabled>停止</button><button id="music-next" class="secondary" disabled>下一首</button></div>
+      <p class="manual-hint" id="musicReason"></p><div class="detail-actions"><button id="music-previous" class="secondary" disabled>上一首</button><button id="music-play" class="secondary" disabled>播放</button><button id="musicPause" class="primary" disabled>暂停</button><button id="music-stop" class="secondary" disabled>停止</button><button id="music-next" class="secondary" disabled>下一首</button></div>
       <div class="detail-section"><div class="setting-row"><label for="musicVolume" id="musicVolumeLabel">音乐音量 · Minecraft 原生选项</label><input id="musicVolume" type="range" min="0" max="100" step="1" aria-label="当前音乐来源音量"><output id="musicVolumeValue">0%</output></div><p id="musicMute"></p></div>
       <p class="manual-hint" id="musicMessage" role="status" aria-live="polite"></p></article>
+      <div class="section-title"><span>可选曲目</span><span class="pill" id="musicTrackCount">0 首</span></div>
+      <div class="guide-intro"><span>游戏资源与本人便携播放器的真实曲目。选择曲目即可播放。</span></div><p class="manual-hint" id="musicPlaylistReason"></p><div class="task-list" id="musicTrackList"></div>
       <div class="section-title"><span>本地曲库</span><button id="musicImport" class="secondary" disabled>导入本机音乐</button></div>
       <div class="guide-intro"><span>仅在本机复制保存，不上传。支持 OGG Vorbis、PCM WAV；MP3 / FLAC / AAC 需现有解码器并逐曲验证。退出音乐 APP 停止本地播放。</span></div><div class="task-list" id="musicLocalList"></div>`;
     root.addEventListener('click', event => {
@@ -77,6 +88,7 @@
       if (button.id === 'musicImport') act('music.import');
       else if (button.id === 'musicPause') control(state.status === 'paused' ? 'resume' : 'pause');
       else if (button.id.startsWith('music-')) control(button.id.slice(6));
+      else if (button.dataset.track) act('music.select:' + button.dataset.track);
       else if (button.dataset.local) act('music.local:' + button.dataset.local);
       else if (button.dataset.remove) act('music.remove:' + button.dataset.remove);
     });

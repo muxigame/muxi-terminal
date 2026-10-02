@@ -1,42 +1,29 @@
-"""Offline isolated candidate build; never writes source runtimes or launches Minecraft."""
+"""Build the current music candidate against installed libraries, without editing source metadata."""
 from pathlib import Path
-import importlib.util, json, os, zipfile
+import argparse, importlib.util, os, zipfile
 
-ROOT = Path(__file__).resolve().parents[1]
-PACK = Path(r'C:/Users/Administrator/WorkSpace/muxigame')
-spec = importlib.util.spec_from_file_location('terminal_build', ROOT / 'build.py')
-build = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(build)
-compile_original = build.compile_java
+ROOT=Path(__file__).resolve().parents[1]
 
-def compile_extracted(compiler, sources, output, classpath, argfile):
-    cp = ROOT / 'build/compiler-dependencies'
-    cp.mkdir(parents=True, exist_ok=True)
-    seen = set()
-    for raw in classpath.split(os.pathsep):
-        with zipfile.ZipFile(raw) as archive:
-            for name in archive.namelist():
-                if not name.endswith('.class') or name.startswith('META-INF/') or name in seen:
-                    continue
-                seen.add(name)
-                target = cp / name
-                target.parent.mkdir(parents=True, exist_ok=True)
-                target.write_bytes(archive.read(name))
-    local_jar = ROOT / 'build/compiler-dependencies.jar'
-    with zipfile.ZipFile(local_jar, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
-        for file in cp.rglob('*.class'):
-            if file.name == 'module-info.class': continue
-            archive.write(file, file.relative_to(cp).as_posix())
-    compile_original(compiler, sources, output, str(local_jar), argfile)
+def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--workspace',type=Path,required=True)
+    parser.add_argument('--java-home',type=Path,required=True)
+    args=parser.parse_args()
+    spec=importlib.util.spec_from_file_location('terminal_build',ROOT/'build.py')
+    build=importlib.util.module_from_spec(spec);spec.loader.exec_module(build)
+    compile_original=build.compile_java
+    def capture_dependencies(compiler,sources,output,classpath,argfile):
+        destination=ROOT/'build/music-test-dependencies.jar'
+        destination.parent.mkdir(parents=True,exist_ok=True)
+        seen=set()
+        with zipfile.ZipFile(destination,'w',zipfile.ZIP_DEFLATED) as archive:
+            for entry in classpath.split(os.pathsep):
+                with zipfile.ZipFile(entry) as dependency:
+                    for name in dependency.namelist():
+                        if name.endswith('.class') and not name.startswith('META-INF/') and not name.endswith('module-info.class') and name not in seen:
+                            seen.add(name);archive.writestr(name,dependency.read(name))
+        compile_original(compiler,sources,output,classpath,argfile)
+    build.compile_java=capture_dependencies
+    build.build(args.workspace/'bmc5server',java_home=args.java_home,client_game=args.workspace/'_client_test/game',pack_mods=args.workspace/'_client_test/game/mods')
 
-build.compile_java = compile_extracted
-metadata = ROOT / 'mod.json'
-before = metadata.read_bytes()
-try:
-    data = json.loads(before)
-    data['version'] = '0.2.2-music-candidate'
-    metadata.write_text(json.dumps(data, indent=2) + '\n', encoding='utf-8')
-    build.build(PACK / 'bmc5server', client_game=PACK / '_client_test/game',
-                pack_mods=PACK / 'better-mc-remake/pack/source/Better MC Remake [FORGE]/mods')
-finally:
-    metadata.write_bytes(before)
+if __name__=='__main__':main()

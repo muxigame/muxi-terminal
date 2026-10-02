@@ -1,13 +1,17 @@
 from pathlib import Path
-import json, subprocess, zipfile, os, shutil, time,sys
+import json, subprocess, zipfile, os, shutil, time,sys,argparse
 
 ROOT=Path(__file__).resolve().parents[1]
-PACK=Path(r'C:/Users/Administrator/WorkSpace/muxigame')
+parser=argparse.ArgumentParser(description='Real installed music decoders and native API signature verification')
+parser.add_argument('--workspace',type=Path,default=Path(r'C:/Users/Administrator/WorkSpace/muxigame'))
+parser.add_argument('--java-home',type=Path,default=Path(r'C:/Program Files/Java/jdk-24'))
+parser.add_argument('--dependencies',type=Path)
+args=parser.parse_args()
+PACK=args.workspace
 lab=ROOT/'build/native-tests';lab.mkdir(parents=True,exist_ok=True)
-java=Path(r'C:/Program Files/Java/jdk-24/bin')
-jar=ROOT/'build/libs/muxi-terminal-0.2.2.jar'
-if not jar.exists():jar=ROOT/'build/libs/muxi-terminal-0.2.2-music-candidate.jar'
-deps=Path(sys.argv[1]) if len(sys.argv)>1 else ROOT/'build/compiler-dependencies.jar'
+java=args.java_home/'bin'
+jar=ROOT/'build/libs'/json.loads((ROOT/'build/release.json').read_text(encoding='utf-8'))['artifact']
+deps=args.dependencies or ROOT/'build/compiler-dependencies.jar'
 sources=list((ROOT/'tests/java').rglob('*.java'))
 subprocess.run([str(java/'javac.exe'),'--release','21','-encoding','UTF-8','-proc:none','-classpath',os.pathsep.join(map(str,[jar,deps])),'-d',str(lab),*map(str,sources)],check=True)
 assets=PACK/'_client_test/game/assets'
@@ -24,7 +28,7 @@ run=subprocess.run([str(java/'java.exe'),'-cp',os.pathsep.join(map(str,[lab,jar,
 if run.returncode:raise SystemExit(run.stdout+run.stderr)
 result=json.loads(run.stdout.strip().splitlines()[-1]);(lab/'result.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
 print(json.dumps(result,ensure_ascii=False,indent=2))
-mods=PACK/'better-mc-remake/pack/source/Better MC Remake [FORGE]/mods'
+mods=PACK/'_client_test/game/mods'
 music_jars=[next(p for p in mods.glob('*.jar') if name+'-' in p.name) for name in ['net_music_list','netmusic']]
 binding=subprocess.run([str(java/'java.exe'),'-cp',os.pathsep.join(map(str,[lab,jar,deps,jorbis,lwjgl,jna,*music_jars])),
     'net.muxigame.terminal.client.music.MusicBindingTest'],capture_output=True,encoding='utf-8',errors='replace')

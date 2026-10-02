@@ -33,16 +33,19 @@ final class NetMusicListAdapter {
             }
             List<?> songs = (List<?>)list.getMethod("getSongInfoList", ItemStack.class).invoke(null, playlist);
             Integer index = (Integer)list.getMethod("getSongIndex", ItemStack.class).invoke(null, playlist);
-            out.add(new Portable(slot, id, playlist, songs, index == null ? -1 : index));
+            out.add(new Portable(slot, id, playlist, List.copyOf(songs), index == null ? -1 : index));
         }
         return out;
     }
     static boolean ringer(SoundInstance sound) { return sound.getClass().getName().equals(PREFIX + "sounds.RingerSound"); }
     static boolean self(SoundInstance sound) throws ReflectiveOperationException { return (boolean)sound.getClass().getMethod("isSelf").invoke(sound); }
     static UUID ringerId(SoundInstance sound) throws ReflectiveOperationException { return (UUID)sound.getClass().getMethod("getRingerId").invoke(sound); }
+    static String songTitle(Object info) throws ReflectiveOperationException {
+        return MusicSecurity.title(info == null ? null : info.getClass().getField("songName").get(info));
+    }
     static String title(SoundInstance sound) throws ReflectiveOperationException {
         Object info = sound.getClass().getMethod("getInfo").invoke(sound);
-        return MusicSecurity.title(info == null ? null : info.getClass().getField("songName").get(info));
+        return songTitle(info);
     }
     static void command(Portable player, String action, int index) throws ReflectiveOperationException {
         Class<?> packet = Class.forName(PREFIX + "packet.MusicPlayerActionPacket");

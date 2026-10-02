@@ -53,13 +53,14 @@ try:
     def shot(name): (lab/name).write_bytes(base64.b64decode(cdp('Page.captureScreenshot',{'format':'png'})['data']))
     cdp('Page.enable');cdp('Runtime.enable')
     cdp('Emulation.setDeviceMetricsOverride',{'width':1280,'height':720,'deviceScaleFactor':1,'mobile':False})
-    fixture=r'''window.fixture={calls:[],hold:false,pending:null,fail:false,state:{kind:'background',title:'minecraft:music.overworld.forest',target:'11111111-1111-1111-1111-111111111111',status:'playing',reason:'背景音乐没有可用的上一首 / 下一首播放列表。',message:'',busy:false,volumeSource:'music',volume:.4,master:.75,muted:false,capabilities:{pause:true,play:false,stop:false,next:false,previous:false,import:true,local:true},localTracks:[{id:'22222222-2222-2222-2222-222222222222',title:'我的本地曲目',format:'WAV',active:false}]}};
+    fixture=r'''window.fixture={calls:[],hold:false,pending:null,fail:false,state:{kind:'background',title:'minecraft:music.overworld.forest',target:'11111111-1111-1111-1111-111111111111',status:'playing',reason:'背景音乐没有可用的上一首 / 下一首播放列表。',message:'',busy:false,volumeSource:'music',volume:.4,master:.75,muted:false,capabilities:{pause:true,play:false,stop:false,next:false,previous:false,import:true,local:true,select:true},tracks:[{id:'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',title:'真实游戏曲目',source:'游戏资源 · minecraft',active:false},{id:'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',title:'本人已有歌单曲目',source:'本人便携播放器 · 槽位 2 · 第 1 首',active:false}],localTracks:[{id:'22222222-2222-2222-2222-222222222222',title:'我的本地曲目',format:'WAV',active:false}]}};
 window.muxiTerminalQuery=o=>{const f=fixture;f.calls.push(o.request);let r={};
 if(o.request.startsWith('resource.data:'))r='';if(o.request==='apps.list')r=[];if(o.request==='tasks.snapshot')r={supported:false,loading:false,rows:[]};
 if(o.request.startsWith('music.')){
  if(f.fail){queueMicrotask(()=>o.onFailure(503,'音乐接口不可用'));return;}
  if(o.request==='music.snapshot'&&f.hold){f.pending=o;return;}
  if(o.request.startsWith('music.control:')){const p=JSON.parse(o.request.slice(14));if(p.target!==f.state.target)f.state.message='音乐源已变化，请重试。';else if(p.action==='pause')f.state.status='paused';else if(p.action==='resume')f.state.status='playing';else if(p.action==='volume'){f.state.volume=p.value;f.state.muted=p.value===0;}}
+ if(o.request.startsWith('music.select:')){const t=f.state.tracks.find(t=>t.id===o.request.slice(13));Object.assign(f.state,{kind:'game',title:t.title,status:'playing',capabilities:{pause:true,stop:true,play:true,next:true,previous:true,import:true,local:true,select:true}});f.state.tracks.forEach(r=>r.active=r===t);}
  if(o.request.startsWith('music.local:'))Object.assign(f.state,{kind:'local',title:'我的本地曲目',status:'playing',target:'33333333-3333-3333-3333-333333333333',capabilities:{pause:true,stop:true,play:false,next:false,previous:false,import:true,local:true}});
  if(o.request==='music.import')f.state.message='已取消，音乐库未改变。';
  r=structuredClone(f.state);
@@ -72,7 +73,13 @@ if(o.request.startsWith('music.')){
     check("document.getElementById('musicTitle').getBoundingClientRect().top<innerHeight&&document.getElementById('music').parentElement.id==='app-content'",'music renders inside the existing visible content container')
     check("document.getElementById('music-next').disabled&&document.getElementById('music-previous').disabled",'background playlist controls disabled by actual capability')
     check("fixture.calls.every(c=>!c.startsWith('music.control:'))",'opening music reads state without playback mutation')
-    shot('music-background-1280.png')
+    check("document.querySelectorAll('[data-track]').length===2&&document.getElementById('musicTrackCount').textContent==='2 首'",'actual selectable tracks and count render separately from local imports')
+    js("document.querySelector('[data-track]').focus();window.MuxiMusicApp.refresh();new Promise(r=>setTimeout(r,20))")
+    check("document.activeElement.dataset.track==='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'",'unchanged track polling preserves keyboard focus')
+    js("document.querySelector('[data-track]').click();new Promise(r=>setTimeout(r,20))")
+    check("fixture.calls.includes('music.select:aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa')&&document.getElementById('musicTitle').textContent==='真实游戏曲目'&&!document.getElementById('music-next').disabled",'selecting a listed track actively plays with opaque native ID and enables switching')
+    check("fixture.calls.filter(c=>c.startsWith('music.select:')).every(c=>/^music.select:[0-9a-f-]{36}$/.test(c))",'track selection sends no file path, URL or song metadata')
+    shot('music-track-list-1280.png')
     js("document.getElementById('musicPause').click();new Promise(r=>setTimeout(r,20))")
     check("fixture.state.status==='paused'&&document.getElementById('musicPause').textContent==='继续'",'APP pause uses native source and reflects confirmed status')
     js("fixture.state.status='playing';window.MuxiMusicApp.refresh();new Promise(r=>setTimeout(r,20))")
@@ -105,6 +112,8 @@ if(o.request.startsWith('music.')){
     check("document.getElementById('musicTitle').textContent==='音乐桥接未接入'&&document.querySelector('[data-local]').disabled",'reload/API removal invalidates local playback capabilities')
     js("fixture.state.localTracks[0].title='<img src=x onerror=window.injected=1>';window.MuxiMusicApp.refresh();new Promise(r=>setTimeout(r,20))")
     check("!window.injected&&document.querySelector('#musicLocalList .task-title').textContent.includes('<img')",'untrusted music title is escaped text')
+    js("fixture.state.tracks[0].title='<img src=x onerror=window.injected=1>';window.MuxiMusicApp.refresh();new Promise(r=>setTimeout(r,20))")
+    check("!window.injected&&document.querySelector('#musicTrackList .task-title').textContent.includes('<img')&&document.querySelector('[data-track]').disabled",'track titles remain escaped and unavailable capabilities disable selection')
     js("fixture.fail=true;window.MuxiMusicApp.refresh();new Promise(r=>setTimeout(r,20))")
     check("document.getElementById('musicMessage').textContent.includes('不可用')&&document.getElementById('musicImport').disabled",'missing API produces visible unavailable state')
     shot('music-unavailable-1280.png')
