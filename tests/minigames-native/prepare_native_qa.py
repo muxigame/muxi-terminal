@@ -101,6 +101,7 @@ def main():
     if any(not p.is_file() for p in libs):raise ValueError('Installed client library missing')
     expected=json.loads((DESKTOP/'expected-pack.json').read_text(encoding='utf-8'))['files']
     required_dependencies=[]
+    dependency_reasons={}
     with zipfile.ZipFile(artifacts['muxi_outbreak']) as archive:
         metadata=tomllib.loads(archive.read('META-INF/neoforge.mods.toml').decode())
     if any(row.get('modId')=='lrtactical' and row.get('type')=='required' for row in metadata.get('dependencies',{}).get('muxi_outbreak',[])):
@@ -110,6 +111,15 @@ def main():
             mod=tomllib.loads(archive.read('META-INF/neoforge.mods.toml').decode())
             if not any(row.get('modId')=='lrtactical' and row.get('version')=='0.4.3' for row in mod.get('mods',[])):raise ValueError('LR Tactical dependency identity/version mismatch')
         required_dependencies.append(dependency)
+        dependency_reasons[str(dependency)]='Selected Outbreak requires LR Tactical 0.4.3 on both sides; existing selected equipment dependency'
+    if dedicated:
+        aircraft=WORK/'bmc5server/mods/immersive_aircraft-1.5.2+1.21.1-neoforge.jar'
+        with zipfile.ZipFile(aircraft) as archive:
+            mod=tomllib.loads(archive.read('META-INF/neoforge.mods.toml').decode())
+            if not any(row.get('modId')=='immersive_aircraft' and row.get('version')=='1.5.2+1.21.1' for row in mod.get('mods',[])):raise ValueError('Installed flight integration dependency identity/version mismatch')
+        pinned_aircraft=artifact_dir/aircraft.name;shutil.copy2(aircraft,pinned_aircraft)
+        required_dependencies.append(pinned_aircraft)
+        dependency_reasons[str(pinned_aircraft)]='Existing installed flight integration server requires Immersive Aircraft channels; same unchanged JAR pinned for both actual clients and server after observed handshake mismatch'
     # Sable binds UDP as well as Minecraft TCP. Avoid the Windows dynamic-port
     # range and prove both transports are free before selecting a private port.
     for port in random.sample(range(24000,40000),100):
@@ -180,7 +190,7 @@ def main():
         clients.append({'role':role,'username':name,'uuid':str(offline_uuid),'lab':str(lab),'java':str(runtime),'args':str(lab/'launch.args')})
     report={'prepared':True,'clientStarted':False,'home':str(home),'coordinator':str(coordinator),'port':port,'clients':clients,'heapPerClient':'6G','fakePlayers':False,'syntheticSSO':False,'productionOperations':False,'accountAuthentication':'private-offline-LAN; not trusted account acceptance','terminalCompiledSource':str(terminal_source),'terminalCompiledSha256':compiled_sha256,'terminalResourcesOverlaid':own_resources,'gunpackSha256':digest(gunpack),'artifacts':{key:{'path':str(value),'sha256':digest(value)} for key,value in artifacts.items()}}
     report['qaNetworkingIsolation']={'e4mcPublicRelay':'one source-tagged startup hook skipped in QA-only mod','originalModJarsModified':False,'sableUdpDisabled':False,'candidateDefaultLanAcceptance':False,'knownDefaultLanFailure':'Luna/e4mc recursively invokes startTcpServerListener; Sable binds the same UDP port twice'}
-    report['additionalRequiredDependencies']=[{'path':str(p),'sha256':digest(p),'reason':'Selected Outbreak metadata requires lrtactical >= 0.4.3 on both sides; existing candidate JAR, not a new gun pack'} for p in required_dependencies]
+    report['additionalRequiredDependencies']=[{'path':str(p),'sha256':digest(p),'reason':dependency_reasons[str(p)]} for p in required_dependencies]
     if dedicated:
         server=home/'dedicated-server';server.mkdir();(server/'mods').mkdir();(server/'config').mkdir()
         for source in (WORK/'bmc5server/mods').glob('*.jar'):

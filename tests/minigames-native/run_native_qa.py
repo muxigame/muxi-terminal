@@ -56,6 +56,9 @@ def main():
             for role,process in processes.items():
                 fatal=coordinator/f'fatal-{role}.json'
                 if fatal.exists():raise RuntimeError(read(fatal))
+                status=coordinator/f'status-{role}.json'
+                if status.exists() and read(status).get('screen','').endswith('DisconnectedScreen'):
+                    raise RuntimeError(f'{role} real connection rejected: '+read(status)['screen'])
                 if process.poll() is not None:raise RuntimeError(f'{role} exited before result: {process.returncode}')
             if time.monotonic()-last>10:print(json.dumps({'waiting':path.name,'pids':{role:p.pid for role,p in processes.items()}}),flush=True);last=time.monotonic()
             time.sleep(.2)
