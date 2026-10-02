@@ -25,6 +25,9 @@ public final class NativeMapLauncher {
         var connection=new WeakReference<Object>(mc.getConnection());
         Screen back=new Screen(Component.literal("返回终端")) {
             @Override protected void init() {
+                // Xaero initializes its escape screen while opening the map.
+                // Only perform the return when Minecraft actually selects this screen.
+                if(mc.screen!=this)return;
                 if(connection.get()!=null && connection.get()==mc.getConnection()
                     && mc.player!=null && mc.player.isAlive() && mc.level!=null && returnContext.getAsBoolean())mc.setScreen(previous);
                 else mc.setScreen(null);
