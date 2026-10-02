@@ -1,7 +1,7 @@
 const guides = [
   {
     id:'create', name:'机械动力 Create', short:'CR', category:'工程 / 自动化',
-    icon:'create:textures/item/andesite_alloy.png', colors:['#b48a4b','#392c1d'], manual:'manual.open:create', manualLabel:'打开 Ponder 教程索引',
+    icon:'create:andesite_alloy', colors:['#b48a4b','#392c1d'], manual:'manual.open:create', manualLabel:'打开 Ponder 教程索引',
     summary:'用齿轮、传动轴和机械结构，把自动化真正“搭”在世界里。',
     why:'Create 的核心不是机器方块堆叠，而是可视化的机械系统。它非常适合作为整合包中期的大型工程主线。',
     steps:['先从安山合金、齿轮与传动轴开始，理解动力如何传递。','做一个水车或其他稳定动力源，再观察应力容量。','先完成一个小型自动化，例如自动加工或简单物品运输，再扩建工厂。'],
@@ -9,7 +9,7 @@ const guides = [
   },
   {
     id:'iceandfire', name:'冰火传说 Ice and Fire', short:'IF', category:'探索 / 战斗',
-    icon:'iceandfire:textures/item/bestiary.png', colors:['#447c9c','#251d25'], manual:'manual.open:iceandfire', manualLabel:'打开怪物图鉴',
+    icon:'iceandfire:bestiary', colors:['#447c9c','#251d25'], manual:'manual.open:iceandfire', manualLabel:'打开怪物图鉴',
     summary:'龙、神话生物、龙骨武器与高风险探索内容。',
     why:'它把世界探索变成真正需要准备的远征。龙巢、龙穴和稀有生物都会给装备成长带来明显变化。',
     steps:['前期不要直接挑战成年龙，先准备远程手段、药水和撤退路线。','收集龙相关素材时优先确认目标生物阶段与环境优势。','获得龙骨与龙鳞后再逐步进入高阶装备路线。'],
@@ -17,7 +17,7 @@ const guides = [
   },
   {
     id:'waystones', name:'传送石碑 Waystones', short:'WS', category:'交通 / 探索',
-    icon:'waystones:textures/item/warp_stone.png', colors:['#8263b4','#27223b'],
+    icon:'waystones:warp_stone', colors:['#8263b4','#27223b'],
     summary:'激活石碑后建立属于自己的快速旅行网络。',
     why:'整合包世界很大，石碑会成为长期探索最重要的基础设施之一。',
     steps:['遇到石碑时优先激活并给位置起容易识别的名字。','在基地、资源区和关键维度入口附近建立自己的石碑。','终端与地图后续会继续把已激活石碑整合进统一导航。'],
@@ -25,7 +25,7 @@ const guides = [
   },
   {
     id:'farmersdelight', name:"农夫乐事 Farmer's Delight", short:'FD', category:'生存 / 食物',
-    icon:'farmersdelight:textures/item/iron_knife.png', colors:['#74944d','#2c321e'],
+    icon:'farmersdelight:iron_knife', colors:['#74944d','#2c321e'],
     summary:'更完整的烹饪、作物处理和高质量食物体系。',
     why:'它让食物从“补饥饿值”变成一条稳定的生存与探索补给线。',
     steps:['先做砧板和基础厨具，熟悉原料处理方式。','建立小型农田并保留多种作物，不要只种一种高饱食食物。','开始远征前准备成套料理，观察不同食物带来的持续收益。'],
@@ -33,7 +33,7 @@ const guides = [
   },
   {
     id:'twilightforest', name:'暮色森林 The Twilight Forest', short:'TF', category:'维度 / Boss',
-    icon:'twilightforest:textures/item/magic_map.png', colors:['#4b935e','#182c21'],
+    icon:'twilightforest:magic_map', colors:['#4b935e','#182c21'],
     summary:'一个有明确推进顺序的经典冒险维度。',
     why:'它很适合当作一条独立冒险线：探索、Boss、区域解锁和战利品都具有清晰阶段感。',
     steps:['准备稳定装备与补给后再建立暮色森林入口。','推进时留意区域限制，不要只按地图直线冲向下一个 Boss。','保留 Boss 战利品与关键掉落，它们通常与后续推进有关。'],
@@ -41,7 +41,7 @@ const guides = [
   },
   {
     id:'alexsmobs', name:"Alex's Mobs", short:'AM', category:'生态 / 生物',
-    icon:'alexsmobs:textures/item/animal_dictionary.png', colors:['#ba7350','#3b241b'], manual:'manual.open:alexsmobs', manualLabel:'打开动物词典',
+    icon:'alexsmobs:animal_dictionary', colors:['#ba7350','#3b241b'], manual:'manual.open:alexsmobs', manualLabel:'打开动物词典',
     summary:'大量有独特行为、掉落和互动机制的新生物。',
     why:'很多生物不是单纯的“新怪”，而是拥有特殊生态、驯服方式或实用掉落。',
     steps:['第一次遇到陌生生物时先观察行为，不要默认它是敌对目标。','留意稀有掉落和特殊互动，它们常用于独特装备或工具。','探索不同群系，因为多数新增生物有明确的生态分布。'],
@@ -49,7 +49,7 @@ const guides = [
   },
   {
     id:'starcatcher', name:'星钓 Starcatcher', short:'SC', category:'钓鱼 / 收集',
-    icon:'starcatcher:textures/item/starcatcher_guide.png', colors:['#4f8eb5','#173046'], manual:'manual.open:starcatcher', manualLabel:'打开钓鱼指南',
+    icon:'starcatcher:starcatcher_guide', colors:['#4f8eb5','#173046'], manual:'manual.open:starcatcher', manualLabel:'打开钓鱼指南',
     summary:'围绕钓鱼小游戏、鱼种收集、鱼竿升级、鱼钩与鱼饵构建的一整套钓鱼玩法。',
     why:'Starcatcher 不只是增加几条鱼，它把钓鱼做成了长期收集线：不同环境、鱼种、装备和记录都会逐步丰富你的渔获图鉴。',
     steps:['先制作或取得基础钓竿与 Starcatcher Guide，熟悉抛竿和小游戏。','开始收集不同区域的鱼，同时尝试鱼钩、鱼饵和钓竿升级。','利用指南记录鱼种，再逐步挑战特殊天气、稀有鱼和更高级钓具。'],
@@ -57,7 +57,7 @@ const guides = [
   },
   {
     id:'modulargolems', name:'模块化傀儡 Modular Golems', short:'MG', category:'随从 / 构筑',
-    icon:'modulargolems:textures/item/command_wand.png', colors:['#927c62','#30271f'], manual:'manual.open:patchouli:modulargolems:golem_guide', manualLabel:'打开傀儡指南',
+    icon:'modulargolems:command_wand', colors:['#927c62','#30271f'], manual:'manual.open:patchouli:modulargolems:golem_guide', manualLabel:'打开傀儡指南',
     summary:'制作不同材料、装备和升级组合的傀儡，让随从承担战斗、护卫与功能性工作。',
     why:'傀儡真正有趣的地方在“组装”：材料决定基础能力，装备和升级继续改变定位，可以围绕自己的基地和战斗方式做专属配置。',
     steps:['先阅读傀儡指南，理解金属傀儡、人形傀儡与材料体系。','制作基础傀儡后，用指挥杖熟悉跟随、驻守和行为控制。','再逐步添加升级、装备与不同材料，不要一开始就追求最高阶数值。'],
@@ -65,7 +65,7 @@ const guides = [
   },
   {
     id:'touhoumaid', name:'车万女仆 Touhou Little Maid', short:'TL', category:'随从 / 生活',
-    icon:'touhou_little_maid:textures/item/hakurei_gohei.png', colors:['#bf5260','#3e2027'], manual:'manual.open:patchouli:touhou_little_maid:memorizable_gensokyo', manualLabel:'打开记忆中的幻想乡',
+    icon:'touhou_little_maid:hakurei_gohei', colors:['#bf5260','#3e2027'], manual:'manual.open:patchouli:touhou_little_maid:memorizable_gensokyo', manualLabel:'打开记忆中的幻想乡',
     summary:'召唤并培养女仆，让她们承担战斗、农务、搬运与大量生活辅助工作。',
     why:'女仆是一条非常完整的长期随从路线：从召唤、好感与任务，到装备、背包、模型和各种扩展功能，都能逐步形成自己的伙伴体系。',
     steps:['先通过手册了解祭坛、女仆召唤与基础交互。','给女仆安排清晰任务并准备合适工具、食物和装备。','熟悉好感、复活与任务系统后，再扩展背包、模型和战斗能力。'],
@@ -73,7 +73,7 @@ const guides = [
   },
   {
     id:'cataclysm', name:"灾变 L_Ender's Cataclysm", short:'CT', category:'Boss / 高难战斗',
-    icon:'cataclysm:textures/item/monstrous_eye.png', colors:['#923b3b','#2a1115'],
+    icon:'cataclysm:monstrous_eye', colors:['#923b3b','#2a1115'],
     summary:'大型结构、阶段化 Boss 与高强度装备奖励组成的高难度冒险内容。',
     why:'灾变更接近整合包后期的 Boss 挑战线。敌人的机制、场地和伤害都明显高于普通探索内容，准备工作本身就是玩法的一部分。',
     steps:['先提升基础装备和生存能力，不要把灾变 Boss 当普通精英怪处理。','根据目标 Boss 准备抗性、远程方案、治疗和撤退手段。','击败 Boss 后保留关键材料，它们通常会进入下一阶段装备路线。'],
@@ -134,35 +134,17 @@ if(installedGrid){
   new MutationObserver(update).observe(installedGrid,{childList:true});update();
 }
 
-const resourceCache=new Map();
-async function resourceData(id){
-  if(resourceCache.has(id))return resourceCache.get(id);
-  const promise=native('resource.data:'+id).then(data=>{
-    if(typeof data==='string' && /^data:image\//.test(data)) return data;
-    resourceCache.delete(id);return null;
-  }).catch(()=>{resourceCache.delete(id);return null;});
-  resourceCache.set(id,promise);
-  return promise;
-}
-
-async function hydrateImages(root=document){
-  const nodes=[...root.querySelectorAll('img[data-resource]')];
-  await Promise.all(nodes.map(async img=>{
-    if(img.dataset.loaded)return;
-    const data=await resourceData(img.dataset.resource);
-    if(data){img.dataset.loaded='1';img.src=data;img.hidden=false;const fallback=img.parentElement?.querySelector('.mod-fallback');if(fallback)fallback.hidden=true;}
-    else img.hidden=true;
-  }));
-}
+function hydrateImages(root=document){return window.TerminalIcons.hydrate(root);}
 
 function iconStyle(g){return `--icon1:${g.colors[0]};--icon2:${g.colors[1]}`;}
-function guideIcon(g,detail=false){
-  return `<span class="mod-icon" style="${iconStyle(g)}"><span class="mod-fallback">${esc(g.short)}</span><img hidden data-resource="${esc(g.icon)}" alt=""></span>`;
+function guideIcon(g){
+  return `<span class="mod-icon" style="${iconStyle(g)}">${window.TerminalIcons.html({kind:'item',id:g.icon,label:g.short})}</span>`;
 }
 
 function renderGuides(filter=''){
   const q=filter.trim().toLowerCase();
   const root=$('#guideList');
+  window.TerminalIcons.release(root);
   root.innerHTML=guides.filter(g=>(g.name+' '+g.category+' '+g.summary).toLowerCase().includes(q)).map(g=>`
     <button class="guide-card" data-guide="${g.id}">
       ${guideIcon(g)}
@@ -179,7 +161,7 @@ function openGuide(id){
   $('#detailSummary').textContent=g.summary;
   $('#detailWhy').textContent=g.why;
   $('#detailSteps').innerHTML=g.steps.map((s,i)=>`<div class="step"><b>${i+1}</b><span>${esc(s)}</span></div>`).join('');
-  const holder=$('#detailIcon');holder.style.cssText=iconStyle(g);holder.innerHTML=`<span class="mod-fallback">${esc(g.short)}</span><img hidden data-resource="${esc(g.icon)}" alt="">`;
+  const holder=$('#detailIcon');holder.style.cssText=iconStyle(g);window.TerminalIcons.release(holder);holder.innerHTML=window.TerminalIcons.html({kind:'item',id:g.icon,label:g.short});
   hydrateImages($('#guideDetail'));
   const manual=$('#openManual');
   manual.hidden=!g.manual;
@@ -190,12 +172,6 @@ function openGuide(id){
 }
 
 $('#guideSearch').addEventListener('input',e=>renderGuides(e.target.value));
-
-function itemTexture(item){
-  const split=String(item).split(':');
-  if(split.length!==2)return null;
-  return `${split[0]}:textures/item/${split[1]}.png`;
-}
 
 let taskState=null;
 async function refreshTasks(requestFirst=false){
@@ -211,8 +187,7 @@ async function refreshTasks(requestFirst=false){
 }
 
 function rewardHtml(reward){
-  const texture=itemTexture(reward.item);
-  return `<span class="reward-chip">${texture?`<img hidden data-resource="${esc(texture)}" alt="">`:''}<span>${esc(reward.name)}${reward.count>1?` ×${reward.count}`:''}</span></span>`;
+  return `<span class="reward-chip">${window.TerminalIcons.html({kind:'item',id:reward.item,label:reward.name})}<span>${esc(reward.name)}${reward.count>1?` ×${reward.count}`:''}</span></span>`;
 }
 
 function renderTasks(state){
@@ -221,26 +196,31 @@ function renderTasks(state){
   $('#taskCountdown').textContent=state.loading?'正在读取任务…':`刷新倒计时 ${state.remaining||'--:--:--'}`;
   $('#rerollAllowance').textContent=state.loading?'':`今日可换 ${state.rerollsRemaining??0} 次`;
   const list=$('#taskList');
-  if(state.loading){list.innerHTML='<div class="task-empty">正在读取每日任务…</div>';}
-  else if(!rows.length){list.innerHTML=`<div class="task-empty">${esc(state.error||state.notice||'今天没有可显示的每日任务。')}</div>`;}
-  else{
-    list.innerHTML=rows.map(row=>{
-      const percent=Math.max(0,Math.min(100,Math.round((row.progress/Math.max(1,row.goal))*100)));
-      const classes=['task-card',row.tracked?'task-tracked':'',row.ready?'task-ready':'',row.claimed?'task-claimed':''].filter(Boolean).join(' ');
-      const rewards=(row.rewards||[]).map(rewardHtml).join('')+(row.experienceLevels?`<span class="reward-chip reward-xp">经验等级 +${row.experienceLevels}</span>`:'');
-      return `<article class="${classes}" data-task="${esc(row.id)}">
-        <div class="task-row-head"><div class="task-title">${esc(row.title)}${row.hard?'<span class="task-hard">高难</span>':''}</div><div class="task-progress">${row.progress}/${row.goal}${esc(row.unit||'')}</div></div>
-        <div class="task-progress-bg"><div class="task-progress-fill" style="width:${percent}%"></div></div>
-        <p class="task-description">${esc(row.description)}</p>
-        <div class="task-bottom"><div class="task-rewards">${rewards||'<span class="reward-chip">无额外奖励</span>'}</div>
-        <div class="task-actions">
-          <button data-action="track" class="${row.tracked?'tracked-button':''}">${row.tracked?'取消追踪':'追踪'}</button>
-          <button data-action="reroll" ${row.rerollable?'':'disabled'}>换一项</button>
-          <button data-action="claim" class="${row.ready?'claim-ready':''}" ${row.ready?'':'disabled'}>${row.claimed?'已领取':'领取'}</button>
-        </div></div>
-      </article>`;
-    }).join('');
-    hydrateImages(list);
+  const renderKey=JSON.stringify([Boolean(state.loading),rows,state.error||state.notice||'']);
+  if(list._terminalRowsKey!==renderKey){
+    list._terminalRowsKey=renderKey;window.TerminalIcons.release(list);
+    if(state.loading){list.innerHTML='<div class="task-empty">正在读取每日任务…</div>';}
+    else if(!rows.length){list.innerHTML=`<div class="task-empty">${esc(state.error||state.notice||'今天没有可显示的每日任务。')}</div>`;}
+    else{
+      list.innerHTML=rows.map(row=>{
+        const percent=Math.max(0,Math.min(100,Math.round((row.progress/Math.max(1,row.goal))*100)));
+        const classes=['task-card',row.tracked?'task-tracked':'',row.ready?'task-ready':'',row.claimed?'task-claimed':''].filter(Boolean).join(' ');
+        const rewards=(row.rewards||[]).map(rewardHtml).join('')+(row.experienceLevels?`<span class="reward-chip reward-xp">${window.TerminalIcons.html({kind:'semantic',id:'experience-levels',label:'经验等级'})}经验等级 +${row.experienceLevels}</span>`:'');
+        return `<article class="${classes}" data-task="${esc(row.id)}">
+          <div class="task-row-head"><div class="task-title">${esc(row.title)}${row.hard?'<span class="task-hard">高难</span>':''}</div><div class="task-progress">${row.progress}/${row.goal}${esc(row.unit||'')}</div></div>
+          <div class="task-progress-bg"><div class="task-progress-fill" style="width:${percent}%"></div></div>
+          <p class="task-description">${esc(row.description)}</p>
+          <div class="task-bottom"><div class="task-rewards">${rewards||'<span class="reward-chip">无额外奖励</span>'}</div>
+          <div class="task-actions">
+            <button data-action="track" class="${row.tracked?'tracked-button':''}">${row.tracked?'取消追踪':'追踪'}</button>
+            <button data-action="reroll" ${row.rerollable?'':'disabled'}>换一项</button>
+            <button data-action="claim" class="${row.ready?'claim-ready':''}" ${row.ready?'':'disabled'}>${row.claimed?'已领取':'领取'}</button>
+          </div></div>
+        </article>`;
+      }).join('');
+      hydrateImages(list);
+    }
+
   }
 
   const mainline=state.mainline||[];
@@ -259,7 +239,7 @@ $('#taskList').addEventListener('click',async event=>{
   button.disabled=true;
   try{
     const command=action==='track'?`tasks.track:${id}`:action==='claim'?`tasks.claim:${id}`:`tasks.reroll:${id}`;
-    await native(command);await sleep(120);await refreshTasks(false);
+    await native(command);await sleep(120);delete $('#taskList')._terminalRowsKey;await refreshTasks(false);
   }catch(error){setStatus(error.message);button.disabled=false;}
 });
 

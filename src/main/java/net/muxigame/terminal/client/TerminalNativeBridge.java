@@ -87,6 +87,7 @@ public final class TerminalNativeBridge {
         }
 
         private void dispatch(Minecraft mc,CefBrowser browser,CefFrame frame,String request,CefQueryCallback callback){
+            if(TerminalIcons.dispatch(request,callback))return;
             if(TerminalNativeMapBridge.dispatch(browser,frame,request,callback))return;
             if(TerminalFriendsBridge.dispatch(browser,frame,request,callback))return;
             if(TerminalAlbumBridge.dispatch(browser,frame,request,callback))return;
