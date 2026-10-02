@@ -25,9 +25,36 @@ public final class AlbumLibraryTest {
         Files.write(root.resolve("photos/.recycle").resolve(id),replacement);rejects(()->store.recycle(id));
         check(Arrays.equals(store.read(id),png) && Arrays.equals(store.readRecycled(id),replacement),"recycle never overwrites existing trash photo");
         Path outside=root.resolve("real-user-photo.png");Files.write(outside,png);
-        for(String path:List.of("../real-user-photo.png",outside.toString(),"file:///photo.png","a.png")){rejects(()->store.recycle(path));rejects(()->store.restore(path));}
+        for(String path:List.of("../real-user-photo.png",outside.toString(),"file:///photo.png" ,"CON.png","a.png:outside")){rejects(()->store.recycle(path));rejects(()->store.restore(path));}
         check(Arrays.equals(Files.readAllBytes(outside),png),"outside photo untouched");
-        Files.write(root.resolve("photos/unowned.png"),png);check(store.list().size()==1,"unowned resource excluded");
+        Files.write(root.resolve("photos/unowned.png"),png);check(store.list().size()==2,"renamed native PNG visible");
+        // Real filenames/formats, current-instance isolation and most-recent ordering.
+        Path photos=root.resolve("photos");
+        Files.write(photos.resolve("2026-10-02_12.34.56.png"),png);
+        Files.setLastModifiedTime(photos.resolve("2026-10-02_12.34.56.png"),java.nio.file.attribute.FileTime.fromMillis(9_000_000_000_000L));
+        check(store.list().getFirst().id().equals("2026-10-02_12.34.56.png"),"native F2 filename sorted newest by mtime");
+        check(Arrays.equals(store.read("2026-10-02_12.34.56.png"),png),"native F2 read permitted in own instance");
+        for(String ext:List.of("png","jpg","jpeg","gif","bmp")){
+            var image=new java.awt.image.BufferedImage(640,480,java.awt.image.BufferedImage.TYPE_INT_RGB);
+            try(var out=new java.io.ByteArrayOutputStream()){
+                check(javax.imageio.ImageIO.write(image,ext.equals("jpeg")?"jpg":ext,out),"fixture codec available "+ext);
+                String name="截图 重命名."+ext.toUpperCase(java.util.Locale.ROOT);Files.write(photos.resolve(name),out.toByteArray());
+                check(store.list().stream().anyMatch(p->p.id().equals(name)),"format/native renamed file enumerated "+ext);
+                String data=TerminalPhotoImages.data(store,name,false,240,160);
+                var decoded=javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(java.util.Base64.getDecoder().decode(data.substring(data.indexOf(',')+1))));
+                check(decoded.getWidth()<=240 && decoded.getHeight()<=160,"bounded actual decoded thumbnail "+ext);decoded.flush();
+            }finally{image.flush();}
+        }
+        Files.write(photos.resolve("invalid.png"),new byte[]{1,2,3});Files.write(photos.resolve("script.svg"),"<svg/>".getBytes());
+        check(store.list().stream().noneMatch(p->p.id().equals("invalid.png") || p.id().equals("script.svg")),"invalid signature and active SVG excluded");
+        var second=new TerminalPhotoStore(root.resolve("other-instance/screenshots"));check(second.list().isEmpty(),"switch instance sees only its screenshots");
+        Path legacy=photos.resolve("muxi-terminal/player");Files.createDirectories(legacy);Files.write(legacy.resolve("old-camera.png"),png);
+        var compatible=new TerminalPhotoStore(photos,legacy);var oldPhoto=compatible.list().stream().filter(p->p.readOnly()).findFirst().orElseThrow();
+        check(oldPhoto.name().equals("old-camera.png") && Arrays.equals(compatible.read(oldPhoto.id()),png),"legacy own-player photo visible read-only without migration");
+        rejects(()->compatible.recycle(oldPhoto.id()));rejects(()->compatible.restore(oldPhoto.id()));
+        check(Files.exists(legacy.resolve("old-camera.png")) && !Files.exists(photos.resolve("old-camera.png")),"legacy originals untouched, no duplicate copy");
+        for(int n=0;n<210;n++){Path extra=photos.resolve("sort-"+n+".png");Files.write(extra,png);Files.setLastModifiedTime(extra,java.nio.file.attribute.FileTime.fromMillis(10_000+n));}
+        check(store.list().size()==200 && store.list().getFirst().id().equals("2026-10-02_12.34.56.png"),"newest 200 selected independently of enumeration order");
         boolean linkChecks=false;
         try{
             String linked="muxi-20261001-000000-000-00000000-0000-0000-0000-000000000000.png";

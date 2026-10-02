@@ -10,6 +10,14 @@
       try{const photos=await invoke(recycled?'album.recycled':'album.photos');if(!current(e))return false;update({photos,busy:false});return true;}
       catch(error){if(current(e))update({busy:false,error:error.message});throw error;}
     }
+    async function refresh(){
+      if(closed || state.busy || state.selected || state.confirm)return false;
+      const e=epoch,recycled=state.recycled;
+      try{const photos=await invoke(recycled?'album.recycled':'album.photos');if(!current(e) || state.busy || state.selected)return false;
+        const same=photos.length===state.photos.length && photos.every((p,i)=>p.id===state.photos[i].id && p.modified===state.photos[i].modified && p.bytes===state.photos[i].bytes);
+        if(!same)update({photos,error:''});return true;
+      }catch(error){if(current(e))update({error:error.message});throw error;}
+    }
     async function thumb(id){const e=epoch,recycled=state.recycled;const image=await invoke((recycled?'album.recycled-thumb:':'album.thumb:')+id);return current(e)?image:null;}
     async function open(id){
       if(closed || state.busy)return false;
@@ -22,7 +30,7 @@
     }
     function closePhoto(){selection=null;ticket=null;update({selected:null,image:'',confirm:null,busy:false});return invoke('album.cancel-delete').catch(()=>{});}
     async function prepareDelete(){
-      if(closed || state.busy || state.recycled || !state.selected)return false;
+      if(closed || state.busy || state.recycled || !state.selected || state.selected.readOnly)return false;
       const e=epoch,id=state.selected.id,which=selection;
       update({busy:true,error:''});
       try{const next=await invoke('album.prepare-delete:'+id);
@@ -39,13 +47,13 @@
       catch(error){if(current(e))update({confirm:null,busy:false,error:'未完成移入回收区，请重新确认。'+error.message});throw error;}
     }
     async function restore(){
-      if(closed || state.busy || !state.recycled || !state.selected)return false;
+      if(closed || state.busy || !state.recycled || !state.selected || state.selected.readOnly)return false;
       const e=epoch,id=state.selected.id;update({busy:true,error:''});
       try{await invoke('album.restore:'+id);if(!current(e))return false;await load(true);return true;}
       catch(error){if(current(e))update({busy:false,error:'恢复失败；同名照片不会被覆盖。'+error.message});throw error;}
     }
     function dispose(){closed=true;++epoch;selection=null;ticket=null;update({photos:[],selected:null,image:'',confirm:null,busy:false});return invoke('album.cancel-delete').catch(()=>{});}
-    return {load,thumb,open,closePhoto,prepareDelete,cancelDelete,confirmDelete,restore,dispose,getState:()=>({...state})};
+    return {load,refresh,thumb,open,closePhoto,prepareDelete,cancelDelete,confirmDelete,restore,dispose,getState:()=>({...state})};
   }
   return {create};
 });

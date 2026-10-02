@@ -1,0 +1,412 @@
+{
+  "date": "2026-10-02",
+  "machine": "131 / JBC_FCRL / interactive Session 2",
+  "candidateSha256": "62819ebf01b50c1332d889ae355f71c12b5106df58c1c517a1caa43a67303a01",
+  "sourceHead": "f599cafdd173aca3c12befa7f23a856de0b85321 + album working changes",
+  "realRuntime": {
+    "lab": "C:\\Users\\ranzh\\Documents\\Codex\\2026-10-02\\task-10\\album-runtime-20261002-083634-93208d32",
+    "success": true,
+    "checks": [
+      "actual isolated 131 window visible and focused",
+      "installed ESC screenshot manager default equals this native instance screenshots",
+      "fresh independent gameDirectory starts with own empty native screenshot directory",
+      "native F2 creates actual game screenshot before album opens",
+      "historical actual F2 visible with decoded real CEF thumbnail",
+      "second actual Minecraft instance excludes previous instance native F2 and camera photos",
+      "F2 while album stays open appears through product automatic refresh",
+      "native F2 opens real bounded CEF large image",
+      "prepare-delete dialog leaves native F2 untouched",
+      "cancel-delete leaves native F2 untouched",
+      "confirmed native F2 moved to recoverable current-instance recycle with no copy",
+      "restore preserves original native F2 filename and bytes",
+      "album camera button opens actual native camera screen",
+      "actual native camera output shares current native F2 directory",
+      "camera return shows native camera output and both F2 photos in same CEF album",
+      "actual camera output opens in CEF album",
+      "native terminal exit clears retained CEF thumbnail and large-image sources",
+      "native F2/camera screenshot image allocations all closed",
+      "reopening retained terminal resumes album and thumbnails",
+      "cycle 0 has no native screenshot image leak",
+      "cycle 1 has no native screenshot image leak",
+      "cycle 2 has no native screenshot image leak",
+      "cycle 3 has no native screenshot image leak",
+      "cycle 4 has no native screenshot image leak",
+      "cycle 5 has no native screenshot image leak",
+      "cycle 6 has no native screenshot image leak",
+      "cycle 7 has no native screenshot image leak",
+      "cycle 8 has no native screenshot image leak",
+      "cycle 9 has no native screenshot image leak",
+      "cycle 10 has no native screenshot image leak",
+      "cycle 11 has no native screenshot image leak",
+      "cycle 12 has no native screenshot image leak",
+      "cycle 13 has no native screenshot image leak",
+      "cycle 14 has no native screenshot image leak",
+      "cycle 15 has no native screenshot image leak",
+      "cycle 16 has no native screenshot image leak",
+      "cycle 17 has no native screenshot image leak",
+      "cycle 18 has no native screenshot image leak",
+      "cycle 19 has no native screenshot image leak",
+      "cycle 20 has no native screenshot image leak",
+      "cycle 21 has no native screenshot image leak",
+      "cycle 22 has no native screenshot image leak",
+      "cycle 23 has no native screenshot image leak",
+      "all real close-state resource samples collected"
+    ],
+    "reopenCycles": 24,
+    "normalLogout": true,
+    "exitCode": 0,
+    "forceTerminationPerformed": false,
+    "finalizerErrorCount": 0,
+    "memorySamples": [
+      {
+        "cycle": 0,
+        "heapUsed": 312548384,
+        "directBufferBytes": 10617487,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 0,
+        "heapUsed": 312596584,
+        "directBufferBytes": 10617487,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 1,
+        "heapUsed": 312668632,
+        "directBufferBytes": 10617487,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 2,
+        "heapUsed": 312690280,
+        "directBufferBytes": 10617487,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 3,
+        "heapUsed": 312703152,
+        "directBufferBytes": 10617487,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 4,
+        "heapUsed": 312707008,
+        "directBufferBytes": 10617487,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 5,
+        "heapUsed": 312762968,
+        "directBufferBytes": 10617487,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 6,
+        "heapUsed": 312769936,
+        "directBufferBytes": 10617487,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 7,
+        "heapUsed": 312775464,
+        "directBufferBytes": 10600031,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 8,
+        "heapUsed": 312777128,
+        "directBufferBytes": 10590981,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 9,
+        "heapUsed": 312777248,
+        "directBufferBytes": 10570949,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 10,
+        "heapUsed": 312639776,
+        "directBufferBytes": 10355427,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 11,
+        "heapUsed": 312643840,
+        "directBufferBytes": 10355427,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 12,
+        "heapUsed": 312646416,
+        "directBufferBytes": 10355427,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 13,
+        "heapUsed": 312647432,
+        "directBufferBytes": 10355427,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 14,
+        "heapUsed": 312649128,
+        "directBufferBytes": 10355427,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 15,
+        "heapUsed": 313700520,
+        "directBufferBytes": 10355427,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 16,
+        "heapUsed": 312652968,
+        "directBufferBytes": 10355427,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 17,
+        "heapUsed": 312655568,
+        "directBufferBytes": 10355427,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 18,
+        "heapUsed": 312657456,
+        "directBufferBytes": 10355427,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 19,
+        "heapUsed": 312659152,
+        "directBufferBytes": 10355427,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 20,
+        "heapUsed": 312659536,
+        "directBufferBytes": 10355427,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 21,
+        "heapUsed": 312661152,
+        "directBufferBytes": 10355427,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 22,
+        "heapUsed": 312661640,
+        "directBufferBytes": 10355427,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      },
+      {
+        "cycle": 23,
+        "heapUsed": 312662256,
+        "directBufferBytes": 10340741,
+        "cameraWorkers": 0,
+        "nativeScreenshotImages": 0
+      }
+    ],
+    "closedProcessSamples": [
+      {
+        "cycle": 0,
+        "privateBytes": 1859047424,
+        "childPrivateBytes": 221282304
+      },
+      {
+        "cycle": 1,
+        "privateBytes": 1855983616,
+        "childPrivateBytes": 224514048
+      },
+      {
+        "cycle": 2,
+        "privateBytes": 1864441856,
+        "childPrivateBytes": 230928384
+      },
+      {
+        "cycle": 3,
+        "privateBytes": 1879191552,
+        "childPrivateBytes": 230637568
+      },
+      {
+        "cycle": 4,
+        "privateBytes": 1868767232,
+        "childPrivateBytes": 231272448
+      },
+      {
+        "cycle": 5,
+        "privateBytes": 1852125184,
+        "childPrivateBytes": 233525248
+      },
+      {
+        "cycle": 6,
+        "privateBytes": 1847164928,
+        "childPrivateBytes": 229359616
+      },
+      {
+        "cycle": 7,
+        "privateBytes": 1867202560,
+        "childPrivateBytes": 231325696
+      },
+      {
+        "cycle": 8,
+        "privateBytes": 1859047424,
+        "childPrivateBytes": 230522880
+      },
+      {
+        "cycle": 9,
+        "privateBytes": 1860091904,
+        "childPrivateBytes": 231841792
+      },
+      {
+        "cycle": 10,
+        "privateBytes": 1858756608,
+        "childPrivateBytes": 230973440
+      },
+      {
+        "cycle": 11,
+        "privateBytes": 1861660672,
+        "childPrivateBytes": 233353216
+      },
+      {
+        "cycle": 12,
+        "privateBytes": 1864560640,
+        "childPrivateBytes": 232943616
+      },
+      {
+        "cycle": 13,
+        "privateBytes": 1867218944,
+        "childPrivateBytes": 234741760
+      },
+      {
+        "cycle": 14,
+        "privateBytes": 1858035712,
+        "childPrivateBytes": 234770432
+      },
+      {
+        "cycle": 15,
+        "privateBytes": 1860419584,
+        "childPrivateBytes": 235687936
+      },
+      {
+        "cycle": 16,
+        "privateBytes": 1860972544,
+        "childPrivateBytes": 234860544
+      },
+      {
+        "cycle": 17,
+        "privateBytes": 1872433152,
+        "childPrivateBytes": 234516480
+      },
+      {
+        "cycle": 18,
+        "privateBytes": 1853579264,
+        "childPrivateBytes": 235290624
+      },
+      {
+        "cycle": 19,
+        "privateBytes": 1858347008,
+        "childPrivateBytes": 236863488
+      },
+      {
+        "cycle": 20,
+        "privateBytes": 1872912384,
+        "childPrivateBytes": 237326336
+      },
+      {
+        "cycle": 21,
+        "privateBytes": 1863348224,
+        "childPrivateBytes": 238428160
+      },
+      {
+        "cycle": 22,
+        "privateBytes": 1861468160,
+        "childPrivateBytes": 238817280
+      },
+      {
+        "cycle": 23,
+        "privateBytes": 1863540736,
+        "childPrivateBytes": 239509504
+      }
+    ]
+  },
+  "fixtures": {
+    "libraryChecks": 58,
+    "bridgeChecks": 65,
+    "controller": "passed",
+    "realWindowsJunctionChecks": 2,
+    "fixturesAreRuntimeAcceptance": false
+  },
+  "privacy": "Only independently generated private QA-world screenshots. No user photo bytes, names, images, copies or uploads in this repository evidence.",
+  "limits": [
+    "Minimal installed MC/NeoForge + MCEF + screenshot_viewer runtime; no full modpack/shader/YSM acceptance claim.",
+    "Native F2 exercised through real owned KeyboardHandler press/release; CEF actual DOM buttons; no query or image-backend mocks in runtime.",
+    "CEF child private allocation grew roughly 17 MiB over 24 cycles; cleared sources and bounded managed/direct/native-image counters do not establish indefinite process-memory stability."
+  ],
+  "sha256RestoreRuntime": {
+    "lab": "C:\\Users\\ranzh\\Documents\\Codex\\2026-10-02\\task-10\\album-runtime-20261002-084132-86950f41",
+    "success": true,
+    "checks": [
+      "actual isolated 131 window visible and focused",
+      "installed ESC screenshot manager default equals this native instance screenshots",
+      "fresh independent gameDirectory starts with own empty native screenshot directory",
+      "native F2 creates actual game screenshot before album opens",
+      "historical actual F2 visible with decoded real CEF thumbnail",
+      "second actual Minecraft instance excludes previous instance native F2 and camera photos",
+      "F2 while album stays open appears through product automatic refresh",
+      "native F2 opens real bounded CEF large image",
+      "prepare-delete dialog leaves native F2 untouched",
+      "cancel-delete leaves native F2 untouched",
+      "confirmed native F2 moved to recoverable current-instance recycle with no copy",
+      "restore preserves original native F2 filename and SHA-256 bytes",
+      "album camera button opens actual native camera screen",
+      "actual native camera output shares current native F2 directory",
+      "camera return shows native camera output and both F2 photos in same CEF album",
+      "actual camera output opens in CEF album",
+      "native terminal exit clears retained CEF thumbnail and large-image sources",
+      "native F2/camera screenshot image allocations all closed",
+      "reopening retained terminal resumes album and thumbnails",
+      "cycle 0 has no native screenshot image leak",
+      "cycle 1 has no native screenshot image leak",
+      "cycle 2 has no native screenshot image leak",
+      "cycle 3 has no native screenshot image leak",
+      "cycle 4 has no native screenshot image leak",
+      "cycle 5 has no native screenshot image leak",
+      "cycle 6 has no native screenshot image leak",
+      "cycle 7 has no native screenshot image leak",
+      "all real close-state resource samples collected"
+    ],
+    "cycles": 8,
+    "exitCode": 0,
+    "normalLogout": true,
+    "forceTerminationPerformed": false,
+    "finalizerErrorCount": 0
+  }
+}

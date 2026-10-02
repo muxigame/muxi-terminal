@@ -44,11 +44,14 @@ public final class TerminalNativeBridge {
                 return true;
             }
             if(persistent || request==null || request.length()>8192){callback.failure(400,"Invalid terminal request");return true;}
-            long epoch=TerminalBrowserSession.generation();String document=frame.getURL();
+            long epoch=TerminalBrowserSession.generation(),frameId=frame.getIdentifier();String document=frame.getURL();
+            var operationFrame=new java.util.concurrent.atomic.AtomicReference<CefFrame>();
             CefQueryCallback guarded=new CefQueryCallback(){
-                private boolean valid(){return TerminalBrowserSession.generation()==epoch && TerminalBrowserSession.trusted(browser,frame) && document.equals(frame.getURL());}
-                @Override public void success(String response){if(valid())callback.success(response);}
-                @Override public void failure(int code,String message){if(valid())callback.failure(code,message);}
+                private final java.util.concurrent.atomic.AtomicBoolean settled=new java.util.concurrent.atomic.AtomicBoolean();
+                private boolean valid(){return validDocument(browser,frameId,document,epoch);}
+                @Override public void success(String response){if(settled.compareAndSet(false,true)){try{if(valid())callback.success(response);else callback.failure(409,"Terminal view changed");}finally{release();}}}
+                @Override public void failure(int code,String message){if(settled.compareAndSet(false,true)){try{boolean current=valid();callback.failure(current?code:409,current?message:"Terminal view changed");}finally{release();}}}
+                private void release(){CefFrame owned=operationFrame.getAndSet(null);if(owned!=null)owned.dispose();}
             };
             Object musicScreen=mc.screen, musicConnection=mc.getConnection();
             boolean musicOwner=browser==TerminalBrowserSession.content()
@@ -56,16 +59,31 @@ public final class TerminalNativeBridge {
                 && musicScreen instanceof TerminalScreen;
             java.util.function.BooleanSupplier musicValid=()->mc.screen==musicScreen
                 && mc.getConnection()==musicConnection && mc.player!=null && mc.player.isAlive()
-                && TerminalBrowserSession.generation()==epoch && TerminalBrowserSession.trusted(browser,frame)
-                && document.equals(frame.getURL()) && TerminalBrowserSession.activeBrowser()==browser
+                && validDocument(browser,frameId,document,epoch) && TerminalBrowserSession.activeBrowser()==browser
                 && TerminalBrowserSession.contentVisible();
             if(net.muxigame.terminal.client.music.TerminalMusicBridge.handle(browser,frame,musicOwner,
                     request,guarded,musicValid))return true;
             mc.execute(()->{
-                if(TerminalBrowserSession.generation()!=epoch || !TerminalBrowserSession.trusted(browser,frame) || !document.equals(frame.getURL()))return;
-                dispatch(mc,browser,frame,request,guarded);
+                // JCEF disposes the onQuery frame wrapper when this native callback returns.
+                // Preserve its identity, then obtain an independently owned current main-frame wrapper.
+                CefFrame live=browser.getMainFrame();
+                if(live==null || live.getIdentifier()!=frameId || TerminalBrowserSession.generation()!=epoch
+                    || !TerminalBrowserSession.trusted(browser,live) || !document.equals(live.getURL())){
+                    if(live!=null)live.dispose();guarded.failure(409,"Terminal view changed");return;
+                }
+                // Keep the independently owned wrapper only until the query settles, then explicitly dispose it.
+                operationFrame.set(live);
+                try{dispatch(mc,browser,live,request,guarded);}
+                catch(RuntimeException failed){guarded.failure(500,"Terminal operation unavailable");}
             });
             return true;
+        }
+
+        private static boolean validDocument(CefBrowser browser,long frameId,String document,long epoch){
+            if(TerminalBrowserSession.generation()!=epoch)return false;
+            CefFrame live=browser.getMainFrame();if(live==null)return false;
+            try{return live.getIdentifier()==frameId && TerminalBrowserSession.trusted(browser,live) && document.equals(live.getURL());}
+            finally{live.dispose();}
         }
 
         private void dispatch(Minecraft mc,CefBrowser browser,CefFrame frame,String request,CefQueryCallback callback){

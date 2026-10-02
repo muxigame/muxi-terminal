@@ -1,3 +1,26 @@
 .album-icon{background:#8a9b64}.album-icon i{width:32px;height:28px;border:3px solid #eee7d4;position:relative}.album-icon i:before{content:"";position:absolute;width:7px;height:7px;right:3px;top:3px;background:#eee7d4}.album-icon i:after{content:"";position:absolute;width:19px;height:10px;left:3px;bottom:3px;border-left:4px solid #eee7d4;border-top:4px solid #eee7d4;transform:skew(-25deg)}
 #albumStatus,.album-note,#albumPhotoName{background:var(--panel);color:var(--text);border:2px solid var(--line);padding:7px 10px;box-shadow:inset 1px 1px 0 var(--line-hi)}.album-tile span{white-space:pre-line}
 #album{position:relative;font-size:16px}.album-local{margin-left:auto;font-size:14px;color:var(--muted)}.album-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.album-actions button{padding:6px 12px;min-height:38px;cursor:pointer}.album-actions button:disabled{opacity:.5;cursor:default}.album-actions [aria-pressed=true]{border-color:#4c5d31;background:#b2c88c}#albumStatus{font-size:15px;line-height:1.6;min-height:24px}.album-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;margin:12px 0}.album-grid[hidden]{display:none}.album-tile{padding:7px;min-width:0;cursor:pointer;text-align:left}.album-tile img{width:100%;height:110px;object-fit:contain;background:#282b23;color:#eee7d4;display:block}.album-tile span{display:block;font-size:13px;line-height:1.5;overflow-wrap:anywhere;margin-top:6px}.album-note{font-size:14px;line-height:1.6;color:var(--muted);margin:12px 0}#albumPhotoName{font-size:14px;overflow-wrap:anywhere;margin:8px 0}#albumImageScroll{max-height:55vh;overflow:auto;background:#282b23;border:3px solid var(--line)}#albumImage{display:block;object-fit:contain}#albumConfirm{position:absolute;inset:0;z-index:5;background:rgba(40,35,25,.75);padding:18px;display:flex;align-items:center;justify-content:center}#albumConfirm[hidden]{display:none}#albumConfirm .detail-card{width:min(100%,650px);max-height:100%;overflow:auto;font-size:16px}#albumConfirm p{font-size:15px;line-height:1.7;margin-top:10px;overflow-wrap:anywhere}#album button:focus-visible{outline:3px solid #eef3bd;outline-offset:2px;box-shadow:0 0 0 2px #3d4d29}
+
+/* The native tablet is short: keep the opened photo inside its first visible viewport. */
+#album.album-viewing{padding:8px;overflow:hidden}
+#album.album-viewing #albumBody{height:100%}
+#album.album-viewing #albumBody>.toolbar,#album.album-viewing #albumBody>.album-actions,#album.album-viewing #albumStatus,#album.album-viewing .album-note{display:none}
+#album.album-viewing #albumViewer{height:100%;display:flex;flex-direction:column;gap:4px}
+#album.album-viewing #albumViewer>.album-actions{flex:none;gap:4px;margin:0}
+#album.album-viewing #albumViewer>.album-actions button{min-height:30px;padding:3px 7px;font-size:14px}
+#album.album-viewing #albumPhotoName{flex:none;font-size:12px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0;padding:2px 6px}
+#album.album-viewing #albumImageScroll{flex:1;min-height:0;max-height:none;border-width:2px}
+#album.album-viewing #albumImage{max-height:100%;margin:auto;object-fit:contain}
+
+@media(max-height:480px){
+ #album:not(.album-viewing) .toolbar{min-height:38px;margin-bottom:6px;gap:8px}
+ #album:not(.album-viewing) .toolbar .eyebrow{display:none}
+ #album:not(.album-viewing) .toolbar h2{font-size:20px}
+ #album:not(.album-viewing) .album-local{font-size:12px}
+ #album:not(.album-viewing) .album-actions{gap:6px;margin:6px 0}
+ #album:not(.album-viewing) .album-actions button{min-height:32px;padding:4px 10px;font-size:14px}
+ #albumStatus{font-size:13px;line-height:1.4;padding:4px 8px;min-height:0}
+ #albumGrid{margin:8px 0;gap:8px}
+ .album-tile img{height:95px}
+}

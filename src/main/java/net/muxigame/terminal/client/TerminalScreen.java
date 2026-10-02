@@ -36,6 +36,7 @@ public class TerminalScreen extends Screen {
 
     @Override
     protected void init() {
+        TerminalAlbumBridge.visibility(true);
         super.init();
         layout();
         closeButton = addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
@@ -110,6 +111,7 @@ public class TerminalScreen extends Screen {
 
     @Override
     public void removed() {
+        TerminalAlbumBridge.visibility(false);
         releaseBrowserKeys();
         net.minecraft.client.KeyMapping.releaseAll();
         super.removed();

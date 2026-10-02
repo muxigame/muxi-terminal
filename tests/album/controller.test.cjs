@@ -13,6 +13,7 @@ async function main(){
     return {ok:true};
   };
   const c=create({invoke});await c.load();assert.equal(c.getState().photos.length,2);
+  live.push({id:"F2-new.png",modified:100,bytes:20});await c.refresh();assert.equal(c.getState().photos.length,3);live.pop();await c.refresh();
   await c.open('a');assert(c.getState().image);await c.prepareDelete();
   assert.equal(c.getState().confirm.id,'a');assert(!commands.some(x=>x.startsWith('album.recycle:')));
   await c.cancelDelete();assert.equal(c.getState().confirm,null);assert.equal(live.length,2);

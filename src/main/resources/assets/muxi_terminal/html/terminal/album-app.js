@@ -13,7 +13,9 @@
     <p class="album-note">与相机共用本机照片，不上传。移入回收区后可以恢复。</p></div>
     <div id="albumConfirm" hidden><div class="detail-card" role="dialog" aria-modal="true" aria-labelledby="albumConfirmTitle" tabindex="-1"><h3 id="albumConfirmTitle">将这张照片移入本地回收区？</h3><p id="albumConfirmName"></p><p>原 PNG 将移到照片库内的回收区，不会永久删除。可从“回收区”恢复。</p><div class="detail-actions"><button id="albumCancelDelete" class="secondary">取消</button><button id="albumConfirmDelete" class="primary">确认移入回收区</button></div></div></div>`;
   host.append(page);
-  const el=id=>document.getElementById(id);const active=()=>contentView && location.hash==='#/album';
+  let suspended=false;
+  const el=id=>document.getElementById(id);const active=()=>!suspended && contentView && location.hash==='#/album';
+  let refreshTimer=null,refreshing=false;
   let disposed=false,zoom=1,visibleState={},thumbEpoch=0,observer=null,thumbQueue=[],pumping=false,disabledButtons=null,returnFocus=null;
   function message(text){el('albumStatus').textContent=text;}
   async function invoke(command){
@@ -40,14 +42,14 @@
     if(typeof IntersectionObserver==='function')observer=new IntersectionObserver(entries=>{for(const entry of entries){if(entry.isIntersecting){observer.unobserve(entry.target);queue(entry.target,entry.target.dataset.id);}}},{root:page,rootMargin:'100px'});
     for(const photo of state.photos){const button=document.createElement('button');button.className='album-tile secondary';button.setAttribute('aria-label','查看照片 '+photo.id);
       const img=document.createElement('img');img.alt='照片缩略图';img.dataset.id=photo.id;
-      const label=document.createElement('span');const date=photo.id.slice(5,13),time=photo.id.slice(14,20);
-      label.textContent=date.slice(0,4)+'-'+date.slice(4,6)+'-'+date.slice(6,8)+'\n'+time.slice(0,2)+':'+time.slice(2,4)+':'+time.slice(4,6)+' UTC';button.title=photo.id;button.append(img,label);
+      const label=document.createElement('span');
+      label.textContent=new Date(photo.modified).toLocaleString()+(photo.readOnly?' · 旧版相机':'');button.title=photo.name || photo.id;button.append(img,label);
       button.addEventListener('click',()=>{zoom=1;action(()=>controller.open(photo.id));});el('albumGrid').append(button);
       if(observer)observer.observe(img);else queue(img,photo.id);
     }
     if(!state.photos.length)el('albumGrid').textContent=state.recycled?'回收区是空的。':'还没有照片，去相机拍一张吧。';
   }
-  function applyZoom(){el('albumImage').style.width=zoom===1?'100%':(zoom*100)+'%';el('albumImage').style.maxWidth=zoom===1?'100%':'none';}
+  function applyZoom(){el('albumImage').style.width=zoom===1?'100%':(zoom*100)+'%';el('albumImage').style.maxWidth=zoom===1?'100%':'none';el('albumImage').style.maxHeight=zoom===1?'100%':'none';}
   function confirmation(open){
     if(open && !disabledButtons){
       returnFocus=el('albumDelete');disabledButtons=[...el('albumBody').querySelectorAll('button')].map(button=>[button,button.disabled]);
@@ -63,13 +65,13 @@
     if(disposed)return;
     const previous=visibleState;visibleState=state;
     if(previous.photos!==state.photos || previous.recycled!==state.recycled)renderGrid(state);
-    const selected=!!state.selected;
+    const selected=!!state.selected;page.classList.toggle('album-viewing',selected);
     if(selected && !previous.selected)releaseThumbs();
     else if(!selected && previous.selected)renderGrid(state);
     el('albumGrid').hidden=selected;el('albumViewer').hidden=!selected;
     el('albumPhotosTab').setAttribute('aria-pressed',String(!state.recycled));el('albumRecycleTab').setAttribute('aria-pressed',String(state.recycled));
-    el('albumDelete').hidden=state.recycled;el('albumRestore').hidden=!state.recycled;
-    el('albumPhotoName').textContent=state.selected?.id || '';
+    el('albumDelete').hidden=state.recycled || !!state.selected?.readOnly;el('albumRestore').hidden=!state.recycled;
+    el('albumPhotoName').textContent=state.selected?.name || state.selected?.id || '';
     if(validImage(state.image)){el('albumImage').src=state.image;applyZoom();}else el('albumImage').removeAttribute('src');
     if(previous.selected?.id!==state.selected?.id || !selected){zoom=1;applyZoom();el('albumImageScroll').scrollTo(0,0);}
     if(state.error)message(state.error);else if(state.busy)message('正在处理本地照片…');else message((state.recycled?'本地回收区':'本地照片')+' · '+state.photos.length+' 张（最多显示最近 200 张）');
@@ -96,9 +98,17 @@
   el('albumConfirmDelete').addEventListener('click',()=>action(()=>controller.confirmDelete()));
   el('albumRestore').addEventListener('click',()=>action(()=>controller.restore()));
   el('albumConfirm').addEventListener('keydown',event=>{if(event.key==='Escape' && !visibleState.busy){event.preventDefault();event.stopPropagation();action(()=>controller.cancelDelete());}});
-  function sync(){if(active()){show('album');action(()=>controller.load(false));}else{controller.dispose();releaseThumbs();el('albumImage').removeAttribute('src');}}
+  function sync(){
+    clearInterval(refreshTimer);refreshTimer=null;
+    if(active()){show('album');action(()=>controller.load(false));
+      refreshTimer=setInterval(()=>{if(refreshing || !active() || disposed || document.hidden)return;refreshing=true;
+        controller.refresh().catch(error=>{if(active() && !disposed)message(error.message);}).finally(()=>{refreshing=false;});
+      },3000);
+    }else{controller.dispose();releaseThumbs();el('albumImage').removeAttribute('src');}
+  }
   window.addEventListener('hashchange',sync);
-  window.addEventListener('pagehide',()=>{controller.dispose();releaseThumbs();el('albumImage').removeAttribute('src');disposed=true;});
+  window.addEventListener('muxi-album-visibility',event=>{suspended=!event.detail;sync();});
+  window.addEventListener('pagehide',()=>{clearInterval(refreshTimer);refreshTimer=null;controller.dispose();releaseThumbs();el('albumImage').removeAttribute('src');disposed=true;});
   window.addEventListener('focus',()=>{if(active() && !visibleState.selected && !visibleState.busy)action(()=>controller.load(visibleState.recycled));});
   if(active())sync();
 })();

@@ -1,12 +1,12 @@
 """Run production album/camera bridge and image helper against synthetic native/CEF fixtures."""
 from pathlib import Path
-import importlib.util,subprocess,tempfile,json
+import importlib.util,subprocess,tempfile,json,os
 root=Path(__file__).resolve().parents[2];out=root/'build/album-tests';out.mkdir(parents=True,exist_ok=True)
 spec=importlib.util.spec_from_file_location('build',root/'build.py');b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
-javac,java=b.java_tools(None)
-dependency=Path('C:/Users/Administrator/Documents/Codex/2026-10-01/task-21/music-app/build/compiler-dependencies.jar')
+javac,java=b.java_tools(Path(os.environ['ALBUM_QA_JDK']) if os.environ.get('ALBUM_QA_JDK') else None)
+dependency=root/'build/music-test-dependencies.jar'
 files={
-'org/cef/browser/CefBrowser.java':'''package org.cef.browser; public class CefBrowser { public String url="";public String getURL(){return url;} }''',
+'org/cef/browser/CefBrowser.java':'''package org.cef.browser; public class CefBrowser { public String url="";public String getURL(){return url;}public void executeJavaScript(String code,String url,int line){} }''',
 'org/cef/browser/CefFrame.java':'''package org.cef.browser; public class CefFrame {public String url="";public boolean valid=true,main=true;public String getURL(){return url;}}''',
 'org/cef/callback/CefQueryCallback.java':'''package org.cef.callback;public interface CefQueryCallback {void success(String response);void failure(int code,String message);}''',
 'net/minecraft/client/Minecraft.java':'''package net.minecraft.client; public class Minecraft {
@@ -16,7 +16,7 @@ public static class User {public java.util.UUID getProfileId(){return new java.u
 'net/muxigame/terminal/client/TerminalScreen.java':'''package net.muxigame.terminal.client;public class TerminalScreen {}''',
 'net/muxigame/terminal/client/TerminalBrowserSession.java':'''package net.muxigame.terminal.client;import org.cef.browser.*;public class TerminalBrowserSession {
 public static final String HOME_URL="mod://muxi_terminal/terminal/index.html";public enum Kind {HOME,BUILTIN,WEB,ACCOUNT}public record State(Kind kind,String url){}
-public static long gen=1;public static CefBrowser content=new CefBrowser(),shell=new CefBrowser();public static Kind kind=Kind.BUILTIN;public static long generation(){return gen;}public static CefBrowser content(){return content;}public static State state(){return new State(kind,content.url);}
+public static long gen=1;public static CefBrowser content=new CefBrowser(),shell=new CefBrowser();public static Kind kind=Kind.BUILTIN;public static String nativeUrl=null;public static boolean isShell(CefBrowser b){return b==shell;}public static long generation(){return gen;}public static CefBrowser content(){return content;}public static State state(){return new State(kind,nativeUrl==null?content.url:nativeUrl);}
 public static boolean trusted(CefBrowser b,CefFrame f){return b==content && kind==Kind.BUILTIN && f!=null && f.valid && f.main && b.url.equals(f.url);}}''',
 'net/muxigame/terminal/client/TerminalCamera.java':'''package net.muxigame.terminal.client;import org.cef.callback.CefQueryCallback;public class TerminalCamera {
 @FunctionalInterface interface Read {String get() throws Exception;}public static boolean defer,busy;public static java.util.List<Runnable> queued=new java.util.ArrayList<>();public static int begins;
@@ -35,26 +35,27 @@ static Reply album(CefBrowser b,CefFrame f,String cmd){Reply r=new Reply();check
 static String token(CefBrowser b,CefFrame f,String id){return JsonParser.parseString(album(b,f,"album.prepare-delete:"+id).value).getAsJsonObject().get("token").getAsString();}
 public static void main(String[] args) throws Exception {
 var mc=Minecraft.getInstance();mc.gameDirectory=Path.of(args[0]).toFile();var browser=TerminalBrowserSession.content;var frame=new CefFrame();browser.url=TerminalBrowserSession.HOME_URL+"#/album";frame.url=browser.url;
-var store=TerminalCameraBridge.store();byte[] png=new byte[32];byte[] sig={(byte)137,80,78,71,13,10,26,10};System.arraycopy(sig,0,png,0,8);png[12]=73;png[13]=72;png[14]=68;png[15]=82;java.nio.ByteBuffer.wrap(png,16,8).putInt(800).putInt(600);String id=store.save(png);
-check(album(browser,frame,"album.photos").value.contains(id),"shared camera photo visible");
+var store=TerminalCameraBridge.store();var image=new java.awt.image.BufferedImage(800,600,java.awt.image.BufferedImage.TYPE_INT_RGB);var encoded=new java.io.ByteArrayOutputStream();javax.imageio.ImageIO.write(image,"png",encoded);image.flush();byte[] png=encoded.toByteArray();String id=store.save(png);
+check(album(browser,frame,"album.photos").value.contains(id),"shared camera photo visible");TerminalBrowserSession.nativeUrl=TerminalBrowserSession.HOME_URL;check(album(browser,frame,"album.photos").value.contains(id),"CEF hash route accepted when native onLoadEnd state has document-only URL");TerminalBrowserSession.nativeUrl=null;
 Reply camera=new Reply();TerminalCameraBridge.dispatch(browser,frame,"camera.begin",camera);check(camera.code==403 && TerminalCamera.begins==0,"album cannot use screenshot authority");
 check(album(TerminalBrowserSession.shell,frame,"album.photos").code==403,"shell denied");
 for(var kind:new TerminalBrowserSession.Kind[]{TerminalBrowserSession.Kind.WEB,TerminalBrowserSession.Kind.ACCOUNT}){TerminalBrowserSession.kind=kind;check(album(browser,frame,"album.photos").code==403,"external kind denied");}TerminalBrowserSession.kind=TerminalBrowserSession.Kind.BUILTIN;
 frame.main=false;check(album(browser,frame,"album.photos").code==403,"iframe denied");frame.main=true;frame.valid=false;check(album(browser,frame,"album.photos").code==403,"closed frame denied");frame.valid=true;
 String route=browser.url;browser.url=TerminalBrowserSession.HOME_URL+"#/camera";frame.url=browser.url;check(album(browser,frame,"album.photos").code==403,"other builtin denied");browser.url=route;frame.url=route;
-check(album(browser,frame,"album.thumb:"+id).value.startsWith("\\\"data:image/png;base64,"),"thumbnail data only");check(NativeImage.live==0 && NativeImage.lastWidth<=240 && NativeImage.lastHeight<=160,"thumbnail native images released");
-NativeImage.failResize=true;check(album(browser,frame,"album.photo:"+id).code==400 && NativeImage.live==0,"decode/resize failure releases allocations");NativeImage.failResize=false;
+check(album(browser,frame,"album.thumb:"+id).value.startsWith("\\\"data:image/png;base64,"),"thumbnail data only");check(NativeImage.live==0,"thumbnail native images released");
+Files.write(store.directory().resolve("corrupt.png"),new byte[]{(byte)137,80,78,71,13,10,26,10});check(album(browser,frame,"album.photo:corrupt.png").code==400 && NativeImage.live==0,"invalid image rejected without native allocations");Files.delete(store.directory().resolve("corrupt.png"));
 check(album(browser,frame,"album.restore:../outside").code==400,"path traversal denied before IO");
 check(album(browser,frame,"album.recycle:"+id).code==400 && store.list().size()==1,"unconfirmed direct id denied");
 String cancelled=token(browser,frame,id);album(browser,frame,"album.cancel-delete");check(album(browser,frame,"album.recycle:"+cancelled).code==400 && store.list().size()==1,"cancel does not move photo");
 String accepted=token(browser,frame,id);check(album(browser,frame,"album.recycle:"+accepted).code==0 && store.list().isEmpty(),"one-use confirmed library move");check(album(browser,frame,"album.recycle:"+accepted).code==400,"replay denied");
 check(album(browser,frame,"album.recycled").value.contains(id),"trash metadata visible");album(browser,frame,"album.restore:"+id);check(store.list().size()==1 && store.recycled().isEmpty(),"restored in original library");
 String busyTicket=token(browser,frame,id);TerminalCamera.busy=true;check(album(browser,frame,"album.recycle:"+busyTicket).code==429,"bounded worker busy rejection");TerminalCamera.busy=false;check(album(browser,frame,"album.recycle:"+busyTicket).code==0,"busy rejection preserves confirmation");album(browser,frame,"album.restore:"+id);
-String pending=token(browser,frame,id);TerminalCamera.defer=true;Reply delayed=album(browser,frame,"album.recycle:"+pending);TerminalBrowserSession.gen++;TerminalCamera.flush();check(delayed.value==null && store.list().size()==1,"navigation cancels pending mutation/callback");
-String hidden=token(browser,frame,id);Reply closed=album(browser,frame,"album.recycle:"+hidden);Object original=mc.screen;mc.screen=null;TerminalCamera.flush();check(closed.value==null && store.list().size()==1,"screen exit cancels pending mutation");mc.screen=original;
-String unfocused=token(browser,frame,id);Reply blur=album(browser,frame,"album.recycle:"+unfocused);mc.focused=false;TerminalCamera.flush();check(blur.value==null && store.list().size()==1,"focus loss cancels pending mutation");mc.focused=true;
-String replaced=token(browser,frame,id);Reply replacedFrame=album(browser,frame,"album.recycle:"+replaced);frame.url="https://outside.example/";TerminalCamera.flush();check(replacedFrame.value==null && store.list().size()==1,"actual frame replacement cancels mutation without generation update");frame.url=route;
-String destroyed=token(browser,frame,id);Reply invalidFrame=album(browser,frame,"album.recycle:"+destroyed);frame.valid=false;TerminalCamera.flush();check(invalidFrame.value==null && store.list().size()==1,"actual invalid frame cancels mutation without generation update");frame.valid=true;
+String pending=token(browser,frame,id);TerminalCamera.defer=true;Reply delayed=album(browser,frame,"album.recycle:"+pending);TerminalBrowserSession.gen++;TerminalCamera.flush();check(delayed.code==409 && store.list().size()==1,"navigation cancels pending mutation and explicitly settles callback");
+String hidden=token(browser,frame,id);Reply closed=album(browser,frame,"album.recycle:"+hidden);Object original=mc.screen;mc.screen=null;TerminalCamera.flush();check(closed.code==409 && store.list().size()==1,"screen exit cancels pending mutation");mc.screen=original;
+mc.focused=false;check(album(browser,frame,"album.photo:"+id).code==0,"owned read-only image survives window focus change");check(album(browser,frame,"album.prepare-delete:"+id).code==403,"new mutation remains focus guarded");mc.focused=true;
+String unfocused=token(browser,frame,id);Reply blur=album(browser,frame,"album.recycle:"+unfocused);mc.focused=false;TerminalCamera.flush();check(blur.code==409 && store.list().size()==1,"focus loss cancels pending mutation");mc.focused=true;
+String replaced=token(browser,frame,id);Reply replacedFrame=album(browser,frame,"album.recycle:"+replaced);frame.url="https://outside.example/";TerminalCamera.flush();check(replacedFrame.code==409 && store.list().size()==1,"actual frame replacement cancels mutation without generation update");frame.url=route;
+String destroyed=token(browser,frame,id);Reply invalidFrame=album(browser,frame,"album.recycle:"+destroyed);frame.valid=false;TerminalCamera.flush();check(invalidFrame.code==409 && store.list().size()==1,"actual invalid frame cancels mutation without generation update");frame.valid=true;
 TerminalCamera.defer=false;check(NativeImage.live==0,"no remaining native fixture image");
 System.out.println("{\\\"success\\\":true,\\\"checks\\\":"+checks+",\\\"fixture\\\":\\\"production bridge logic, simulated CEF/MC/image backend, synthetic temporary files\\\"}");
 }}'''

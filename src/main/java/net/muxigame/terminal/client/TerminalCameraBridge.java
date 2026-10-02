@@ -50,6 +50,7 @@ public final class TerminalCameraBridge {
     }
     static TerminalPhotoStore store(){
         var mc=Minecraft.getInstance();
-        return new TerminalPhotoStore(mc.gameDirectory.toPath().resolve("screenshots/muxi-terminal").resolve(mc.getUser().getProfileId().toString()));
+        var screenshots=mc.gameDirectory.toPath().resolve("screenshots");
+        return new TerminalPhotoStore(screenshots,screenshots.resolve("muxi-terminal").resolve(mc.getUser().getProfileId().toString()));
     }
 }
