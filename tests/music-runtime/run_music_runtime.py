@@ -27,6 +27,7 @@ def main():
     p.add_argument('--workspace',type=Path,required=True)
     p.add_argument('--java-home',type=Path,required=True)
     p.add_argument('--prepare-only',action='store_true')
+    p.add_argument('--terminal',type=Path,help='Exact pinned candidate to avoid another owner rebuilding shared build/libs')
     p.add_argument('--with-portable',action='store_true',help='Include the installed original music mods and an offline private playlist fixture')
     args=p.parse_args()
     session=ctypes.c_ulong();ctypes.windll.kernel32.ProcessIdToSessionId(os.getpid(),ctypes.byref(session))
@@ -39,7 +40,7 @@ def main():
     compiler,runtime=build.java_tools(args.java_home)
     lab=ROOT/'build'/('music-runtime-'+datetime.datetime.utcnow().strftime('%Y%m%d-%H%M%S')+'-'+uuid.uuid4().hex[:8]);lab.mkdir()
     for name in ('mods','config','natives'):(lab/name).mkdir()
-    terminal=ROOT/'build/libs'/json.loads((ROOT/'build/release.json').read_text(encoding='utf-8'))['artifact']
+    terminal=args.terminal or ROOT/'build/libs'/json.loads((ROOT/'build/release.json').read_text(encoding='utf-8'))['artifact']
     shutil.copy2(terminal,lab/'mods'/terminal.name)
     mcef=next((game/'mods').glob('*mcef-neoforge-2.1.6-1.21.1.jar'))
     shutil.copy2(mcef,lab/'mods'/mcef.name)

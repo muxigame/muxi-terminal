@@ -1,0 +1,68 @@
+/* Music owns its height inside the native terminal; only its playlist scrolls. */
+#music.music-app{overflow:hidden;padding:8px;min-height:0}
+#music.music-app.page-active{display:flex;flex-direction:column}
+#music .toolbar{flex:0 0 32px;min-height:32px;height:32px;margin:0 0 6px;padding:2px 4px;gap:8px;flex-wrap:nowrap}
+#music .toolbar .eyebrow{display:none}
+#music .toolbar h2{font-size:18px;line-height:24px}
+#music .toolbar .back{width:28px;height:28px;font-size:22px;line-height:20px;padding:0;flex-shrink:0}
+#music .music-layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:8px;flex:1;min-height:0;min-width:0}
+#music .music-player{width:100%;max-width:none;margin:0;padding:8px;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+#music .music-heading{display:grid;gap:2px;flex-shrink:0;min-width:0}
+#music #musicSource{display:block;width:100%;font-size:11px;line-height:14px;padding:1px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#music #musicTitle{font-size:18px;line-height:22px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#music .music-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin-top:6px;flex-shrink:0}
+#music .music-controls button{min-height:32px;height:32px;padding:3px 2px;font-size:13px;white-space:nowrap;min-width:0}
+#music #musicPause{grid-column:span 2}
+#music .music-volume{margin-top:6px;flex-shrink:0;min-width:0}
+#music .music-volume .setting-row{grid-template-columns:minmax(0,1fr) 38px;gap:2px 6px;margin:0;font-size:12px}
+#music .music-volume label{grid-column:1/-1;font-size:11px;line-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#music .music-volume input[type=range]{min-height:24px;height:24px;margin:0}
+#music #musicMute{font-size:11px;line-height:14px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#music .music-feedback{min-height:0;overflow:hidden;margin-top:4px;flex:1;display:flex;flex-direction:column;justify-content:end}
+#music .music-feedback p{font-size:11px;line-height:14px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+#music .music-feedback p:empty{display:none}
+#music .music-library{min-width:0;min-height:0;display:flex;flex-direction:column;gap:4px;border:3px solid var(--line);padding:6px;background:var(--panel);box-shadow:inset 2px 2px 0 var(--line-hi),inset -2px -2px 0 var(--shadow)}
+#music .music-library-head{display:flex;justify-content:space-between;align-items:center;gap:4px;flex-shrink:0}
+#music .music-library-label{font-size:14px}
+#music .music-library-head button,#music .music-tabs button{min-height:30px;height:30px;padding:3px 6px;font-size:12px;white-space:nowrap;min-width:0}
+#music .music-tabs{display:flex;gap:4px;flex-shrink:0;min-width:0}
+#music .music-tabs button{flex:1;padding:3px 2px}
+#music .music-tabs span{font-size:10px;font-weight:normal}
+#music .music-list-scroll{min-height:0;min-width:0;flex:1;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-gutter:stable;scroll-padding:4px}
+#music .task-list{align-content:start;gap:4px;padding:2px}
+#music .task-list[hidden]{display:none}
+#music .music-track-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px;align-items:center;padding:4px 5px;border-width:2px;min-height:44px;min-width:0}
+#music .music-track-info{min-width:0;display:grid;gap:1px}
+#music .music-track-info .task-title{display:block;font-size:13px;line-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#music .music-track-source{display:block;font-size:10px;line-height:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#music .music-track-row .detail-actions{margin:0;gap:3px;flex-wrap:nowrap}
+#music .music-track-row button{min-height:32px;height:32px;padding:2px 5px;font-size:12px;white-space:nowrap}
+#music .music-current{border-color:#65764a;background:#d9dfbd}
+#music button.keyboard-selected{outline:2px solid var(--line-hi);outline-offset:-1px}
+#music .music-library-note{min-width:0;flex-shrink:0;font-size:10px;line-height:12px;color:var(--muted)}
+#music .music-library-note span,#music #musicPlaylistReason{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#music #musicPlaylistReason{font-size:10px;line-height:12px;margin:0}
+#music #musicPlaylistReason:empty{display:none}
+#music .task-empty{font-size:12px;padding:10px}
+@media(max-width:480px){
+  #music .music-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);gap:6px}
+  #music .music-player{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2px 8px;padding:6px}
+  #music .music-heading{grid-column:1;grid-row:1}
+  #music .music-volume{grid-column:1;grid-row:2;margin-top:2px}
+  #music .music-controls{grid-column:2;grid-row:1/3;margin:0;align-self:center}
+  #music .music-feedback{grid-column:1/-1;margin-top:0;max-height:28px}
+  #music .music-library{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto minmax(0,1fr);gap:4px;padding:4px}
+  #music .music-library-head{grid-column:2;grid-row:1}
+  #music .music-library-label,#music .music-library-note{display:none}
+  #music .music-tabs{grid-column:1;grid-row:1}
+  #music .music-list-scroll{grid-column:1/-1;grid-row:2}
+}
+@media(max-height:300px){
+  #music.music-app{padding:6px}
+  #music .music-player{padding:6px}
+  #music #musicTitle{font-size:16px;line-height:20px}
+  #music .music-controls button{min-height:30px;height:30px;font-size:12px}
+  #music .music-volume{margin-top:4px}
+  #music .music-volume input[type=range]{min-height:22px;height:22px}
+  #music .music-library-note{display:none}
+}

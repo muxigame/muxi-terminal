@@ -33,6 +33,8 @@ public final class MusicRuntimeQA {
     private int domAt;
     private String firstId, firstTitle, localFirst;
     private JsonObject initial;
+    private int layoutPhase;
+    private double playerY;
     private volatile String fixtureError;
     private volatile String fixturePlayMode;
     private final JsonArray checks = new JsonArray(), samples = new JsonArray();
@@ -85,7 +87,7 @@ public final class MusicRuntimeQA {
         var browser = TerminalBrowserSession.content();
         if (browser == null) return;
         String marker="data-music-qa";
-        browser.executeJavaScript("(()=>{const v={stage:"+stage+",url:location.href,hidden:document.hidden,binding:typeof window.muxiTerminalQuery,active:document.querySelector('#music')?.classList.contains('page-active'),tracks:[...document.querySelectorAll('[data-track]')].map(b=>({id:b.dataset.track,disabled:b.disabled,title:b.closest('article').querySelector('strong').textContent})),local:[...document.querySelectorAll('[data-local]')].map(b=>({id:b.dataset.local,disabled:b.disabled})),title:document.querySelector('#musicTitle')?.textContent,status:document.querySelector('#musicSource')?.textContent,message:document.querySelector('#musicMessage')?.textContent};document.documentElement.setAttribute('"+marker+"',btoa(unescape(encodeURIComponent(JSON.stringify(v)))));})()",browser.getURL(),0);
+        browser.executeJavaScript("(()=>{const v={stage:"+stage+",url:location.href,hidden:document.hidden,binding:typeof window.muxiTerminalQuery,active:document.querySelector('#music')?.classList.contains('page-active'),tracks:[...document.querySelectorAll('[data-track]')].map(b=>({id:b.dataset.track,disabled:b.disabled,title:b.closest('article').querySelector('strong').textContent})),local:[...document.querySelectorAll('[data-local]')].map(b=>({id:b.dataset.local,disabled:b.disabled})),title:document.querySelector('#musicTitle')?.textContent,status:document.querySelector('#musicSource')?.textContent,message:document.querySelector('#musicMessage')?.textContent};v.layout=(()=>{const by=id=>document.getElementById(id),rect=e=>{const b=e.getBoundingClientRect();return {top:b.top,bottom:b.bottom,left:b.left,right:b.right}};const player=rect(by('music-stop')),scroller=by('musicListScroll');return {width:innerWidth,height:innerHeight,noOuterScroll:['music','app-content','app'].every(id=>{const e=by(id);return e.scrollHeight<=e.clientHeight+1&&e.scrollWidth<=e.clientWidth+1})&&document.body.scrollHeight<=innerHeight&&document.documentElement.scrollHeight<=innerHeight,controlsVisible:['musicTitle','music-play','musicPause','music-stop','music-next','music-previous','musicImport'].every(id=>{const b=rect(by(id));return b.top>=0&&b.bottom<=innerHeight&&b.left>=0&&b.right<=innerWidth}),playerY:player.top,listScrollTop:scroller?.scrollTop,listScrollable:!!scroller&&getComputedStyle(scroller).overflowY==='auto'&&scroller.scrollHeight>scroller.clientHeight,compactRows:[...document.querySelectorAll('#musicTrackList article')].every(e=>e.getBoundingClientRect().height<=52),focusedTrack:document.activeElement?.dataset.track||'',focusedVisible:!!scroller&&(()=>{const a=rect(document.activeElement),b=rect(scroller);return a.top>=b.top&&a.bottom<=b.bottom})()}})();document.documentElement.setAttribute('"+marker+"',btoa(unescape(encodeURIComponent(JSON.stringify(v)))));})()",browser.getURL(),0);
         domAt=ticks+4;
     }
     private void next() { stage++; frames=0; requested=false; dom=null; }
@@ -143,9 +145,28 @@ public final class MusicRuntimeQA {
             var state=snapshot();
             if(stage==1) {
                 if(state.get("busy").getAsBoolean()||TerminalBrowserSession.content()==null||!TerminalBrowserSession.contentVisible()||!TerminalBrowserSession.state().rendered())return;
+                if(layoutPhase==1) {
+                    if(frames<15)return;
+                    var browser=TerminalBrowserSession.content();
+                    for(int n=0;n<5;n++){browser.sendKeyPress(GLFW.GLFW_KEY_DOWN,0,0);browser.sendKeyRelease(GLFW.GLFW_KEY_DOWN,0,0);}
+                    layoutPhase=2;frames=0;dom=null;return;
+                }
                 if(frames%20==0)readDom();
                 if(dom==null||dom.get("stage").getAsInt()!=stage)return;
                 if(dom.getAsJsonArray("tracks").size()!=state.getAsJsonArray("tracks").size())return;
+                var layout=dom.getAsJsonObject("layout");
+                if(layoutPhase==0) {
+                    check(layout.get("noOuterScroll").getAsBoolean(),"actual MCEF body and outer music page have no scroll range");
+                    check(layout.get("controlsVisible").getAsBoolean(),"actual terminal viewport keeps player, every playback control and import visible");
+                    check(layout.get("listScrollable").getAsBoolean()&&layout.get("compactRows").getAsBoolean(),"actual 60-track playlist is independently scrollable and uses compact rows");
+                    playerY=layout.get("playerY").getAsDouble();report.add("layoutInitial",layout.deepCopy());shot("music-layout-real-initial");
+                    var browser=TerminalBrowserSession.content();
+                    browser.executeJavaScript("document.querySelectorAll('[data-track]')[35].focus()",browser.getURL(),0);
+                    layoutPhase=1;frames=0;dom=null;return;
+                }
+                check(layout.get("noOuterScroll").getAsBoolean()&&layout.get("controlsVisible").getAsBoolean()&&layout.get("playerY").getAsDouble()==playerY,"actual MCEF keyboard scroll leaves outer page and player fixed");
+                check(layout.get("listScrollTop").getAsDouble()>0&&!layout.get("focusedTrack").getAsString().isEmpty()&&layout.get("focusedVisible").getAsBoolean(),"actual MCEF arrow-key focus remains visible inside the long playlist");
+                report.add("layoutAfterKeyboard",layout.deepCopy());shot("music-layout-real-keyboard");
                 check(dom.get("active").getAsBoolean(),"actual MCEF music page is active");
                 check(state.getAsJsonArray("tracks").size()>2&&dom.getAsJsonArray("tracks").size()==state.getAsJsonArray("tracks").size(),"real resource catalog equals visible selectable MCEF list");
                 firstId=state.getAsJsonArray("tracks").get(0).getAsJsonObject().get("id").getAsString();firstTitle=state.getAsJsonArray("tracks").get(0).getAsJsonObject().get("title").getAsString();
@@ -179,6 +200,7 @@ public final class MusicRuntimeQA {
                 next();return;
             }
             if(stage==8) {
+                if(frames==1)click("[data-music-library='local']");
                 if(frames%20==0)readDom();
                 if(dom==null||dom.get("stage").getAsInt()!=stage||dom.getAsJsonArray("local").size()!=2)return;
                 if(!requested){scroll("#musicLocalList");requested=true;return;}
