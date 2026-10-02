@@ -169,6 +169,9 @@ def main():
         launch('host');launch('guest')
         wait_file(coordinator/'server-ready.json',900);wait_file(coordinator/'ready-host.json',900)
         wait_file(coordinator/'ready-guest.json',900)
+        for role in ['host','guest']:
+            ready=read(coordinator/f'ready-{role}.json')
+            assert ready.get('programBinaryCacheEnabled') is False and ready.get('veilShaderEventDispatchEnabled') is False, 'Selected graphics optimizations must remain actually off'
         if '--await-ui-window' in sys.argv:
             write(coordinator/'ready-for-ui.json',{'pids':{role:p.pid for role,p in processes.items()},'ready':True,'requestedSeconds':120,'grantFile':str(coordinator/'ui-go.json')})
             wait_file(coordinator/'ui-go.json',360)
@@ -223,7 +226,10 @@ def main():
             checks.append(game+': second real client joined waiting room; both retained original world and inventory')
             before_start=command(observer,'observe')
             prior_start=next(p for p in before_start['players'] if p['name']=='10000')['games'].get('operation',{}).get('request')
-            command('host','js',"await window.MuxiMinigamesApp.activate();for(let i=0;i<6000;i++){await wait(200);await window.MuxiMinigamesApp.activate();const start=[...document.querySelectorAll('[data-mg-action]')].find(b=>b.textContent.includes('\u5f00\u59cb'));if(start&&!start.disabled){const prior=(await q('games.snapshot')).operation?.request;start.click();for(let j=0;j<50;j++){await wait(200);const s=await q('games.snapshot');if(s.operation?.request===prior)continue;if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed')return s;}throw Error('Start not confirmed');}}throw Error('Host start unavailable after full original-map preparation wait');",timeout=1320,transition=True)
+            # Reused worlds have a verified complete original-map marker. A
+            # remaining unavailable Start is a real failure, not a twenty-minute wait.
+            start_iterations=600 if (home/'owned-private-world-reuse.json').exists() else 6000
+            command('host','js',"await window.MuxiMinigamesApp.activate();for(let i=0;i<"+str(start_iterations)+";i++){await wait(200);await window.MuxiMinigamesApp.activate();const start=[...document.querySelectorAll('[data-mg-action]')].find(b=>b.textContent.includes('\u5f00\u59cb'));if(start&&!start.disabled){const prior=(await q('games.snapshot')).operation?.request;start.click();for(let j=0;j<50;j++){await wait(200);const s=await q('games.snapshot');if(s.operation?.request===prior)continue;if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed')return s;}throw Error('Start not confirmed');}}throw Error('Host start unavailable after full original-map preparation wait');",timeout=(start_iterations*.2+30),transition=True)
             start_trace=[]
             for attempt in range(1200):
                 started=command(observer,'observe')
