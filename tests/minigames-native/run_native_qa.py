@@ -249,7 +249,9 @@ def main():
                 ids[role]+=1;write(coordinator/f'command-{role}.json',{'id':ids[role],'type':'stop'})
         for role,process in processes.items():
             if role=='server':continue
-            try:process.wait(timeout=120)
+            # A stop can be requested during full-pack initialization before the
+            # first client tick can process it. Allow the same boot budget.
+            try:process.wait(timeout=900)
             except subprocess.TimeoutExpired:result.setdefault('normalCloseBlocked',[]).append({'role':role,'pid':process.pid})
             result.setdefault('exitCodes',{})[role]=process.poll();logs[role].close()
         if 'server' in processes:
