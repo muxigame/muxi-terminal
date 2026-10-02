@@ -81,9 +81,9 @@ public final class MinigamesNativeQA {
             if(stopAt>0){if(ticks>=stopAt)mc.stop();return;}
             if(closing)return;
             if(ticks%40==0)write(coordinator.resolve("status-"+role+".json"),status(mc));
-            if(command==null&&Files.isRegularFile(coordinator.resolve("command-"+role+".json"))){
+            if(Files.isRegularFile(coordinator.resolve("command-"+role+".json"))){
                 JsonObject next=JsonParser.parseString(Files.readString(coordinator.resolve("command-"+role+".json"))).getAsJsonObject();
-                if(next.get("id").getAsInt()>lastCommand){
+                if(next.get("id").getAsInt()>lastCommand && (command==null || next.get("type").getAsString().equals("stop"))){
                     command=next;lastCommand=next.get("id").getAsInt();sampled=null;delay=0;focusWait=0;
                     if(!next.get("type").getAsString().equals("stop")){
                         GLFW.glfwShowWindow(mc.getWindow().getWindow());GLFW.glfwRestoreWindow(mc.getWindow().getWindow());GLFW.glfwFocusWindow(mc.getWindow().getWindow());
@@ -163,7 +163,7 @@ public final class MinigamesNativeQA {
             if(!mc.isWindowActive()){if(++focusWait>200)throw new IllegalStateException("Real window focus not obtained");return;}
             if(type.equals("open")){
                 if(mc.screen instanceof net.minecraft.client.gui.screens.ReceivingLevelScreen)return;
-                if(delay++==0){TerminalClient.openApp("games");return;}
+                if(delay++==0 || (delay%40==0 && (mc.screen==null || TerminalBrowserSession.content()==null))){TerminalClient.openApp("games");return;}
                 var state=TerminalBrowserSession.state();
                 if(TerminalBrowserSession.content()==null||!state.rendered()||state.loading()||!TerminalBrowserSession.contentVisible())return;
                 if(delay<60)return;
