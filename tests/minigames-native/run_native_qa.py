@@ -10,6 +10,7 @@ import sys
 import time
 import urllib.request
 import ssl,sqlite3
+import re
 from datetime import datetime, timezone
 
 REPO=Path(__file__).resolve().parent.parent.parent
@@ -77,7 +78,15 @@ def main():
             for loaded_role,loaded in processes.items():
                 if loaded.poll() is not None:raise RuntimeError(f'{loaded_role} exited while waiting for a client slot: {loaded.returncode}')
             slots=live_clients()
-            if len(slots)<4:break
+            pending=0
+            for own_role,own_process in processes.items():
+                if own_role=='server' or own_process.poll() is not None:continue
+                own_log=home/own_role/'boot.log'
+                match=re.search(r'SHARED_LAUNCHER_GAME_STARTED uid=\d+ gamePid=(\d+)',read_shared_text(own_log,encoding='utf-8')) if own_log.exists() else None
+                if dedicated:
+                    if not match or int(match[1]) not in slots:pending+=1
+                elif own_process.pid not in slots:pending+=1
+            if len(slots)+pending<4:break
             if time.monotonic()>until:raise TimeoutError('Four client slots occupied by PIDs '+str(slots))
             print(json.dumps({'waitingForClientSlot':role,'occupiedPids':slots,'maximum':4}),flush=True);time.sleep(5)
         row=next(r for r in prepared['clients'] if r['role']==role);lab=Path(row['lab'])
@@ -148,6 +157,13 @@ def main():
             env.update(MUXI_GAME_SOCIAL_ENABLED='1',MUXI_GAME_SOCIAL_URL=backend['site_url']+'/api/internal/game/',MUXI_GAME_SOCIAL_KEY=backend['social_key'],MUXI_GAME_PLATFORM_URL=backend['site_url']+'/api/internal/game/',MUXI_GAME_PLATFORM_KEY=backend['game_key'])
             processes['server']=subprocess.Popen([dedicated['java'],'@'+dedicated['args'],'nogui'],cwd=server_root,env=env,stdin=subprocess.PIPE,stdout=logs['server'],stderr=subprocess.STDOUT,text=True,encoding='utf-8',creationflags=subprocess.CREATE_NO_WINDOW)
             wait_file(coordinator/'server-ready.json',900)
+            # Capacity can change during the full server boot. Recheck the pair
+            # immediately before creating either asynchronous launcher child.
+            until=time.monotonic()+1800
+            while len(live_clients())>2:
+                if (coordinator/'cancel-run.json').exists():raise RuntimeError('QA canceled before clients')
+                if time.monotonic()>until:raise TimeoutError('Two client slots unavailable after server startup')
+                print(json.dumps({'waitingForTwoClientSlotsAfterServer':live_clients(),'maximum':4}),flush=True);time.sleep(5)
         launch('host');launch('guest')
         wait_file(coordinator/'server-ready.json',900);wait_file(coordinator/'ready-host.json',900)
         wait_file(coordinator/'ready-guest.json',900)
