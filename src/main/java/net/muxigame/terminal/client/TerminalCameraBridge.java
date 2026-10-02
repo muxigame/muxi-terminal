@@ -17,15 +17,23 @@ public final class TerminalCameraBridge {
             && (TerminalBrowserSession.HOME_URL+"#/camera").equals(frame.getURL());
     }
     public static boolean dispatch(CefBrowser browser,CefFrame frame,String request,CefQueryCallback callback){
+        if(request.equals("camera.open") || request.equals("terminal.app:camera")){
+            var mc=Minecraft.getInstance();
+            boolean local=TerminalBrowserSession.trusted(browser,frame)
+                && (TerminalBrowserSession.isShell(browser) || (browser==TerminalBrowserSession.content()
+                    && TerminalBrowserSession.state().kind()==TerminalBrowserSession.Kind.BUILTIN))
+                && mc.screen instanceof TerminalScreen;
+            if(!local){callback.failure(403,"Only the owned terminal can open native camera");return true;}
+            try{TerminalCamera.begin();callback.success("{\"ok\":true,\"native\":true}");}
+            catch(Exception failed){callback.failure(400,failed.getMessage());}
+            return true;
+        }
         if(!request.startsWith("camera."))return false;
         if(!authorized(browser,frame)){callback.failure(403,"Camera is available only in the owned camera app");return true;}
         try{
             switch(request){
                 case "camera.begin" -> {TerminalCamera.begin();callback.success("{\"ok\":true}");}
-                case "camera.stop" -> {TerminalCamera.stop();callback.success("{\"ok\":true}");}
-                case "camera.mode:forward" -> {TerminalCamera.mode(false);callback.success("{\"ok\":true}");}
-                case "camera.mode:selfie" -> {TerminalCamera.mode(true);callback.success("{\"ok\":true}");}
-                case "camera.shutter" -> {TerminalCamera.shutter();callback.success("{\"ok\":true}");}
+                case "camera.stop", "camera.mode:forward", "camera.mode:selfie", "camera.shutter" -> callback.failure(403,"Use the native camera controls");
                 case "camera.state" -> callback.success(JSON.toJson(TerminalCamera.state()));
                 case "camera.photos" -> {var photos=store();TerminalCamera.io(()->JSON.toJson(photos.list()),callback);}
                 default -> {

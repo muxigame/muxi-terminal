@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.muxigame.terminal.client.camera.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "NativeCameraHudMixin",
+    "NativeScreenshotLifecycleMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

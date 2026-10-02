@@ -116,6 +116,7 @@ function show(id){
 
 function navigate(id,source){
   if(typeof window.muxiTerminalQuery==='function'){
+    if(id==='camera'){native('camera.open').catch(error=>setStatus(error.message));return;}
     if(contentView && id==='home'){native('terminal.home').catch(error=>setStatus(error.message));return;}
     if(!contentView && ['tasks','guide','games','camera','friends','album','settings','music'].includes(id)){
       if(window.terminalLaunch)window.terminalLaunch({kind:'builtin',id,name:id==='friends'?'平台好友':id==='album'?'相册':id==='music'?'音乐':id==='settings'?'设置':id==='camera'?'相机':id==='games'?'小游戏':id==='tasks'?'任务':'游戏指南',source}).catch(error=>setStatus(error.message));

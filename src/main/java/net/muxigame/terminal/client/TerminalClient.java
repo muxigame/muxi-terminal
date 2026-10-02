@@ -54,6 +54,10 @@ public final class TerminalClient {
         Minecraft mc = Minecraft.getInstance();
         if (MCEF.isInitialized()) {
             var browser=TerminalBrowserSession.getOrCreate();
+            if("camera".equals(app)){
+                if(!(mc.screen instanceof TerminalScreen))mc.setScreen(new TerminalScreen(browser));
+                TerminalCamera.begin();return;
+            }
             TerminalBrowserSession.openApp(app);
             mc.setScreen(new TerminalScreen(browser));
             return;
@@ -64,6 +68,7 @@ public final class TerminalClient {
 
         MCEF.scheduleForInit(success -> mc.execute(() -> {
             if (success) {
+                if("camera".equals(app)){openApp(app);return;}
                 var browser=TerminalBrowserSession.getOrCreate();
                 TerminalBrowserSession.openApp(app);
                 mc.setScreen(new TerminalScreen(browser));

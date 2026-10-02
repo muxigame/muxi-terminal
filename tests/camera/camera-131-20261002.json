@@ -1,0 +1,107 @@
+{
+  "date": "2026-10-02",
+  "host": "131 / JBC_FCRL",
+  "scope": "Native camera and native Screenshot resource ownership; CEF album is independently incomplete",
+  "inputs": {
+    "lab": "C:\\Users\\ranzh\\Documents\\Codex\\2026-10-02\\task-4\\camera-runtime-cameraonly-081517",
+    "label": "cameraonly",
+    "prepared": true,
+    "product": "muxi-terminal-0.2.4-task14-social-qa.1.jar",
+    "productSha256": "f2834520cfafb386553b270bebab0ff51216e10be41fb193f4d9aede101c46fd",
+    "qaSha256": "92665e99c3349fb1bcc58578d939030a47fdec6933812a1391c5947741f50714",
+    "productionChanged": false
+  },
+  "result": {
+    "completed": true,
+    "checks": 134,
+    "stressRounds": 16,
+    "cancellationImageDelta": 0,
+    "cancellationNativeBytesDelta": 0,
+    "actualF2Photo": "2026-10-02_16.24.05.png",
+    "nativeScreenshotManagerSeesF2AndCamera": true,
+    "resourceFailures": []
+  },
+  "exit": {
+    "exitCode": 0,
+    "timeout": false,
+    "normalExit": true,
+    "elapsedSeconds": 422.9070000000065,
+    "remainingDescendants": []
+  },
+  "forcedGc": false,
+  "baselineCancellation": {
+    "iterations": 16,
+    "nativeImageDelta": 16,
+    "nativeBytesDelta": 58982400
+  },
+  "fixedCancellation": {
+    "iterations": 16,
+    "nativeImageDelta": 0,
+    "nativeBytesDelta": 0
+  },
+  "closedRounds": {
+    "count": 16,
+    "nativeImageCounts": [
+      210915
+    ],
+    "nativeImageBytes": [
+      393149944
+    ],
+    "cefClients": [
+      2
+    ],
+    "cefTexturesLive": [
+      1
+    ],
+    "cameraWorkers": [
+      0
+    ],
+    "directBufferBytesRange": [
+      84724387,
+      84734729
+    ],
+    "naturalGcCountRange": [
+      243,
+      248
+    ]
+  },
+  "closedIdle30s": {
+    "phase": "closed-idle-30s",
+    "round": 16,
+    "nanoTime": 787285666646400,
+    "heapUsed": 5594365824,
+    "heapCommitted": 6442450944,
+    "naturalGcCount": 257,
+    "nativeImagesLive": 210915,
+    "nativeImageBytesLive": 393149944,
+    "nativeImageAllocations": 213663,
+    "nativeImageCloses": 2748,
+    "cefTexturesOwned": 0,
+    "cefTexturesLive": 0,
+    "cefTextureAllocations": 1,
+    "cefTextureCloses": 1,
+    "mainColorTexture": 3,
+    "cameraWorkerThreads": 0,
+    "mappedBuffers": 0,
+    "mappedBufferBytes": 0,
+    "directBuffers": 585,
+    "directBufferBytes": 84667043,
+    "mapped - 'non-volatile memory'Buffers": 0,
+    "mapped - 'non-volatile memory'BufferBytes": 0,
+    "cefClients": 1,
+    "gpuAvailableKiB": 48900192
+  },
+  "fixtures": {
+    "passed": true,
+    "checks": 22,
+    "nativeImagesLive": 0,
+    "cancellationIterations": 1000,
+    "scope": "production screenshot lifecycle wrappers with deterministic native-image/executor fixtures; real mixin targets verified separately in 131 MC"
+  },
+  "limitations": [
+    "Physical OS focus-loss was not exercised.",
+    "NativeImage baseline includes full-pack game resources; only camera deltas are attributed.",
+    "Combined CEF album run failed with Stress DOM response timeout; callback frame was invalid while browser document stayed current.",
+    "Shared dev working tree included other owners changes when real QA jar was built; jar hash above identifies tested snapshot."
+  ]
+}
