@@ -34,6 +34,8 @@ public final class MinigamesNativeQA {
     private final String role=System.getProperty("qa.minigames.role");
     private final Path coordinator=Path.of(System.getProperty("qa.minigames.coordinator"));
     private final int port=Integer.getInteger("qa.minigames.port");
+    private final boolean dedicated=Boolean.getBoolean("qa.minigames.dedicated");
+    private boolean joinRequested,passportRequested;
     private final Gson gson=new GsonBuilder().setPrettyPrinting().create();
     private boolean starting,ready,inTick,published,closing;
     private int ticks,lastCommand=-1,delay,stopAt,worldReadyTicks;
@@ -46,7 +48,7 @@ public final class MinigamesNativeQA {
         Files.move(temp,path,StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);
     }
     private JsonObject status(Minecraft mc){
-        JsonObject row=new JsonObject();row.addProperty("role",role);row.addProperty("ticks",ticks);
+        JsonObject row=new JsonObject();row.addProperty("role",role);row.addProperty("ticks",ticks);row.addProperty("pid",ProcessHandle.current().pid());
         row.addProperty("screen",mc.screen==null?"":mc.screen.getClass().getName());row.addProperty("focused",mc.isWindowActive());
         row.addProperty("ready",ready);row.addProperty("command",lastCommand);
         row.addProperty("realNetworkPlayer",mc.getConnection()!=null&&mc.player!=null);
@@ -92,10 +94,14 @@ public final class MinigamesNativeQA {
             if(!MCEF.isInitialized())return;
             if(!starting&&mc.getOverlay()==null&&mc.screen instanceof TitleScreen){
                 mc.options.renderDistance().set(3);mc.options.bobView().set(false);mc.options.setCameraType(CameraType.FIRST_PERSON);
-                if(role.equals("host")) {
+                if(role.equals("host")&&!dedicated) {
                     starting=true;
                     mc.createWorldOpenFlows().createFreshLevel("minigames-private-qa",new LevelSettings("Minigames private lifecycle QA",GameType.SURVIVAL,false,Difficulty.PEACEFUL,true,new GameRules(),WorldDataConfiguration.DEFAULT),new WorldOptions(987654321L,false,false),a->a.registryOrThrow(Registries.WORLD_PRESET).getHolderOrThrow(WorldPresets.FLAT).value().createWorldDimensions(),mc.screen);
                 } else if(Files.isRegularFile(coordinator.resolve("server-ready.json"))) {
+                    if(dedicated){
+                        if(!joinRequested){JsonObject request=new JsonObject();request.addProperty("uid",mc.getUser().getName());write(coordinator.resolve("mint-join-"+role+".json"),request);joinRequested=true;}
+                        if(!Files.isRegularFile(coordinator.resolve("join-minted-"+role+".json")))return;
+                    }
                     starting=true;
                     ConnectScreen.startConnecting(mc.screen,mc,new ServerAddress("127.0.0.1",port),new ServerData("Private minigames QA","127.0.0.1:"+port,ServerData.Type.LAN),false,null);
                 }
@@ -106,7 +112,7 @@ public final class MinigamesNativeQA {
                 if(mc.screen!=null){worldReadyTicks=0;return;}
                 if(++worldReadyTicks<40)return;
             }
-            if(role.equals("host")&&!published){
+            if(role.equals("host")&&!dedicated&&!published){
                 var server=mc.getSingleplayerServer();if(server==null)return;
                 if(!server.getWorldData().getLevelName().equals("Minigames private lifecycle QA"))throw new IllegalStateException("Refusing to publish a non-QA world");
                 // Ephemeral offline LAN test world only; this does not grant account/SSO trust.
@@ -116,6 +122,7 @@ public final class MinigamesNativeQA {
                 row.addProperty("accountAuthentication","private-offline-LAN; not trusted account acceptance");
                 write(coordinator.resolve("server-ready.json"),row);published=true;
             }
+            if(dedicated&&!passportRequested){passportRequested=true;net.muxigame.core.client.TerminalPassportApi.request(value->{});}
             if(!ready){ready=true;write(coordinator.resolve("ready-"+role+".json"),status(mc));}
             if(command==null)return;
             String type=command.get("type").getAsString();
