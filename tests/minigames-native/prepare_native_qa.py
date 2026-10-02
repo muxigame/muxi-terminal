@@ -120,6 +120,15 @@ def main():
         pinned_aircraft=artifact_dir/aircraft.name;shutil.copy2(aircraft,pinned_aircraft)
         required_dependencies.append(pinned_aircraft)
         dependency_reasons[str(pinned_aircraft)]='Existing installed flight integration server requires Immersive Aircraft channels; same unchanged JAR pinned for both actual clients and server after observed handshake mismatch'
+        wings=WORK/'bmc5server/mods/warfare_wings-1.1.4-1.21.1-neoforge.jar'
+        with zipfile.ZipFile(wings) as archive:
+            mod=tomllib.loads(archive.read('META-INF/neoforge.mods.toml').decode('utf-8'))
+            if not any(row.get('modId')=='warfare_wings' and row.get('version')=='1.1.4' for row in mod.get('mods',[])):raise ValueError('Installed flight registry dependency mismatch')
+        pinned_wings=artifact_dir/wings.name;shutil.copy2(wings,pinned_wings);required_dependencies.append(pinned_wings)
+        dependency_reasons[str(pinned_wings)]='Existing installed flight integration requires matching Warfare Wings registries; same unchanged JAR on both sides after actual registry rejection'
+        companion=pack/'mods/muxi-champion-companions-1.0.5.jar'
+        pinned_companion=artifact_dir/companion.name;shutil.copy2(companion,pinned_companion);required_dependencies.append(pinned_companion)
+        dependency_reasons[str(pinned_companion)]='Preserve existing managed candidate companion 1.0.5 on both sides; private installed server baseline had stale 1.0.3'
     # Sable binds UDP as well as Minecraft TCP. Avoid the Windows dynamic-port
     # range and prove both transports are free before selecting a private port.
     for port in random.sample(range(24000,40000),100):
@@ -194,7 +203,7 @@ def main():
     if dedicated:
         server=home/'dedicated-server';server.mkdir();(server/'mods').mkdir();(server/'config').mkdir()
         for source in (WORK/'bmc5server/mods').glob('*.jar'):
-            if source.name.startswith(('muxi-terminal-','muxi-minigames-','muxi-game-core-','muxi-outbreak-','muxi-zombie-challenge-')):continue
+            if source.name.startswith(('muxi-terminal-','muxi-minigames-','muxi-game-core-','muxi-outbreak-','muxi-zombie-challenge-','muxi-champion-companions-')):continue
             shutil.copy2(source,server/'mods'/source.name)
         for source in [*artifacts.values(),*required_dependencies]:shutil.copy2(source,server/'mods'/source.name)
         for directory in ['config','defaultconfigs','kubejs','tacz']:
