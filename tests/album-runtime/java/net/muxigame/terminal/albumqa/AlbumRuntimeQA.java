@@ -35,6 +35,9 @@ public final class AlbumRuntimeQA {
     private final Gson json=new Gson();
     private final JsonArray checks=new JsonArray(),memory=new JsonArray(),domSamples=new JsonArray();
     private final JsonObject report=new JsonObject();
+    private final boolean fullPack=Boolean.getBoolean("album.fullPack"),phases=Boolean.getBoolean("album.phases");
+    private int backgroundClients,backgroundTextures;
+    private String phase="functional";private long sceneSince,phaseSince;
     private final int cycleLimit=Integer.getInteger("album.cycles",8);
     public AlbumRuntimeQA(){NeoForge.EVENT_BUS.addListener(this::tick);}
     private void check(boolean ok,String label){if(!ok)throw new AssertionError(label);checks.add(label);}
@@ -58,7 +61,7 @@ public final class AlbumRuntimeQA {
     private boolean listed(String name){return ready()&&dom.getAsJsonArray("names").asList().stream().anyMatch(v->v.getAsString().equals(name));}
     private void next(){stage++;frames=0;requested=false;dom=null;domAt=0;}
     private void sample() {
-        System.gc();JsonObject m=new JsonObject();m.addProperty("cycle",cycles);m.addProperty("heapUsed",ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed());
+        if(!fullPack)System.gc();JsonObject m=new JsonObject();m.addProperty("phase",phase);m.addProperty("nanoTime",System.nanoTime());if(fullPack)m.add("resources",ResourceProbe.sample(phase,cycles));m.addProperty("cycle",cycles);m.addProperty("heapUsed",ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed());
         long bytes=0;for(var pool:ManagementFactory.getPlatformMXBeans(BufferPoolMXBean.class))bytes+=pool.getMemoryUsed();m.addProperty("directBufferBytes",bytes);
         m.addProperty("cameraWorkers",Thread.getAllStackTraces().keySet().stream().filter(t->t.isAlive()&&t.getName().equals("muxi-terminal-camera-io")).count());
         m.addProperty("nativeScreenshotImages",ImageProbe.live());memory.add(m);
@@ -71,9 +74,9 @@ public final class AlbumRuntimeQA {
         if(finished)return;var mc=Minecraft.getInstance();
         try{
             ticks++;
-            if(ticks%40==0){JsonObject p=new JsonObject();p.addProperty("stage",stage);p.addProperty("cycle",cycles);p.addProperty("ticks",ticks);p.addProperty("screen",mc.screen==null?"":mc.screen.getClass().getName());p.addProperty("focused",mc.isWindowActive());if(dom!=null)p.add("dom",dom.deepCopy());Files.writeString(Path.of("album-progress.json"),p.toString());}
+            if(ticks%40==0){JsonObject p=new JsonObject();p.addProperty("stage",stage);p.addProperty("phase",phase);p.addProperty("nanoTime",System.nanoTime());p.addProperty("cycle",cycles);p.addProperty("ticks",ticks);p.addProperty("screen",mc.screen==null?"":mc.screen.getClass().getName());p.addProperty("focused",mc.isWindowActive());if(dom!=null)p.add("dom",dom.deepCopy());Files.writeString(Path.of("album-progress.json"),p.toString());}
             if(stage==99){if(mc.level!=null||mc.getSingleplayerServer()!=null||++frames<40)return;report.addProperty("normalLogout",true);write();finished=true;mc.stop();return;}
-            if(Files.exists(Path.of("request-normal-close.json"))||ticks>10000)throw new IllegalStateException("QA deadline at stage "+stage);
+            if(Files.exists(Path.of("request-normal-close.json"))||ticks>(fullPack?18000:10000))throw new IllegalStateException("QA deadline at stage "+stage);
             if(!MCEF.isInitialized()||mc.getOverlay()!=null)return;
             if(!starting){
                 if(!(mc.screen instanceof TitleScreen))return;starting=true;mc.options.renderDistance().set(2);mc.options.graphicsMode().set(GraphicsStatus.FAST);
@@ -82,10 +85,26 @@ public final class AlbumRuntimeQA {
             }
             if(mc.player==null||mc.level==null||mc.screen instanceof ReceivingLevelScreen)return;
             if(domAt!=0&&ticks>=domAt){domAt=0;var b=TerminalBrowserSession.content();if(b!=null)b.getSource(source->{var match=java.util.regex.Pattern.compile("data-album-qa=\"([^\"]+)\"").matcher(source);if(match.find())dom=JsonParser.parseString(new String(Base64.getDecoder().decode(match.group(1)),StandardCharsets.UTF_8)).getAsJsonObject();});}
-            frames++;if(frames>900)throw new IllegalStateException("Stage timeout "+stage+" DOM "+dom);
+            frames++;if(frames>(fullPack?2400:900))throw new IllegalStateException("Stage timeout "+stage+" DOM "+dom);
             if(stage==0){
                 if(!requested){GLFW.glfwSetWindowTitle(mc.getWindow().getWindow(),"Album Owner QA 131 - private task10");GLFW.glfwFocusWindow(mc.getWindow().getWindow());requested=true;return;}
                 if(!mc.isWindowActive())return;
+                if(fullPack){
+                    if(sceneSince==0)sceneSince=System.nanoTime();
+                    if(System.nanoTime()-sceneSince<40_000_000_000L || mc.levelRenderer.countRenderedSections()==0 || mc.player.isInvisible())return;
+                    check(net.neoforged.fml.ModList.get().getMods().size()>400,"actual full pack loaded over 400 mod IDs");report.addProperty("loadedModCount",net.neoforged.fml.ModList.get().getMods().size());
+                    var api=Class.forName("net.irisshaders.iris.api.v0.IrisApi");boolean enabled=(Boolean)api.getMethod("isShaderPackInUse").invoke(api.getMethod("getInstance").invoke(null));check(enabled,"actual Iris shader pipeline enabled in full-pack scene");report.addProperty("shaderPackInUse",enabled);
+                    check((Boolean)Class.forName("com.elfmcys.yesstevemodel.YesSteveModel").getMethod("isAvailable").invoke(null),"installed YSM native engine available");
+                    var modelApi=Class.forName("com.elfmcys.yesstevemodel.OoooO0OO0000O00oo0Oo00OO");
+                    var model=(java.util.Optional<?>)modelApi.getMethod("oOoo00O0o0oO0o0oO00OO0O0",net.minecraft.world.entity.player.Player.class).invoke(null,mc.player);
+                    check(model.isPresent(),"private local QA player has actual installed native YSM player-model data");
+                    model.get().getClass().getMethod("oOo0OO0O0o000OO0O000oo0o",String.class,String.class).invoke(model.get(),"default","default");
+                    report.addProperty("ysmSetup","installed public player attachment and builtin default model/texture only; model-selection UI untested");
+                    report.addProperty("ysmModel",String.valueOf(model.get().getClass().getMethod("O000OOo000oOOo0OO0oo0o0O").invoke(model.get())));
+                    report.addProperty("ysmTexture",String.valueOf(model.get().getClass().getMethod("oO0o0O0OoOOooooOo00O0o0o").invoke(model.get())));
+                    var background=ResourceProbe.sample("before-terminal",0);backgroundClients=background.get("cefClients").getAsInt();backgroundTextures=background.get("cefTexturesOwned").getAsInt();report.add("backgroundResourcesBeforeTerminal",background);
+                    report.addProperty("forcedGc",false);report.addProperty("phasedResourceControls",phases);
+                }
                 check(GLFW.glfwGetWindowAttrib(mc.getWindow().getWindow(),GLFW.GLFW_VISIBLE)==GLFW.GLFW_TRUE,"actual isolated 131 window visible and focused");
                 report.addProperty("renderer",org.lwjgl.opengl.GL11.glGetString(org.lwjgl.opengl.GL11.GL_RENDERER));
                 var vanilla=(java.io.File)Class.forName("io.github.lgatodu47.screenshot_viewer.ScreenshotViewerUtils").getMethod("getVanillaScreenshotsFolder").invoke(null);
@@ -110,12 +129,16 @@ public final class AlbumRuntimeQA {
             if(stage==10){if(frames%10==0)readDom();if(!ready()||!dom.get("image").getAsBoolean())return;shot("album-native-recycle");click("#albumRestore");next();return;}
             if(stage==11){if(!ready()||dom.get("busy").getAsBoolean()||!Files.exists(screenshots.resolve(newF2))||Files.exists(screenshots.resolve(".recycle").resolve(newF2)))return;check(java.security.MessageDigest.isEqual(originalF2Digest,java.security.MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(screenshots.resolve(newF2)))),"restore preserves original native F2 filename and SHA-256 bytes");click("#albumPhotosTab");next();return;}
             if(stage==12){if(!listed(newF2))return;click("#albumCamera");next();return;}
-            if(stage==13){if(!(mc.screen instanceof TerminalCameraScreen)||frames<20)return;check(true,"album camera button opens actual native camera screen");before=names();mc.screen.keyPressed(GLFW.GLFW_KEY_SPACE,0,0);next();return;}
+            if(stage==13){if(!(mc.screen instanceof TerminalCameraScreen)||frames<20)return;
+                if(fullPack){if(!requested){mc.screen.keyPressed(GLFW.GLFW_KEY_F,0,0);requested=true;frames=0;return;}if(frames<40)return;
+                    report.addProperty("ysmSelfieRendererCalls",YsmRenderProbe.selfieCalls);report.addProperty("ysmSelfieRendered",YsmRenderProbe.selfieRendered);
+                    check(YsmRenderProbe.selfieRendered>0,"actual YSM renderer replaces vanilla player in native selfie frames");shot("album-full-ysm-selfie");}
+                check(true,"album camera button opens actual native camera screen");before=names();mc.screen.keyPressed(GLFW.GLFW_KEY_SPACE,0,0);next();return;}
             if(stage==14){camera=added();if(camera==null||TerminalCamera.state().busy())return;check(camera.contains("_camera_")&&Files.size(screenshots.resolve(camera))>100,"actual native camera output shares current native F2 directory");report.addProperty("nativeCameraFile",camera);mc.screen.onClose();next();return;}
             if(stage==15){if(!listed(camera)||dom.get("thumbs").getAsInt()<1)return;check(true,"camera return shows native camera output and both F2 photos in same CEF album");domSamples.add(dom.deepCopy());shot("album-native-camera-shared");openPhoto(camera);next();return;}
             if(stage==16){if(!ready()||!dom.get("image").getAsBoolean())return;check(true,"actual camera output opens in CEF album");mc.screen.onClose();next();return;}
             if(stage==17){if(!ready()||dom.get("sourceCount").getAsInt()!=0||frames<25)return;check(mc.screen==null,"native terminal exit clears retained CEF thumbnail and large-image sources");check(ImageProbe.live()==0,"native F2/camera screenshot image allocations all closed");sample();TerminalClient.openTerminal();next();return;}
-            if(stage==18){if(!listed(camera)||dom.get("thumbs").getAsInt()<1)return;check(true,"reopening retained terminal resumes album and thumbnails");cycles=0;stage=19;frames=0;requested=false;dom=null;return;}
+            if(stage==18){if(!listed(camera)||dom.get("thumbs").getAsInt()<1)return;check(true,"reopening retained terminal resumes album and thumbnails");cycles=0;phase=phases?"warmup":"repeat";stage=19;frames=0;requested=false;dom=null;return;}
             if(stage==19){
                 if(!ready())return;
                 if(!requested){if(dom.get("thumbs").getAsInt()<1)return;openPhoto(newF2);requested=true;dom=null;return;}
@@ -125,9 +148,36 @@ public final class AlbumRuntimeQA {
             if(stage==20){
                 if(!ready()||dom.get("sourceCount").getAsInt()!=0||frames<60)return;
                 sample();check(ImageProbe.live()==0,"cycle "+cycles+" has no native screenshot image leak");
-                if(++cycles<cycleLimit){TerminalClient.openTerminal();stage=19;frames=0;requested=false;dom=null;return;}
-                report.addProperty("reopenCycles",cycles);check(memory.getAsJsonArray().size()==cycleLimit+1,"all real close-state resource samples collected");
+                ++cycles;
+                if(phases && cycles==8){phase="loaded-hold";stage=21;frames=0;requested=false;dom=null;TerminalClient.openTerminal();return;}
+                if(phases && cycles==16){phase="between-blocks-idle";stage=23;frames=0;requested=false;dom=null;return;}
+                if(cycles<cycleLimit){TerminalClient.openTerminal();stage=19;frames=0;requested=false;dom=null;return;}
+                report.addProperty("reopenCycles",cycles);check(memory.getAsJsonArray().size()>=cycleLimit+1,"all real close-state resource samples collected");
+                if(phases){phase="content-destroy-idle";stage=24;frames=0;requested=false;dom=null;TerminalBrowserSession.closeContent();return;}
                 report.addProperty("success",true);report.addProperty("nativeF2Input","actual KeyboardHandler.keyPress F2 press/release on owned GLFW window");report.addProperty("privacy","only own newly generated native game screenshots; no user photos copied or uploaded");write();closeNormally();
+            }
+            if(stage==21){
+                if(!ready())return;
+                if(!requested){if(!listed(newF2)||dom.get("thumbs").getAsInt()<1)return;openPhoto(newF2);requested=true;dom=null;return;}
+                if(!dom.get("image").getAsBoolean())return;
+                if(phaseSince==0){phaseSince=System.nanoTime();sample();}
+                if(System.nanoTime()-phaseSince<60_000_000_000L){if(frames%100==0)sample();return;}
+                sample();shot("album-full-loaded-hold");mc.screen.onClose();phase="closed-hold";stage=22;frames=0;requested=false;phaseSince=0;dom=null;return;
+            }
+            if(stage==22 || stage==23){
+                if(!ready()||dom.get("sourceCount").getAsInt()!=0)return;
+                if(phaseSince==0){phaseSince=System.nanoTime();sample();}
+                if(System.nanoTime()-phaseSince<60_000_000_000L){if(frames%100==0)sample();return;}
+                sample();phase=stage==22?"measured-block-1":"measured-block-2";phaseSince=0;TerminalClient.openTerminal();stage=19;frames=0;requested=false;dom=null;return;
+            }
+            if(stage==24 || stage==25){
+                if(phaseSince==0){phaseSince=System.nanoTime();sample();}
+                if(System.nanoTime()-phaseSince<60_000_000_000L){if(frames%100==0)sample();return;}
+                sample();
+                if(stage==24){check(TerminalBrowserSession.content()==null,"content browser destroyed after controlled navigation close");TerminalBrowserSession.close();mc.setScreen(null);phase="all-views-destroyed-idle";stage=25;frames=0;phaseSince=0;return;}
+                var released=ResourceProbe.sample(phase,cycles);check(released.get("cefClients").getAsInt()==backgroundClients&&released.get("cefTexturesOwned").getAsInt()==backgroundTextures,"all terminal CEF clients and owned textures return to full-pack engine baseline after explicit close");
+                check(released.get("bridgeQueriesOutstanding").getAsLong()==0,"all observed real native queries settled after close idle");check(ImageProbe.live()==0,"all F2/camera screenshot native images released after full-pack phased run");
+                report.addProperty("success",true);report.addProperty("nativeF2Input","actual KeyboardHandler F2 and real CEF DOM in full pack");report.addProperty("privacy","only newly generated QA world photos; no user photos/caches/auth/custom/export copied");report.add("releasedResources",released);write();closeNormally();
             }
         }catch(Throwable failure){failure.printStackTrace();report.addProperty("success",false);report.addProperty("error",failure.toString());try{write();}catch(Exception ignored){}closeNormally();}
     }

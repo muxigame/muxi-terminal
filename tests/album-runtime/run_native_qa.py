@@ -1,5 +1,6 @@
 """Independent visible 131 QA; only own lab inputs/output, normal MC shutdown, no OS kill."""
 from pathlib import Path
+from qa_fml_config import configure_file
 import argparse,ctypes,datetime,hashlib,json,os,shutil,subprocess,sys,time,uuid,zipfile,psutil
 SOURCES=Path(__file__).resolve().parent
 REPO=SOURCES.parents[1]
@@ -21,7 +22,8 @@ def write(path,value):path.write_text(json.dumps(value,ensure_ascii=False,indent
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 def main():
  sys.stdout.reconfigure(encoding='utf-8',errors='replace')
- p=argparse.ArgumentParser();p.add_argument('--prepare-only',action='store_true');p.add_argument('--lab',type=Path);p.add_argument('--other-instance',type=Path);p.add_argument('--cycles',type=int,default=8);args=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--prepare-only',action='store_true');p.add_argument('--lab',type=Path);p.add_argument('--other-instance',type=Path);p.add_argument('--cycles',type=int,default=8);p.add_argument('--full-template',type=Path);p.add_argument('--phased',action='store_true');args=p.parse_args()
+ if args.phased and (not args.full_template or args.cycles!=24):raise SystemExit('Phased protocol requires full-template and exactly 24 cycles')
  if not 1<=args.cycles<=32:raise SystemExit('Bounded 1..32 cycles required')
  session=ctypes.c_ulong();ctypes.windll.kernel32.ProcessIdToSessionId(os.getpid(),ctypes.byref(session))
  if os.environ.get('COMPUTERNAME')!='JBC_FCRL' or session.value!=2:raise SystemExit('131 interactive Session 2 required')
@@ -34,19 +36,30 @@ def main():
   lab=ROOT/('album-runtime-'+datetime.datetime.utcnow().strftime('%Y%m%d-%H%M%S')+'-'+uuid.uuid4().hex[:8]);lab.mkdir()
   for name in ('mods','config','natives'):(lab/name).mkdir()
   terminal=ROOT/'album-build/muxi-terminal-album-dev-qa.jar';shutil.copy2(terminal,lab/'mods'/terminal.name)
-  for pattern in ('*mcef-neoforge-2.1.6-1.21.1.jar','*screenshot_viewer*.jar'):
-   jar=next((GAME/'mods').glob(pattern));shutil.copy2(jar,lab/'mods'/jar.name)
-  shutil.copytree(GAME/'mods/mcef-libraries',lab/'mods/mcef-libraries',dirs_exist_ok=True)
+  if args.full_template:
+   template=args.full_template.resolve()
+   approved=Path(r'C:\Users\ranzh\Documents\Codex\camera-native-task22-20261002\run-20261002-055245-420455d3').resolve()
+   if template!=approved:raise SystemExit('Only reviewed isolated full-pack template permitted')
+   def skip_pack(directory,names):return [n for n in names if n.startswith('muxi-terminal-') or n.endswith('qa-only.jar') or n in ('screenshots','saves','yes_steve_model','auth','cache','custom','export')]
+   for folder in ('mods','config','shaderpacks','resourcepacks','defaultconfigs','kubejs','tacz'):
+    if (template/folder).is_dir():shutil.copytree(template/folder,lab/folder,dirs_exist_ok=True,ignore=skip_pack)
+   if len(list((lab/'mods').glob('*.jar')))<400:raise SystemExit('Full template incomplete')
+   write(lab/'config/muxi-game-core.json',{'schema':1,'features':{'identity':{'enabled':False},'login':{'enabled':False}}})
+  else:
+   for pattern in ('*mcef-neoforge-2.1.6-1.21.1.jar','*screenshot_viewer*.jar'):
+    jar=next((GAME/'mods').glob(pattern));shutil.copy2(jar,lab/'mods'/jar.name)
+   shutil.copytree(GAME/'mods/mcef-libraries',lab/'mods/mcef-libraries',dirs_exist_ok=True)
   shutil.copytree(GAME/'versions/BatterMC5Remake/BatterMC5Remake-natives',lab/'natives',dirs_exist_ok=True)
-  (lab/'config/fml.toml').write_text('earlyWindowControl=false\nearlyWindowProvider=""\nversionCheck=false\n',encoding='utf-8')
-  (lab/'config/mcef').mkdir();(lab/'config/mcef/mcef.properties').write_text('skip-download=true\nuse-cache=false\n',encoding='utf-8')
+  configure_file(lab/'config/fml.toml')
+  (lab/'config/mcef').mkdir(exist_ok=True);(lab/'config/mcef/mcef.properties').write_text('skip-download=true\nuse-cache=false\n',encoding='utf-8')
   (lab/'options.txt').write_text('lang:zh_cn\nguiScale:2\nmaxFps:30\nenableVsync:false\nonboardAccessibility:false\nsoundCategory_master:0.0\nfullscreen:false\npauseOnLostFocus:false\nrenderDistance:2\nsimulationDistance:5\ngraphicsMode:0\n',encoding='utf-8')
   classes=lab/'qa-classes';sources=list((SOURCES/'java').rglob('*.java'))
   sources.extend(REPO/'tests/music-runtime/java/net/muxigame/terminal/qa/mixin'/name for name in ('HardwareWmiTimeoutQAMixin.java','OfflineMcefMixin.java'))
   build.compile_java(JDK/'bin/javac.exe',sources,classes,os.pathsep.join(map(str,[terminal,ROOT/'album-build/dependencies.jar'])),lab/'compile.args')
   with zipfile.ZipFile(lab/'mods/muxi-album-qa-only.jar','w',zipfile.ZIP_DEFLATED) as z:
-   z.writestr('META-INF/neoforge.mods.toml','modLoader="javafml"\nloaderVersion="[4,)"\nlicense="MIT"\n[[mods]]\nmodId="muxi_album_qa"\nversion="1.0.0"\ndisplayName="Album private 131 QA"\n[[mixins]]\nconfig="album_runtime_qa.mixins.json"\n[[mixins]]\nconfig="album_image_qa.mixins.json"\n')
+   z.writestr('META-INF/neoforge.mods.toml','modLoader="javafml"\nloaderVersion="[4,)"\nlicense="MIT"\n[[mods]]\nmodId="muxi_album_qa"\nversion="1.0.0"\ndisplayName="Album private 131 QA"\n[[mixins]]\nconfig="album_runtime_qa.mixins.json"\n[[mixins]]\nconfig="album_image_qa.mixins.json"\n'+('[[mixins]]\nconfig="album_fullpack_qa.mixins.json"\n' if args.full_template else ''))
    z.writestr('album_runtime_qa.mixins.json',json.dumps({'required':True,'minVersion':'0.8','package':'net.muxigame.terminal.qa.mixin','compatibilityLevel':'JAVA_21','client':['HardwareWmiTimeoutQAMixin','OfflineMcefMixin'],'injectors':{'defaultRequire':1}}))
+   if args.full_template:z.writestr('album_fullpack_qa.mixins.json',json.dumps({'required':True,'minVersion':'0.8','package':'net.muxigame.terminal.albumqa.mixin','compatibilityLevel':'JAVA_21','client':['ImageResourceQAMixin','BrowserTextureQAMixin','BridgeCallbackQAMixin','YsmRenderQAMixin'],'injectors':{'defaultRequire':1}}))
    z.writestr('album_image_qa.mixins.json',json.dumps({'required':True,'minVersion':'0.8','package':'net.muxigame.terminal.albumqa.mixin','compatibilityLevel':'JAVA_21','client':['ScreenshotProbeMixin','ImageProbeMixin'],'injectors':{'defaultRequire':1}}))
    for file in classes.rglob('*.class'):z.write(file,file.relative_to(classes).as_posix())
   subs={'auth_player_name':'AlbumQA131','auth_uuid':'91f9bc33f8644a1093cd41bd94eb05aa','auth_access_token':'0','version_name':'BatterMC5Remake','game_directory':str(lab),'assets_root':str(GAME/'assets'),'assets_index_name':meta['assetIndex']['id'],'clientid':'','auth_xuid':'','user_type':'legacy','version_type':'release','resolution_width':'1280','resolution_height':'720','natives_directory':str(lab/'natives'),'launcher_name':'album-private-visible-qa','launcher_version':'1','classpath':os.pathsep.join(map(str,libs)),'library_directory':str(GAME/'libraries'),'classpath_separator':os.pathsep}
@@ -63,13 +76,14 @@ def main():
      out.append(value)
    return out
   extra=['-Dalbum.cycles='+str(args.cycles)]
+  if args.full_template:extra+=['-Dalbum.fullPack=true','-Dalbum.phases='+str(args.phased).lower()]
   if args.other_instance:
    other=args.other_instance.resolve()
    if not other.is_dir() or other.parent.parent!=ROOT or not other.parent.name.startswith('album-runtime-') or other.name!='screenshots':raise SystemExit('Only another own private native screenshot instance permitted')
    extra.append('-Dalbum.otherInstance='+str(other))
-  javaargs=['-Xms512M','-Xmx2G','-XX:ActiveProcessorCount=2','-Dfile.encoding=UTF-8',*extra,'-Dhttp.proxyHost=127.0.0.1','-Dhttp.proxyPort=9','-Dhttps.proxyHost=127.0.0.1','-Dhttps.proxyPort=9',*expand(meta['arguments']['jvm']),meta['mainClass'],*expand(meta['arguments']['game'])]
+  javaargs=['-Xms1G','-Xmx10G' if args.full_template else '-Xmx2G','-XX:ActiveProcessorCount=4' if args.full_template else '-XX:ActiveProcessorCount=2','-Dfile.encoding=UTF-8',*extra,'-Dhttp.proxyHost=127.0.0.1','-Dhttp.proxyPort=9','-Dhttps.proxyHost=127.0.0.1','-Dhttps.proxyPort=9',*expand(meta['arguments']['jvm']),meta['mainClass'],*expand(meta['arguments']['game'])]
   (lab/'launch.args').write_text('\n'.join('"'+a.replace('\\','/').replace('"','\\"')+'"' for a in javaargs),encoding='utf-8')
-  write(lab/'inputs.json',{'session':session.value,'terminalSha256':sha(terminal),'source':json.loads((ROOT/'album-build/build.json').read_text(encoding='utf-8')),'qaOnlyWmiTimeoutMs':2000,'nativeF2Input':'owned KeyboardHandler F2 path','focusScope':'only this newly launched native GLFW window; no OS input','photosCopied':False,'productionWrites':False})
+  write(lab/'inputs.json',{'session':session.value,'terminalSha256':sha(terminal),'source':json.loads((ROOT/'album-build/build.json').read_text(encoding='utf-8')),'qaOnlyWmiTimeoutMs':2000,'qaSha256':sha(lab/'mods/muxi-album-qa-only.jar'),'nativeF2Input':'owned KeyboardHandler F2 path','focusScope':'only this newly launched native GLFW window; no OS input','photosCopied':False,'productionWrites':False,'fullPackTemplate':str(args.full_template) if args.full_template else None,'phaseProtocol':args.phased,'ysmAuthCustomExportCopied':False,'fullPackJarCount':len(list((lab/'mods').glob('*.jar')))})
   write(ROOT/'album-runtime-latest.json',{'lab':str(lab),'prepareOnly':args.prepare_only})
  if args.prepare_only:print(json.dumps({'prepared':True,'lab':str(lab)}));return
  if lab.parent!=ROOT or not lab.name.startswith('album-runtime-'):raise SystemExit('Own lab boundary required')
@@ -79,7 +93,7 @@ def main():
  with (lab/'boot.log').open('w',encoding='utf-8') as log:
   proc=subprocess.Popen([str(JDK/'bin/java.exe'),'@'+str(lab/'launch.args')],cwd=lab,env=own_env,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW)
   write(lab/'pid.json',{'pid':proc.pid,'session':session.value});print(json.dumps({'launched':True,'pid':proc.pid,'lab':str(lab)}),flush=True)
-  deadline=time.monotonic()+600;close_requested=False;previous='';previous_memory=0;last_close_memory_cycle=-1
+  deadline=time.monotonic()+(1140 if args.full_template else 600);close_requested=False;previous='';previous_memory=0;last_close_memory_cycle=-1
   while proc.poll() is None:
    if not close_requested and time.monotonic()>deadline-60:close_requested=True;write(lab/'request-normal-close.json',{'reason':'bounded deadline; only normal logout/stop requested'})
    if time.monotonic()>deadline:
@@ -95,9 +109,9 @@ def main():
       owned=[psutil.Process(proc.pid)]+psutil.Process(proc.pid).children(recursive=True)
       counts=[]
       for process in owned:
-       try:info=process.memory_info();counts.append({'pid':process.pid,'kind':next((a[7:] for a in process.cmdline() if a.startswith('--type=')),'minecraft-or-cef-browser'),'private':getattr(info,'private',info.rss),'rss':info.rss})
+       try:info=process.memory_info();counts.append({'pid':process.pid,'name':process.name(),'kind':next((a[7:] for a in process.cmdline() if a.startswith('--type=')),'minecraft-or-cef-browser'),'private':getattr(info,'private',info.rss),'rss':info.rss})
        except psutil.Error:pass
-      memory.append({'progress':value,'processes':counts,'privateBytes':sum(x['private'] for x in counts)});previous_memory=time.monotonic()
+      memory.append({'progress':value,'processes':counts,'privateBytes':sum(x['private'] for x in counts)});previous_memory=time.monotonic();write(lab/'process-memory.json',memory)
       if closed:last_close_memory_cycle=value['cycle']
    except (OSError,ValueError,psutil.Error):pass
    time.sleep(1)
