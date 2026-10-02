@@ -1,0 +1,143 @@
+{
+  "status": "FIRST_REAL_131_RUN_FAILED; REPAIRED_CANDIDATE_RETEST_PENDING; NOT_PUBLISHABLE",
+  "baseline": "task14/unified-review/git-handoff-20261002/sources/muxi-terminal snapshot",
+  "product": {
+    "id": "muxi_terminal",
+    "name": "Muxi Player Terminal",
+    "version": "0.2.4-task22-native-camera.2",
+    "artifact": "muxi-terminal-0.2.4-task22-native-camera.2.jar",
+    "sha256": "26846f6090ce4f6945710251390ef728c8b200bfa3daa4a468b73153e19f2413",
+    "size": 537528,
+    "minecraft": "1.21.1",
+    "neoforge": "21.1.250",
+    "java": 21
+  },
+  "ownedModuleFiles": [
+    "src/main/java/net/muxigame/terminal/client/TerminalCamera.java",
+    "src/main/java/net/muxigame/terminal/client/TerminalCameraScreen.java",
+    "src/main/java/net/muxigame/terminal/client/TerminalCameraBridge.java",
+    "src/main/java/net/muxigame/terminal/client/TerminalAlbumBridge.java",
+    "src/main/java/net/muxigame/terminal/client/camera/mixin/NativeCameraHudMixin.java",
+    "src/main/resources/assets/muxi_terminal/html/terminal/camera-app.js",
+    "src/main/resources/muxi_terminal.camera.mixins.json"
+  ],
+  "ownerWiringFiles": [
+    "src/main/java/net/muxigame/terminal/client/TerminalClient.java",
+    "src/main/resources/assets/muxi_terminal/html/terminal/app.js",
+    "src/main/resources/META-INF/neoforge.mods.toml"
+  ],
+  "testFiles": [
+    "tests/camera/native-entry.test.cjs",
+    "tests/camera/run-native-state.py",
+    "tests/album/run-bridge-fixtures.py"
+  ],
+  "baselineSha256": {
+    "src/main/java/net/muxigame/terminal/client/TerminalCamera.java": "c10a278781bc3b1602adabfb9de77564a9ca938696bac5b43bf78829adfa112f",
+    "src/main/java/net/muxigame/terminal/client/TerminalCameraBridge.java": "0d3283f66cb727ecf7f125a868c009f3a5ea6fbf7f6bd06a2f7e8e9a3545cae7",
+    "src/main/java/net/muxigame/terminal/client/TerminalAlbumBridge.java": "8ee1583f32df4fd886bc51fb67d295ec04ea95a121e50fd73693cd8f15e7137b",
+    "src/main/resources/assets/muxi_terminal/html/terminal/camera-app.js": "305faf752c7136ab20b917f5b4f712f3da2481eef9d7338097d49c71a23e734e",
+    "src/main/java/net/muxigame/terminal/client/TerminalClient.java": "48c40a3063e973722efa1af408dea8c29edd76b8ad766979369f9dada023a851",
+    "src/main/resources/assets/muxi_terminal/html/terminal/app.js": "38a8082304c2e629684a14f34757ab0d5b92ebe009b39aaecb8bff165f7cffc1",
+    "src/main/resources/META-INF/neoforge.mods.toml": "5731d9b1b6dc383f71dc88c7e6424d8f171c2a49911a6b14316730be208e5ff5",
+    "tests/album/run-bridge-fixtures.py": "e76d2e737c6fe52d062943066a2473baac28fd1aca5eff400b45ea2f7b0cfa37"
+  },
+  "modifiedSha256": {
+    "src/main/java/net/muxigame/terminal/client/TerminalCamera.java": "b0cea08b19b15a6f4072c1315df919882918affc7e58536a568bb1516d8c961c",
+    "src/main/java/net/muxigame/terminal/client/TerminalCameraScreen.java": "85054db942f2e48324459e05909ebaf5017f2248362f695075693d3f5fff347d",
+    "src/main/java/net/muxigame/terminal/client/TerminalCameraBridge.java": "c35f7a6f72aae97bc7a61635fffb555cfb047ec3059995775cfa2041af70d7b7",
+    "src/main/java/net/muxigame/terminal/client/TerminalAlbumBridge.java": "aecc573ce761613f2d0f2832a7b43b4001b80e488fd27d380fbc18c408b43c51",
+    "src/main/java/net/muxigame/terminal/client/camera/mixin/NativeCameraHudMixin.java": "baff076c45a7c09adbbe4da16c5671e0247cf96ffbf6425f157dbc7401c026a9",
+    "src/main/resources/assets/muxi_terminal/html/terminal/camera-app.js": "1160811718acdaa8bd42c6b3fd3612647fb343fe382d7a7cc0e35d2a620b4dab",
+    "src/main/resources/muxi_terminal.camera.mixins.json": "b41a81b186dbcf490746f89c63cc789783627f130f2ef79442199221f4a4704d",
+    "src/main/java/net/muxigame/terminal/client/TerminalClient.java": "c1ac914d0357e1f7ee2b7a970fa763b4be77f555a51396e68d39376a170c1a65",
+    "src/main/resources/assets/muxi_terminal/html/terminal/app.js": "8e27fb8d855dc9de57a545972b104bf9f6b041ccfed76e224ded8f1c1698306f",
+    "src/main/resources/META-INF/neoforge.mods.toml": "e857caec7569793d190633dad4e280bf69d3b040c18cc36975fe49d072c133e1",
+    "tests/camera/native-entry.test.cjs": "51d004de1bedbe3022d312282b82487ec8958dd89bd4c297dd4b408ed7843939",
+    "tests/camera/run-native-state.py": "47a4eeb4bdf5509e9e2210001047325caf15bb704a7e05e340c9afc78c9a8c3a",
+    "tests/album/run-bridge-fixtures.py": "addf2f5cd61bbf2e46f6d839db258f980e6f333d1ee2db13897bbfa538fa2458"
+  },
+  "productionChanged": false,
+  "heavyClientOn008Started": false,
+  "real131ClientStarted": true,
+  "newTaskRegistered": false,
+  "firstRealRun": {
+    "acceptance": "FAILED_AT_REAL_CEF_ALBUM; RETEST_REQUIRED",
+    "privatePid": 15204,
+    "session": 2,
+    "productSha256": "12486281f751cf90c4392c2ad71f009f680efb77bae2a13bc6b9a7dafdfa3516",
+    "qaSha256": "9f70a49bfaba6b2d1b84cf93a3840b0629c85f1ba4336d6b8ddd77b57a35b92a",
+    "realChecksPassed": 45,
+    "photos": 6,
+    "uniqueNames": true,
+    "rawPngHashesMatchRemote": true,
+    "shaderPackInUse": true,
+    "gpuRenderer": "NVIDIA GeForce RTX 4090/PCIe/SSE2",
+    "normalExitCode": 0,
+    "photoUiComparisons": [
+      {
+        "photo": "shot-00-forward-photo.png",
+        "sameFrameWorldCenterExactMatch": true,
+        "uiDifferencePixels": 34295,
+        "dimensions": [
+          1280,
+          720
+        ]
+      },
+      {
+        "photo": "shot-01-selfie-photo.png",
+        "sameFrameWorldCenterExactMatch": true,
+        "uiDifferencePixels": 34295,
+        "dimensions": [
+          1280,
+          720
+        ]
+      },
+      {
+        "photo": "shot-02-forward-photo.png",
+        "sameFrameWorldCenterExactMatch": true,
+        "uiDifferencePixels": 34295,
+        "dimensions": [
+          1280,
+          720
+        ]
+      },
+      {
+        "photo": "shot-03-selfie-photo.png",
+        "sameFrameWorldCenterExactMatch": true,
+        "uiDifferencePixels": 34295,
+        "dimensions": [
+          1280,
+          720
+        ]
+      },
+      {
+        "photo": "shot-04-forward-photo.png",
+        "sameFrameWorldCenterExactMatch": true,
+        "uiDifferencePixels": 34295,
+        "dimensions": [
+          1280,
+          720
+        ]
+      },
+      {
+        "photo": "shot-05-selfie-photo.png",
+        "sameFrameWorldCenterExactMatch": true,
+        "uiDifferencePixels": 34295,
+        "dimensions": [
+          1280,
+          720
+        ]
+      }
+    ],
+    "visualReview": "Native UI contains only MC buttons, viewfinder corners and local status. Raw PNGs contain no native controls or ordinary HUD. All selfies only show sky: YSM self-portrait acceptance NOT passed; initial world/profile synchronization was still running during capture.",
+    "failure": "java.lang.IllegalStateException: real CEF album viewer failed: {\"ok\":false,\"error\":\"Error: -1:Unexpected call to CefQueryCallback_N::finalize()\",\"action\":\"album-open\"}",
+    "notExecuted": [
+      "album viewer/recycle/restore",
+      "album same-viewer camera return",
+      "F1 initially hidden HUD capture",
+      "physical focus loss/regain",
+      "cancel pending readback",
+      "explicit disconnect restoration/resource checks"
+    ]
+  }
+}

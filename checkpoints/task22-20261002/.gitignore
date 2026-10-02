@@ -1,0 +1,14 @@
+build/
+logs/
+__pycache__/
+*.pyc
+*.jar
+*.zip
+*.png
+*.jpg
+*.jpeg
+*.avif
+*.bundle
+*.pem
+*.key
+.env*

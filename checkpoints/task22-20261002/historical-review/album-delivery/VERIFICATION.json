@@ -1,0 +1,205 @@
+{
+  "owner": "task6",
+  "sourceBaseline": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-01\\task-6\\sso-integration\\muxi-terminal",
+  "worktree": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-01\\task-22\\album-worktree",
+  "branch": "task22-album",
+  "patchBase": "current task6 integrated 0.2.2 candidate, already containing original task22 camera/settings/music/games/SSO/input",
+  "oldCameraDeliveryPreserved": true,
+  "task6SourceDriftSinceSnapshot": [],
+  "newFiles": [
+    "src/main/java/net/muxigame/terminal/client/TerminalAlbumBridge.java",
+    "src/main/java/net/muxigame/terminal/client/TerminalAlbumConfirmation.java",
+    "src/main/java/net/muxigame/terminal/client/TerminalPhotoImages.java",
+    "src/main/resources/assets/muxi_terminal/html/terminal/album-app.css",
+    "src/main/resources/assets/muxi_terminal/html/terminal/album-app.js",
+    "src/main/resources/assets/muxi_terminal/html/terminal/album-controller.js",
+    "tests/album/AlbumLibraryTest.java",
+    "tests/album/build-review.py",
+    "tests/album/controller.test.cjs",
+    "tests/album/prepare-browser-qa.py",
+    "tests/album/run-bridge-fixtures.py",
+    "tests/album/run-browser-qa.mjs",
+    "tests/album/run-library-tests.py"
+  ],
+  "ownedModifiedFiles": [
+    "src/main/java/net/muxigame/terminal/client/TerminalPhotoStore.java",
+    "src/main/java/net/muxigame/terminal/client/TerminalCameraBridge.java",
+    "src/main/resources/assets/muxi_terminal/html/terminal/camera-app.js"
+  ],
+  "sharedWiringFiles": [
+    "src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java",
+    "src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java",
+    "src/main/resources/assets/muxi_terminal/html/terminal/app.js",
+    "src/main/resources/assets/muxi_terminal/html/terminal/index.html"
+  ],
+  "baseHashes": {
+    "src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java": "c7a22bba2efccc01b0f2bbfd0acc06f01b6a10616d9e6a919d4c86193dd0d7a6",
+    "src/main/java/net/muxigame/terminal/client/TerminalCameraBridge.java": "1d05b9786d52941b70eb57d30bdc02d7284b9670ff120da62fc1b7ae35b58a5a",
+    "src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java": "ce87bbc726be106ac4e9b7560e86519cb453613ae4b26e97d1a0ff5518788652",
+    "src/main/java/net/muxigame/terminal/client/TerminalPhotoStore.java": "d32cb6b7796a7c7d190335b61afa8319fa2981ccc32d9d455381b38e905b75d9",
+    "src/main/resources/assets/muxi_terminal/html/terminal/app.js": "6ff92fd63af7fcc83d3f65dab3da29ff68552e57472d6a9b8f88f434435429d4",
+    "src/main/resources/assets/muxi_terminal/html/terminal/camera-app.js": "3b74a6c6fab74603a07219fd7f86454709265feca11d4af00e02afbb1d538260",
+    "src/main/resources/assets/muxi_terminal/html/terminal/index.html": "4be0f739195e445913d05cd095cd0d3a4d6c4a904c32f01242fc99dc29df6766"
+  },
+  "resultHashes": {
+    "src/main/java/net/muxigame/terminal/client/TerminalAlbumBridge.java": "4b0cb93717613f9edb05f116a5aa7350406cffa17d71a0fae7c49d470ad66570",
+    "src/main/java/net/muxigame/terminal/client/TerminalAlbumConfirmation.java": "2db5ea91abbb6f3a533ffee4c2b221677897d327410106a5f3257daadc02238c",
+    "src/main/java/net/muxigame/terminal/client/TerminalPhotoImages.java": "ae60dd9df30bb29574070a1ad96e05a040e27dc7aeef978b00ceb6e0d0fb3c11",
+    "src/main/resources/assets/muxi_terminal/html/terminal/album-app.css": "31b0636f5e6a7506fadf296ba16126c3fa16fc20d2f6172847ad6ab6d3232c2e",
+    "src/main/resources/assets/muxi_terminal/html/terminal/album-app.js": "16be23b4974e139f04afab73696d0a6a7cafacc826f3ac6549dbc9804a4d1800",
+    "src/main/resources/assets/muxi_terminal/html/terminal/album-controller.js": "80b4fe6a908a91183070d9612023ce44f7111527b826284388b037704170c90e",
+    "tests/album/AlbumLibraryTest.java": "fc08f00c1ef790ba981a6ae80e41083e8ac909c1598ec2197238ed43e1e28b20",
+    "tests/album/build-review.py": "91c5b277b8bfbc4208603d7aef9759027056cb7d88c4c27f01433ba3a5fc09f2",
+    "tests/album/controller.test.cjs": "db641b07bd2aeb30999364a98edc0f1f717d46e957a82b601818bcf273255c6c",
+    "tests/album/prepare-browser-qa.py": "dfd549e96a415d317ae978ee7b954a00c543d995142cc4695bf78648a1d9d9fa",
+    "tests/album/run-bridge-fixtures.py": "84571ec2922f00815819eb8344574ad3ced02a274f2313ce90ec29ed1fcfa841",
+    "tests/album/run-browser-qa.mjs": "8b411ffb145daf77410c1931c3a1a13d01ed02c9f9af3a99399c8f03a3fb823b",
+    "tests/album/run-library-tests.py": "d049d9a4eeec9f93bf8717b33c9f275816c38a2c6e30374f28051c9838caaa0b",
+    "src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java": "505989691f86802f4afd700a6ecfa81357d811010bb0f0c1ad25a7fd0c509c98",
+    "src/main/java/net/muxigame/terminal/client/TerminalCameraBridge.java": "2c1e7b70a4fb2537a71b7d5451b447d9a7bad92c8666975b232bcf859b6616ab",
+    "src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java": "6be5676c76111f9962648612bcd9feaa44706174d68492dc3657b08865da8147",
+    "src/main/java/net/muxigame/terminal/client/TerminalPhotoStore.java": "41c20f87629f773c4e55979e83d53ce51e1ab67abc5714775ee8618be90b1abd",
+    "src/main/resources/assets/muxi_terminal/html/terminal/app.js": "2c044b39165e6365ca722c3c3a3aa14e3a6e38f382ce528e21ec02c36537652e",
+    "src/main/resources/assets/muxi_terminal/html/terminal/camera-app.js": "305faf752c7136ab20b917f5b4f712f3da2481eef9d7338097d49c71a23e734e",
+    "src/main/resources/assets/muxi_terminal/html/terminal/index.html": "d5e529efd79c6e660208386dbe4f80be00122e9a8a1d34dfee4f9278410d86e8"
+  },
+  "otherSourceBytesUnchanged": true,
+  "separatePatchApplyAndResultEquality": true,
+  "reviewJar": {
+    "name": "muxi-terminal-album-0.2.2-review.jar",
+    "sha256": "ee2b378b328b60fcd7c483c5501fb1bff07fc3487a2af5b4019704c82554c7e1",
+    "bytes": 491028,
+    "published": false
+  },
+  "checks": {
+    "albumController": {
+      "success": true,
+      "checks": 16,
+      "coverage": [
+        "shared list",
+        "read-only thumbnail",
+        "cancel before mutation",
+        "one-use confirmed delete",
+        "restore",
+        "released viewer pixels",
+        "unknown id",
+        "stale list/thumbnail/confirmation",
+        "expired mutation re-confirm",
+        "album-only requests"
+      ]
+    },
+    "albumBrowser": {
+      "synthetic": true,
+      "passed": 21,
+      "total": 21,
+      "tests": [
+        {
+          "name": "independent home card and fixed shell",
+          "passed": true
+        },
+        {
+          "name": "shared installed-app count observes album card",
+          "passed": true
+        },
+        {
+          "name": "original modules retained",
+          "passed": true
+        },
+        {
+          "name": "native lazy thumbnail grid",
+          "passed": true
+        },
+        {
+          "name": "viewer opens and thumbnail bytes released",
+          "passed": true
+        },
+        {
+          "name": "zoom control",
+          "passed": true
+        },
+        {
+          "name": "clear confirmation before any mutation",
+          "passed": true
+        },
+        {
+          "name": "safe default focus and background excluded",
+          "passed": true
+        },
+        {
+          "name": "shared Tab enters only confirm control",
+          "passed": true
+        },
+        {
+          "name": "Escape cancels without navigating or deleting",
+          "passed": true
+        },
+        {
+          "name": "explicit cancel keeps original",
+          "passed": true
+        },
+        {
+          "name": "confirmed recycle refreshes shared list and clears viewed bytes",
+          "passed": true
+        },
+        {
+          "name": "recycle viewer supports restore and hides deletion",
+          "passed": true
+        },
+        {
+          "name": "restored photo immediately visible",
+          "passed": true
+        },
+        {
+          "name": "camera save uses shared library",
+          "passed": true
+        },
+        {
+          "name": "camera retains embedded album and independent link",
+          "passed": true
+        },
+        {
+          "name": "new camera photo immediately present after album switch",
+          "passed": true
+        },
+        {
+          "name": "compact viewport has no horizontal overflow",
+          "passed": true
+        },
+        {
+          "name": "compact confirmation visible and scrollable",
+          "passed": true
+        },
+        {
+          "name": "route exit drops images and pending confirmation",
+          "passed": true
+        },
+        {
+          "name": "no browser runtime exceptions",
+          "passed": true,
+          "errors": []
+        }
+      ]
+    },
+    "photoLibrary": {
+      "success": true,
+      "checks": 35,
+      "symlinkTests": true,
+      "photoScope": "temporary synthetic library only"
+    },
+    "nativeBridgeFixture": {
+      "success": true,
+      "checks": 53,
+      "fixture": "production bridge logic, simulated CEF/MC/image backend, synthetic temporary files"
+    },
+    "existingCameraController": 14,
+    "existingCameraBrowser": 13,
+    "existingSsoAdapter": 84,
+    "existingContentTransition": 20,
+    "fullOfflineCompilation": true
+  },
+  "photoTestsScope": "synthetic temporary libraries only; no real user photos enumerated, read or moved",
+  "realGameValidation": {
+    "run": false,
+    "blocker": "GUI channel unavailable; parent must coordinate exclusive 131 slot with task14 before any client/GUI start"
+  }
+}

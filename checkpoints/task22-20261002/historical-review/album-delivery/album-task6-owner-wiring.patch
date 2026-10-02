@@ -1,0 +1,77 @@
+diff --git a/src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java b/src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java
+--- a/src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java
++++ b/src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java
+@@ -110,8 +110,8 @@
+     }
+ 
+     public static synchronized void openApp(String app) {
+-        if(!"tasks".equals(app) && !"guide".equals(app) && !"games".equals(app) && !"camera".equals(app) && !"settings".equals(app) && !"music".equals(app)){home();return;}
+-        open(Kind.BUILTIN,HOME_URL+"#/"+app,"music".equals(app)?"音乐":"settings".equals(app)?"设置":"camera".equals(app)?"相机":"games".equals(app)?"小游戏":"tasks".equals(app)?"任务":"游戏指南");
++        if(!"tasks".equals(app) && !"guide".equals(app) && !"games".equals(app) && !"camera".equals(app) && !"album".equals(app) && !"settings".equals(app) && !"music".equals(app)){home();return;}
++        open(Kind.BUILTIN,HOME_URL+"#/"+app,"music".equals(app)?"音乐":"settings".equals(app)?"设置":"album".equals(app)?"相册":"camera".equals(app)?"相机":"games".equals(app)?"小游戏":"tasks".equals(app)?"任务":"游戏指南");
+     }
+ 
+     public static synchronized boolean openWebApp(String value,String name){
+diff --git a/src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java b/src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java
+--- a/src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java
++++ b/src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java
+@@ -69,6 +69,7 @@
+         }
+ 
+         private void dispatch(Minecraft mc,CefBrowser browser,CefFrame frame,String request,CefQueryCallback callback){
++            if(TerminalAlbumBridge.dispatch(browser,frame,request,callback))return;
+             if(TerminalCameraBridge.dispatch(browser,frame,request,callback))return;
+             if(request.startsWith("terminal.launch:") || request.startsWith("terminal.reveal:") || request.startsWith("terminal.cancel-launch:")){
+                 if(!TerminalBrowserSession.isShell(browser)){callback.failure(403,"Only the trusted shell controls views");return;}
+@@ -81,7 +82,7 @@
+                         callback.success("{\"ok\":"+ok+"}");return;
+                     }
+                     String kind=data.get("kind").getAsString(),id=data.get("id").getAsString();
+-                    if(kind.equals("builtin") && (id.equals("guide") || id.equals("tasks") || id.equals("games") || id.equals("camera") || id.equals("settings") || id.equals("music"))){
++                    if(kind.equals("builtin") && (id.equals("guide") || id.equals("tasks") || id.equals("games") || id.equals("camera") || id.equals("album") || id.equals("settings") || id.equals("music"))){
+                         callback.success("{\"ok\":true}");TerminalBrowserSession.beginLaunch(token,TerminalBrowserSession.Kind.BUILTIN,id);TerminalBrowserSession.openApp(id);return;
+                     }
+                     if(kind.equals("web")){
+diff --git a/src/main/resources/assets/muxi_terminal/html/terminal/app.js b/src/main/resources/assets/muxi_terminal/html/terminal/app.js
+--- a/src/main/resources/assets/muxi_terminal/html/terminal/app.js
++++ b/src/main/resources/assets/muxi_terminal/html/terminal/app.js
+@@ -117,8 +117,8 @@
+ function navigate(id,source){
+   if(typeof window.muxiTerminalQuery==='function'){
+     if(contentView && id==='home'){native('terminal.home').catch(error=>setStatus(error.message));return;}
+-    if(!contentView && ['tasks','guide','games','camera','settings','music'].includes(id)){
+-      if(window.terminalLaunch)window.terminalLaunch({kind:'builtin',id,name:id==='music'?'音乐':id==='settings'?'设置':id==='camera'?'相机':id==='games'?'小游戏':id==='tasks'?'任务':'游戏指南',source}).catch(error=>setStatus(error.message));
++    if(!contentView && ['tasks','guide','games','camera','album','settings','music'].includes(id)){
++      if(window.terminalLaunch)window.terminalLaunch({kind:'builtin',id,name:id==='album'?'相册':id==='music'?'音乐':id==='settings'?'设置':id==='camera'?'相机':id==='games'?'小游戏':id==='tasks'?'任务':'游戏指南',source}).catch(error=>setStatus(error.message));
+       else native('terminal.app:'+id).catch(error=>setStatus(error.message));return;
+     }
+   }
+@@ -346,7 +346,7 @@
+ 
+ function routeFromHash(){
+   const route=(location.hash||'#/home').replace(/^#\/?/,'');
+-  return ['home','guide','guideDetail','tasks','games','camera','settings','music'].includes(route)?route:'home';
++  return ['home','guide','guideDetail','tasks','games','camera','album','settings','music'].includes(route)?route:'home';
+ }
+ window.addEventListener('hashchange',()=>show(routeFromHash()));
+ 
+diff --git a/src/main/resources/assets/muxi_terminal/html/terminal/index.html b/src/main/resources/assets/muxi_terminal/html/terminal/index.html
+--- a/src/main/resources/assets/muxi_terminal/html/terminal/index.html
++++ b/src/main/resources/assets/muxi_terminal/html/terminal/index.html
+@@ -8,6 +8,7 @@
+   <link rel="stylesheet" href="./app-transition.css" />
+   <link rel="stylesheet" href="./apps/minigames/app.css" />
+   <link rel="stylesheet" href="./camera-app.css" />
++  <link rel="stylesheet" href="./album-app.css" />
+   <link rel="stylesheet" href="./settings.css" />
+ </head>
+ <body>
+@@ -156,6 +157,8 @@
+   <script src="./app-container.js"></script>
+   <script src="./camera-controller.js"></script>
+   <script src="./camera-app.js"></script>
++  <script src="./album-controller.js"></script>
++  <script src="./album-app.js"></script>
+   <script src="./web-apps.js"></script>
+   <script src="./settings.js"></script>
+   <script src="./music-app.js"></script>

@@ -1,0 +1,856 @@
+diff --git a/src/main/java/net/muxigame/terminal/client/TerminalAlbumBridge.java b/src/main/java/net/muxigame/terminal/client/TerminalAlbumBridge.java
+new file mode 100644
+--- /dev/null
++++ b/src/main/java/net/muxigame/terminal/client/TerminalAlbumBridge.java
+@@ -0,0 +1,65 @@
++package net.muxigame.terminal.client;
++
++import com.google.gson.Gson;
++import net.minecraft.client.Minecraft;
++import org.cef.browser.CefBrowser;
++import org.cef.browser.CefFrame;
++import org.cef.callback.CefQueryCallback;
++import java.util.function.BooleanSupplier;
++
++/** Scoped photo-library operations; never arbitrary paths, OS trash or screenshot authority. */
++public final class TerminalAlbumBridge {
++    private static final Gson JSON=new Gson();
++    private static final TerminalAlbumConfirmation CONFIRM=new TerminalAlbumConfirmation();
++    private TerminalAlbumBridge(){}
++    static boolean authorized(CefBrowser browser,CefFrame frame){
++        var mc=Minecraft.getInstance();String url=TerminalBrowserSession.HOME_URL+"#/album";
++        return mc.screen instanceof TerminalScreen && mc.level!=null && mc.player!=null && mc.isWindowActive()
++            && TerminalBrowserSession.trusted(browser,frame) && browser==TerminalBrowserSession.content()
++            && TerminalBrowserSession.state().kind()==TerminalBrowserSession.Kind.BUILTIN
++            && url.equals(browser.getURL()) && url.equals(frame.getURL());
++    }
++    public static boolean dispatch(CefBrowser browser,CefFrame frame,String request,CefQueryCallback callback){
++        if(!request.startsWith("album."))return false;
++        if(!authorized(browser,frame)){callback.failure(403,"Album is available only in the owned album app");return true;}
++        var mc=Minecraft.getInstance();var screen=mc.screen;var level=mc.level;var player=mc.player;var connection=mc.getConnection();
++        long generation=TerminalBrowserSession.generation();
++        BooleanSupplier valid=()->mc.screen==screen && mc.level==level && mc.player==player && mc.getConnection()==connection && mc.isWindowActive()
++            && TerminalBrowserSession.generation()==generation && TerminalBrowserSession.content()==browser
++            && (TerminalBrowserSession.HOME_URL+"#/album").equals(TerminalBrowserSession.state().url());
++        try{
++            var photos=TerminalCameraBridge.store();
++            if(request.equals("album.photos")){io(valid,()->JSON.toJson(photos.list()),callback);return true;}
++            if(request.equals("album.recycled")){io(valid,()->JSON.toJson(photos.recycled()),callback);return true;}
++            if(request.startsWith("album.prepare-delete:")){
++                String id=request.substring("album.prepare-delete:".length());
++                callback.success(JSON.toJson(CONFIRM.prepare(id,browser,generation)));return true;
++            }
++            if(request.equals("album.cancel-delete")){CONFIRM.cancel(browser,generation);callback.success("{\"ok\":true}");return true;}
++            if(request.startsWith("album.recycle:")){
++                String token=request.substring("album.recycle:".length());
++                if(!token.matches("[0-9a-f-]{36}"))throw new IllegalArgumentException("Invalid confirmation");
++                io(valid,()->{photos.recycle(CONFIRM.consume(token,browser,generation));return "{\"ok\":true}";},callback);return true;
++            }
++            if(request.startsWith("album.restore:")){
++                String id=request.substring("album.restore:".length());checkId(id);
++                io(valid,()->{photos.restore(id);return "{\"ok\":true}";},callback);return true;
++            }
++            for(String prefix:new String[]{"album.thumb:","album.photo:","album.recycled-thumb:","album.recycled-photo:"}){
++                if(!request.startsWith(prefix))continue;
++                String id=request.substring(prefix.length());checkId(id);
++                boolean recycled=prefix.startsWith("album.recycled-"),thumb=prefix.contains("thumb");
++                io(valid,()->JSON.toJson(TerminalPhotoImages.data(photos,id,recycled,thumb?240:1280,thumb?160:1280)),callback);return true;
++            }
++            callback.failure(404,"Unknown album command");
++        }catch(Exception error){callback.failure(400,error.getMessage()==null?"Album unavailable":error.getMessage());}
++        return true;
++    }
++    private static void checkId(String id){if(!TerminalPhotoStore.validId(id))throw new IllegalArgumentException("Invalid photo id");}
++    private static void io(BooleanSupplier valid,TerminalCamera.Read action,CefQueryCallback callback){
++        TerminalCamera.io(()->{if(!valid.getAsBoolean())throw new IllegalStateException("Album view changed");return action.get();},new CefQueryCallback(){
++            @Override public void success(String value){if(valid.getAsBoolean())callback.success(value);}
++            @Override public void failure(int code,String value){if(valid.getAsBoolean())callback.failure(code,value);}
++        });
++    }
++}
+diff --git a/src/main/java/net/muxigame/terminal/client/TerminalAlbumConfirmation.java b/src/main/java/net/muxigame/terminal/client/TerminalAlbumConfirmation.java
+new file mode 100644
+--- /dev/null
++++ b/src/main/java/net/muxigame/terminal/client/TerminalAlbumConfirmation.java
+@@ -0,0 +1,25 @@
++package net.muxigame.terminal.client;
++
++import java.util.UUID;
++import java.util.function.LongSupplier;
++import java.lang.ref.WeakReference;
++
++/** One-use, short-lived confirmation tied to the actual native browser and generation. */
++public final class TerminalAlbumConfirmation {
++    public record Ticket(String token,String id){}
++    private final LongSupplier millis;
++    private Ticket pending;private WeakReference<Object> owner;private long generation,deadline;
++    public TerminalAlbumConfirmation(){this(()->System.nanoTime()/1_000_000L);}
++    TerminalAlbumConfirmation(LongSupplier millis){this.millis=millis;}
++    public synchronized Ticket prepare(String id,Object owner,long generation){
++        if(!TerminalPhotoStore.validId(id) || owner==null)throw new IllegalArgumentException("Invalid confirmation");
++        pending=new Ticket(UUID.randomUUID().toString(),id);this.owner=new WeakReference<>(owner);this.generation=generation;deadline=millis.getAsLong()+30_000;
++        return pending;
++    }
++    public synchronized String consume(String token,Object owner,long generation){
++        if(pending==null || !pending.token().equals(token) || this.owner.get()!=owner || this.generation!=generation || millis.getAsLong()>=deadline)
++            throw new IllegalArgumentException("Confirmation expired; confirm again");
++        String id=pending.id();pending=null;this.owner=null;return id;
++    }
++    public synchronized void cancel(Object owner,long generation){if(this.owner!=null && this.owner.get()==owner && this.generation==generation){pending=null;this.owner=null;}}
++}
+diff --git a/src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java b/src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java
+--- a/src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java
++++ b/src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java
+@@ -110,8 +110,8 @@
+     }
+ 
+     public static synchronized void openApp(String app) {
+-        if(!"tasks".equals(app) && !"guide".equals(app) && !"games".equals(app) && !"camera".equals(app) && !"settings".equals(app) && !"music".equals(app)){home();return;}
+-        open(Kind.BUILTIN,HOME_URL+"#/"+app,"music".equals(app)?"音乐":"settings".equals(app)?"设置":"camera".equals(app)?"相机":"games".equals(app)?"小游戏":"tasks".equals(app)?"任务":"游戏指南");
++        if(!"tasks".equals(app) && !"guide".equals(app) && !"games".equals(app) && !"camera".equals(app) && !"album".equals(app) && !"settings".equals(app) && !"music".equals(app)){home();return;}
++        open(Kind.BUILTIN,HOME_URL+"#/"+app,"music".equals(app)?"音乐":"settings".equals(app)?"设置":"album".equals(app)?"相册":"camera".equals(app)?"相机":"games".equals(app)?"小游戏":"tasks".equals(app)?"任务":"游戏指南");
+     }
+ 
+     public static synchronized boolean openWebApp(String value,String name){
+diff --git a/src/main/java/net/muxigame/terminal/client/TerminalCameraBridge.java b/src/main/java/net/muxigame/terminal/client/TerminalCameraBridge.java
+--- a/src/main/java/net/muxigame/terminal/client/TerminalCameraBridge.java
++++ b/src/main/java/net/muxigame/terminal/client/TerminalCameraBridge.java
+@@ -5,7 +5,6 @@
+ import org.cef.browser.CefBrowser;
+ import org.cef.browser.CefFrame;
+ import org.cef.callback.CefQueryCallback;
+-import com.mojang.blaze3d.platform.NativeImage;
+ 
+ /** Called ONLY after the owner's existing generation/main-frame authorization. */
+ public final class TerminalCameraBridge {
+@@ -34,18 +33,7 @@
+                         String id=request.substring(13);
+                         if(!TerminalPhotoStore.validId(id))throw new IllegalArgumentException("Invalid photo id");
+                         var photos=store();
+-                        TerminalCamera.io(()->{
+-                            byte[] png=photos.read(id);
+-                            // Check IHDR before native decoding/allocation, even if a local file was replaced.
+-                            if(png.length<24 || png[12]!=73 || png[13]!=72 || png[14]!=68 || png[15]!=82)throw new IllegalArgumentException("Invalid photo");
+-                            var header=java.nio.ByteBuffer.wrap(png,16,8);int width=header.getInt(),height=header.getInt();
+-                            if(width<1 || height<1 || (long)width*height>16_777_216L)throw new IllegalArgumentException("Photo too large");
+-                            try(var photo=NativeImage.read(png)){
+-                                if((long)photo.getWidth()*photo.getHeight()>16_777_216L)throw new IllegalArgumentException("Photo too large");
+-                                int w=Math.min(1280,photo.getWidth()),h=Math.max(1,(int)((long)w*photo.getHeight()/photo.getWidth()));
+-                                try(var small=new NativeImage(w,h,false)){photo.resizeSubRectTo(0,0,photo.getWidth(),photo.getHeight(),small);return JSON.toJson(TerminalCamera.data(small.asByteArray()));}
+-                            }
+-                        },callback);
++                        TerminalCamera.io(()->JSON.toJson(TerminalPhotoImages.data(photos,id,false,1280,Integer.MAX_VALUE)),callback);
+                     }else callback.failure(404,"Unknown camera command");
+                 }
+             }
+diff --git a/src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java b/src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java
+--- a/src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java
++++ b/src/main/java/net/muxigame/terminal/client/TerminalNativeBridge.java
+@@ -69,6 +69,7 @@
+         }
+ 
+         private void dispatch(Minecraft mc,CefBrowser browser,CefFrame frame,String request,CefQueryCallback callback){
++            if(TerminalAlbumBridge.dispatch(browser,frame,request,callback))return;
+             if(TerminalCameraBridge.dispatch(browser,frame,request,callback))return;
+             if(request.startsWith("terminal.launch:") || request.startsWith("terminal.reveal:") || request.startsWith("terminal.cancel-launch:")){
+                 if(!TerminalBrowserSession.isShell(browser)){callback.failure(403,"Only the trusted shell controls views");return;}
+@@ -81,7 +82,7 @@
+                         callback.success("{\"ok\":"+ok+"}");return;
+                     }
+                     String kind=data.get("kind").getAsString(),id=data.get("id").getAsString();
+-                    if(kind.equals("builtin") && (id.equals("guide") || id.equals("tasks") || id.equals("games") || id.equals("camera") || id.equals("settings") || id.equals("music"))){
++                    if(kind.equals("builtin") && (id.equals("guide") || id.equals("tasks") || id.equals("games") || id.equals("camera") || id.equals("album") || id.equals("settings") || id.equals("music"))){
+                         callback.success("{\"ok\":true}");TerminalBrowserSession.beginLaunch(token,TerminalBrowserSession.Kind.BUILTIN,id);TerminalBrowserSession.openApp(id);return;
+                     }
+                     if(kind.equals("web")){
+diff --git a/src/main/java/net/muxigame/terminal/client/TerminalPhotoImages.java b/src/main/java/net/muxigame/terminal/client/TerminalPhotoImages.java
+new file mode 100644
+--- /dev/null
++++ b/src/main/java/net/muxigame/terminal/client/TerminalPhotoImages.java
+@@ -0,0 +1,19 @@
++package net.muxigame.terminal.client;
++
++import com.mojang.blaze3d.platform.NativeImage;
++
++/** Shared transient image resizing. The photo store remains the only disk source. */
++public final class TerminalPhotoImages {
++    private TerminalPhotoImages(){}
++    static String data(TerminalPhotoStore store,String id,boolean recycled,int maxWidth,int maxHeight) throws Exception {
++        byte[] png=recycled?store.readRecycled(id):store.read(id);
++        if(png.length<24 || png[12]!=73 || png[13]!=72 || png[14]!=68 || png[15]!=82)throw new IllegalArgumentException("Invalid photo");
++        var header=java.nio.ByteBuffer.wrap(png,16,8);int width=header.getInt(),height=header.getInt();
++        if(width<1 || height<1 || (long)width*height>16_777_216L)throw new IllegalArgumentException("Photo too large");
++        double scale=Math.min(1d,Math.min(maxWidth/(double)width,maxHeight/(double)height));
++        int w=Math.max(1,(int)(width*scale)),h=Math.max(1,(int)(height*scale));
++        try(var photo=NativeImage.read(png);var small=new NativeImage(w,h,false)){
++            photo.resizeSubRectTo(0,0,photo.getWidth(),photo.getHeight(),small);return TerminalCamera.data(small.asByteArray());
++        }
++    }
++}
+diff --git a/src/main/java/net/muxigame/terminal/client/TerminalPhotoStore.java b/src/main/java/net/muxigame/terminal/client/TerminalPhotoStore.java
+--- a/src/main/java/net/muxigame/terminal/client/TerminalPhotoStore.java
++++ b/src/main/java/net/muxigame/terminal/client/TerminalPhotoStore.java
+@@ -43,6 +43,7 @@
+             photos.sort(Comparator.comparing(Photo::id).reversed());return photos.stream().limit(200).toList();
+         }
+     }
++    public List<Photo> recycled() throws IOException {return trash().list();}
+     public byte[] read(String id) throws IOException {
+         checkRoot();Path p=resolve(id);
+         if(!Files.isRegularFile(p,LinkOption.NOFOLLOW_LINKS) || Files.size(p)>MAX_BYTES)throw new IOException("Photo unavailable");
+@@ -50,6 +51,30 @@
+             byte[] data=in.readNBytes(MAX_BYTES+1);
+             if(data.length>MAX_BYTES || !isPng(data))throw new IOException("Invalid or oversized photo");return data;
+         }
++    }
++    public byte[] readRecycled(String id) throws IOException {checkRoot();return trash().read(id);}
++    /** Same-library move only. No delete API and no second copy of photo bytes. */
++    public synchronized void recycle(String id) throws IOException {
++        checkRoot();Path source=ownedFile(id);TerminalPhotoStore bin=trash();
++        bin.checkAncestors();Files.createDirectories(bin.root);bin.checkRoot();
++        moveWithoutReplacement(source,bin.resolve(id));
++    }
++    public synchronized void restore(String id) throws IOException {
++        checkRoot();TerminalPhotoStore bin=trash();bin.checkRoot();
++        moveWithoutReplacement(bin.ownedFile(id),resolve(id));
++    }
++    private TerminalPhotoStore trash(){return new TerminalPhotoStore(root.resolve(".recycle"));}
++    private Path ownedFile(String id) throws IOException {
++        Path p=resolve(id);
++        if(!Files.isRegularFile(p,LinkOption.NOFOLLOW_LINKS) || Files.size(p)>MAX_BYTES)throw new IOException("Photo unavailable");
++        // Validate the app-owned image signature before any mutating operation.
++        try(var in=Files.newInputStream(p,LinkOption.NOFOLLOW_LINKS)){if(!isPng(in.readNBytes(8)))throw new IOException("Invalid photo");}
++        return p;
++    }
++    private static void moveWithoutReplacement(Path source,Path target) throws IOException {
++        if(Files.exists(target,LinkOption.NOFOLLOW_LINKS))throw new FileAlreadyExistsException(target.getFileName().toString());
++        // Do not use ATOMIC_MOVE: its existing-target semantics are implementation-specific.
++        Files.move(source,target);
+     }
+     private void checkRoot() throws IOException {
+         checkAncestors();
+diff --git a/src/main/resources/assets/muxi_terminal/html/terminal/album-app.css b/src/main/resources/assets/muxi_terminal/html/terminal/album-app.css
+new file mode 100644
+--- /dev/null
++++ b/src/main/resources/assets/muxi_terminal/html/terminal/album-app.css
+@@ -0,0 +1,3 @@
++.album-icon{background:#8a9b64}.album-icon i{width:32px;height:28px;border:3px solid #eee7d4;position:relative}.album-icon i:before{content:"";position:absolute;width:7px;height:7px;right:3px;top:3px;background:#eee7d4}.album-icon i:after{content:"";position:absolute;width:19px;height:10px;left:3px;bottom:3px;border-left:4px solid #eee7d4;border-top:4px solid #eee7d4;transform:skew(-25deg)}
++#albumStatus,.album-note,#albumPhotoName{background:var(--panel);color:var(--text);border:2px solid var(--line);padding:7px 10px;box-shadow:inset 1px 1px 0 var(--line-hi)}.album-tile span{white-space:pre-line}
++#album{position:relative;font-size:16px}.album-local{margin-left:auto;font-size:14px;color:var(--muted)}.album-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.album-actions button{padding:6px 12px;min-height:38px;cursor:pointer}.album-actions button:disabled{opacity:.5;cursor:default}.album-actions [aria-pressed=true]{border-color:#4c5d31;background:#b2c88c}#albumStatus{font-size:15px;line-height:1.6;min-height:24px}.album-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;margin:12px 0}.album-grid[hidden]{display:none}.album-tile{padding:7px;min-width:0;cursor:pointer;text-align:left}.album-tile img{width:100%;height:110px;object-fit:contain;background:#282b23;color:#eee7d4;display:block}.album-tile span{display:block;font-size:13px;line-height:1.5;overflow-wrap:anywhere;margin-top:6px}.album-note{font-size:14px;line-height:1.6;color:var(--muted);margin:12px 0}#albumPhotoName{font-size:14px;overflow-wrap:anywhere;margin:8px 0}#albumImageScroll{max-height:55vh;overflow:auto;background:#282b23;border:3px solid var(--line)}#albumImage{display:block;object-fit:contain}#albumConfirm{position:absolute;inset:0;z-index:5;background:rgba(40,35,25,.75);padding:18px;display:flex;align-items:center;justify-content:center}#albumConfirm[hidden]{display:none}#albumConfirm .detail-card{width:min(100%,650px);max-height:100%;overflow:auto;font-size:16px}#albumConfirm p{font-size:15px;line-height:1.7;margin-top:10px;overflow-wrap:anywhere}#album button:focus-visible{outline:3px solid #eef3bd;outline-offset:2px;box-shadow:0 0 0 2px #3d4d29}
+diff --git a/src/main/resources/assets/muxi_terminal/html/terminal/album-app.js b/src/main/resources/assets/muxi_terminal/html/terminal/album-app.js
+new file mode 100644
+--- /dev/null
++++ b/src/main/resources/assets/muxi_terminal/html/terminal/album-app.js
+@@ -0,0 +1,104 @@
++/* Independent builtin route, shared photo library and existing shell keyboard navigation. */
++(() => {
++  const host=document.querySelector('#app-content'),grid=document.querySelector('#home .app-grid');if(!host || !grid)return;
++  const card=document.createElement('button');card.id='albumApp';card.className='app-card';
++  card.innerHTML='<span class="app-icon album-icon"><i></i></span><span class="app-name">相册</span><span class="app-desc">本地照片 · 查看与恢复</span>';grid.append(card);
++  card.addEventListener('click',()=>window.terminalLaunch({kind:'builtin',id:'album',name:'相册',source:card}).catch(error=>setStatus(error.message)));
++  const page=document.createElement('section');page.id='album';page.className='page';
++  page.innerHTML=`<div id="albumBody"><div class="toolbar"><button id="albumHome" class="back" aria-label="返回首页">‹</button><div><div class="eyebrow">APP / ALBUM</div><h2>相册</h2></div><span class="album-local">仅保存在本机</span></div>
++    <div class="album-actions"><button id="albumPhotosTab" class="secondary" aria-pressed="true">照片</button><button id="albumRecycleTab" class="secondary" aria-pressed="false">回收区</button><button id="albumRefresh" class="secondary">刷新</button><button id="albumCamera" class="primary">去拍照</button></div>
++    <p id="albumStatus" role="status" aria-live="polite">正在读取本地照片…</p><div id="albumGrid" class="album-grid"></div>
++    <div id="albumViewer" hidden><div class="album-actions"><button id="albumClosePhoto" class="secondary">返回缩略图</button><button id="albumPrevious" class="secondary">上一张</button><button id="albumNext" class="secondary">下一张</button><button id="albumFit" class="secondary">适应</button><button id="albumZoomOut" class="secondary" aria-label="缩小照片">−</button><button id="albumZoomIn" class="secondary" aria-label="放大照片">＋</button><button id="albumDelete" class="secondary">移入回收区</button><button id="albumRestore" class="primary" hidden>恢复照片</button></div>
++    <p id="albumPhotoName"></p><div id="albumImageScroll"><img id="albumImage" alt="本地相册照片"></div></div>
++    <p class="album-note">与相机共用本机照片，不上传。移入回收区后可以恢复。</p></div>
++    <div id="albumConfirm" hidden><div class="detail-card" role="dialog" aria-modal="true" aria-labelledby="albumConfirmTitle" tabindex="-1"><h3 id="albumConfirmTitle">将这张照片移入本地回收区？</h3><p id="albumConfirmName"></p><p>原 PNG 将移到照片库内的回收区，不会永久删除。可从“回收区”恢复。</p><div class="detail-actions"><button id="albumCancelDelete" class="secondary">取消</button><button id="albumConfirmDelete" class="primary">确认移入回收区</button></div></div></div>`;
++  host.append(page);
++  const el=id=>document.getElementById(id);const active=()=>contentView && location.hash==='#/album';
++  let disposed=false,zoom=1,visibleState={},thumbEpoch=0,observer=null,thumbQueue=[],pumping=false,disabledButtons=null,returnFocus=null;
++  function message(text){el('albumStatus').textContent=text;}
++  async function invoke(command){
++    for(let attempt=0;attempt<10;attempt++){
++      let timer;
++      try{return await Promise.race([native(command),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('相册响应超时，请刷新后重试。')),4000);})]);}
++      catch(error){if(!error.message.startsWith('429:') || attempt===9)throw error;await new Promise(resolve=>setTimeout(resolve,120));}
++      finally{clearTimeout(timer);}
++    }
++  }
++  function action(work){work().catch(error=>{if(active() && !disposed)message(error.message);});}
++  function releaseThumbs(){++thumbEpoch;thumbQueue=[];observer?.disconnect();observer=null;el('albumGrid').querySelectorAll('img').forEach(img=>img.removeAttribute('src'));}
++  function validImage(image){return typeof image==='string' && image.startsWith('data:image/png;base64,');}
++  async function pump(){
++    if(pumping)return;pumping=true;
++    try{while(thumbQueue.length && active() && !disposed){const {img,id,epoch}=thumbQueue.shift();
++      try{const image=await controller.thumb(id);if(epoch!==thumbEpoch || !img.isConnected || !validImage(image))continue;img.src=image;}
++      catch{if(epoch===thumbEpoch && img.isConnected)img.alt='缩略图暂不可用';}
++    }}finally{pumping=false;}
++  }
++  function queue(img,id){thumbQueue.push({img,id,epoch:thumbEpoch});void pump();}
++  function renderGrid(state){
++    releaseThumbs();el('albumGrid').replaceChildren();
++    if(typeof IntersectionObserver==='function')observer=new IntersectionObserver(entries=>{for(const entry of entries){if(entry.isIntersecting){observer.unobserve(entry.target);queue(entry.target,entry.target.dataset.id);}}},{root:page,rootMargin:'100px'});
++    for(const photo of state.photos){const button=document.createElement('button');button.className='album-tile secondary';button.setAttribute('aria-label','查看照片 '+photo.id);
++      const img=document.createElement('img');img.alt='照片缩略图';img.dataset.id=photo.id;
++      const label=document.createElement('span');const date=photo.id.slice(5,13),time=photo.id.slice(14,20);
++      label.textContent=date.slice(0,4)+'-'+date.slice(4,6)+'-'+date.slice(6,8)+'\n'+time.slice(0,2)+':'+time.slice(2,4)+':'+time.slice(4,6)+' UTC';button.title=photo.id;button.append(img,label);
++      button.addEventListener('click',()=>{zoom=1;action(()=>controller.open(photo.id));});el('albumGrid').append(button);
++      if(observer)observer.observe(img);else queue(img,photo.id);
++    }
++    if(!state.photos.length)el('albumGrid').textContent=state.recycled?'回收区是空的。':'还没有照片，去相机拍一张吧。';
++  }
++  function applyZoom(){el('albumImage').style.width=zoom===1?'100%':(zoom*100)+'%';el('albumImage').style.maxWidth=zoom===1?'100%':'none';}
++  function confirmation(open){
++    if(open && !disabledButtons){
++      returnFocus=el('albumDelete');disabledButtons=[...el('albumBody').querySelectorAll('button')].map(button=>[button,button.disabled]);
++      disabledButtons.forEach(([button])=>button.disabled=true);page.scrollTop=0;el('albumConfirm').hidden=false;
++      setTimeout(()=>el('albumCancelDelete').focus({preventScroll:true}),0);
++    }else if(!open && disabledButtons){
++      el('albumConfirm').hidden=true;disabledButtons.forEach(([button,disabled])=>button.disabled=disabled);disabledButtons=null;
++      const focus=returnFocus;returnFocus=null;
++      setTimeout(()=>{if(focus?.isConnected && active())focus.focus({preventScroll:true});},0);
++    }
++  }
++  const controller=MuxiAlbumController.create({invoke,onChange:state=>{
++    if(disposed)return;
++    const previous=visibleState;visibleState=state;
++    if(previous.photos!==state.photos || previous.recycled!==state.recycled)renderGrid(state);
++    const selected=!!state.selected;
++    if(selected && !previous.selected)releaseThumbs();
++    else if(!selected && previous.selected)renderGrid(state);
++    el('albumGrid').hidden=selected;el('albumViewer').hidden=!selected;
++    el('albumPhotosTab').setAttribute('aria-pressed',String(!state.recycled));el('albumRecycleTab').setAttribute('aria-pressed',String(state.recycled));
++    el('albumDelete').hidden=state.recycled;el('albumRestore').hidden=!state.recycled;
++    el('albumPhotoName').textContent=state.selected?.id || '';
++    if(validImage(state.image)){el('albumImage').src=state.image;applyZoom();}else el('albumImage').removeAttribute('src');
++    if(previous.selected?.id!==state.selected?.id || !selected){zoom=1;applyZoom();el('albumImageScroll').scrollTo(0,0);}
++    if(state.error)message(state.error);else if(state.busy)message('正在处理本地照片…');else message((state.recycled?'本地回收区':'本地照片')+' · '+state.photos.length+' 张（最多显示最近 200 张）');
++    confirmation(!!state.confirm);
++    if(!disabledButtons)for(const button of el('albumBody').querySelectorAll('button'))button.disabled=state.busy;
++    const i=state.photos.findIndex(p=>p.id===state.selected?.id);
++    if(!disabledButtons){el('albumPrevious').disabled=state.busy || i<=0;el('albumNext').disabled=state.busy || i<0 || i>=state.photos.length-1;}
++    el('albumCancelDelete').disabled=el('albumConfirmDelete').disabled=state.busy;
++    el('albumConfirmName').textContent=state.confirm?.id || '';
++  }});
++  el('albumHome').addEventListener('click',()=>action(()=>native('terminal.home')));
++  el('albumCamera').addEventListener('click',()=>action(()=>native('terminal.app:camera')));
++  el('albumPhotosTab').addEventListener('click',()=>action(()=>controller.load(false)));
++  el('albumRecycleTab').addEventListener('click',()=>action(()=>controller.load(true)));
++  el('albumRefresh').addEventListener('click',()=>action(()=>controller.load(visibleState.recycled)));
++  el('albumClosePhoto').addEventListener('click',()=>action(()=>controller.closePhoto()));
++  function move(delta){const i=visibleState.photos.findIndex(p=>p.id===visibleState.selected?.id),photo=visibleState.photos[i+delta];if(photo){zoom=1;action(()=>controller.open(photo.id));}}
++  el('albumPrevious').addEventListener('click',()=>move(-1));el('albumNext').addEventListener('click',()=>move(1));
++  el('albumFit').addEventListener('click',()=>{zoom=1;applyZoom();});
++  el('albumZoomIn').addEventListener('click',()=>{zoom=Math.min(4,zoom+.5);applyZoom();});
++  el('albumZoomOut').addEventListener('click',()=>{zoom=Math.max(1,zoom-.5);applyZoom();});
++  el('albumDelete').addEventListener('click',()=>action(()=>controller.prepareDelete()));
++  el('albumCancelDelete').addEventListener('click',()=>action(()=>controller.cancelDelete()));
++  el('albumConfirmDelete').addEventListener('click',()=>action(()=>controller.confirmDelete()));
++  el('albumRestore').addEventListener('click',()=>action(()=>controller.restore()));
++  el('albumConfirm').addEventListener('keydown',event=>{if(event.key==='Escape' && !visibleState.busy){event.preventDefault();event.stopPropagation();action(()=>controller.cancelDelete());}});
++  function sync(){if(active()){show('album');action(()=>controller.load(false));}else{controller.dispose();releaseThumbs();el('albumImage').removeAttribute('src');}}
++  window.addEventListener('hashchange',sync);
++  window.addEventListener('pagehide',()=>{controller.dispose();releaseThumbs();el('albumImage').removeAttribute('src');disposed=true;});
++  window.addEventListener('focus',()=>{if(active() && !visibleState.selected && !visibleState.busy)action(()=>controller.load(visibleState.recycled));});
++  if(active())sync();
++})();
+diff --git a/src/main/resources/assets/muxi_terminal/html/terminal/album-controller.js b/src/main/resources/assets/muxi_terminal/html/terminal/album-controller.js
+new file mode 100644
+--- /dev/null
++++ b/src/main/resources/assets/muxi_terminal/html/terminal/album-controller.js
+@@ -0,0 +1,51 @@
++(function(root,factory){if(typeof module==='object' && module.exports)module.exports=factory();else root.MuxiAlbumController=factory();})(typeof globalThis==='object'?globalThis:this,()=>{
++  function create({invoke,onChange=()=>{}}){
++    let epoch=0,closed=true,selection=null,ticket=null;
++    let state={photos:[],recycled:false,busy:false,selected:null,image:'',confirm:null,error:''};
++    const current=e=>!closed && epoch===e;
++    function update(value){state={...state,...value};onChange({...state});}
++    async function load(recycled=false){
++      closed=false;const e=++epoch;selection=null;ticket=null;
++      update({photos:[],recycled,busy:true,selected:null,image:'',confirm:null,error:''});
++      try{const photos=await invoke(recycled?'album.recycled':'album.photos');if(!current(e))return false;update({photos,busy:false});return true;}
++      catch(error){if(current(e))update({busy:false,error:error.message});throw error;}
++    }
++    async function thumb(id){const e=epoch,recycled=state.recycled;const image=await invoke((recycled?'album.recycled-thumb:':'album.thumb:')+id);return current(e)?image:null;}
++    async function open(id){
++      if(closed || state.busy)return false;
++      const photo=state.photos.find(p=>p.id===id);if(!photo)throw new Error('照片已不存在，请刷新相册。');
++      const e=epoch,which=selection={};ticket=null;
++      update({selected:photo,image:'',confirm:null,busy:true,error:''});
++      try{const image=await invoke((state.recycled?'album.recycled-photo:':'album.photo:')+id);
++        if(!current(e) || selection!==which)return false;update({image,busy:false});return true;}
++      catch(error){if(current(e) && selection===which)update({busy:false,error:error.message});throw error;}
++    }
++    function closePhoto(){selection=null;ticket=null;update({selected:null,image:'',confirm:null,busy:false});return invoke('album.cancel-delete').catch(()=>{});}
++    async function prepareDelete(){
++      if(closed || state.busy || state.recycled || !state.selected)return false;
++      const e=epoch,id=state.selected.id,which=selection;
++      update({busy:true,error:''});
++      try{const next=await invoke('album.prepare-delete:'+id);
++        if(!current(e) || selection!==which)return false;
++        if(!next || next.id!==id || typeof next.token!=='string')throw new Error('删除确认无效。');
++        ticket=next;update({confirm:next,busy:false});return true;
++      }catch(error){if(current(e))update({busy:false,error:error.message});throw error;}
++    }
++    function cancelDelete(){ticket=null;update({confirm:null});return invoke('album.cancel-delete').catch(()=>{});}
++    async function confirmDelete(){
++      if(closed || state.busy || !ticket || ticket.id!==state.selected?.id)throw new Error('请先确认要移入回收区的照片。');
++      const e=epoch,accepted=ticket;ticket=null;update({busy:true,error:''});
++      try{await invoke('album.recycle:'+accepted.token);if(!current(e))return false;await load(false);return true;}
++      catch(error){if(current(e))update({confirm:null,busy:false,error:'未完成移入回收区，请重新确认。'+error.message});throw error;}
++    }
++    async function restore(){
++      if(closed || state.busy || !state.recycled || !state.selected)return false;
++      const e=epoch,id=state.selected.id;update({busy:true,error:''});
++      try{await invoke('album.restore:'+id);if(!current(e))return false;await load(true);return true;}
++      catch(error){if(current(e))update({busy:false,error:'恢复失败；同名照片不会被覆盖。'+error.message});throw error;}
++    }
++    function dispose(){closed=true;++epoch;selection=null;ticket=null;update({photos:[],selected:null,image:'',confirm:null,busy:false});return invoke('album.cancel-delete').catch(()=>{});}
++    return {load,thumb,open,closePhoto,prepareDelete,cancelDelete,confirmDelete,restore,dispose,getState:()=>({...state})};
++  }
++  return {create};
++});
+diff --git a/src/main/resources/assets/muxi_terminal/html/terminal/app.js b/src/main/resources/assets/muxi_terminal/html/terminal/app.js
+--- a/src/main/resources/assets/muxi_terminal/html/terminal/app.js
++++ b/src/main/resources/assets/muxi_terminal/html/terminal/app.js
+@@ -117,8 +117,8 @@
+ function navigate(id,source){
+   if(typeof window.muxiTerminalQuery==='function'){
+     if(contentView && id==='home'){native('terminal.home').catch(error=>setStatus(error.message));return;}
+-    if(!contentView && ['tasks','guide','games','camera','settings','music'].includes(id)){
+-      if(window.terminalLaunch)window.terminalLaunch({kind:'builtin',id,name:id==='music'?'音乐':id==='settings'?'设置':id==='camera'?'相机':id==='games'?'小游戏':id==='tasks'?'任务':'游戏指南',source}).catch(error=>setStatus(error.message));
++    if(!contentView && ['tasks','guide','games','camera','album','settings','music'].includes(id)){
++      if(window.terminalLaunch)window.terminalLaunch({kind:'builtin',id,name:id==='album'?'相册':id==='music'?'音乐':id==='settings'?'设置':id==='camera'?'相机':id==='games'?'小游戏':id==='tasks'?'任务':'游戏指南',source}).catch(error=>setStatus(error.message));
+       else native('terminal.app:'+id).catch(error=>setStatus(error.message));return;
+     }
+   }
+@@ -346,7 +346,7 @@
+ 
+ function routeFromHash(){
+   const route=(location.hash||'#/home').replace(/^#\/?/,'');
+-  return ['home','guide','guideDetail','tasks','games','camera','settings','music'].includes(route)?route:'home';
++  return ['home','guide','guideDetail','tasks','games','camera','album','settings','music'].includes(route)?route:'home';
+ }
+ window.addEventListener('hashchange',()=>show(routeFromHash()));
+ 
+diff --git a/src/main/resources/assets/muxi_terminal/html/terminal/camera-app.js b/src/main/resources/assets/muxi_terminal/html/terminal/camera-app.js
+--- a/src/main/resources/assets/muxi_terminal/html/terminal/camera-app.js
++++ b/src/main/resources/assets/muxi_terminal/html/terminal/camera-app.js
+@@ -9,7 +9,7 @@
+   const page=document.createElement('section');page.id='camera';page.className='page';
+   page.innerHTML=`<div class="toolbar"><button class="back" id="cameraHome" aria-label="返回首页">‹</button><div><div class="eyebrow">APP / CAMERA</div><h2>相机</h2></div><span class="camera-local">仅保存在本机</span></div>
+     <div class="camera-layout"><div class="camera-view"><img id="cameraPreview" alt="游戏内相机预览" hidden><span id="cameraPlaceholder">等待游戏画面…</span><span id="cameraLens">前拍</span></div>
+-    <div class="camera-controls"><button class="secondary" id="cameraForward" aria-pressed="true">前拍</button><button class="secondary" id="cameraSelfie" aria-pressed="false">自拍</button><button class="primary" id="cameraShutter" disabled>拍照 [空格]</button><button class="secondary" id="cameraResume">恢复预览</button><button class="secondary" id="cameraAlbum">本地相册</button></div>
++    <div class="camera-controls"><button class="secondary" id="cameraForward" aria-pressed="true">前拍</button><button class="secondary" id="cameraSelfie" aria-pressed="false">自拍</button><button class="primary" id="cameraShutter" disabled>拍照 [空格]</button><button class="secondary" id="cameraResume">恢复预览</button><button class="secondary" id="cameraAlbum">本地相册</button><button class="secondary" id="cameraOpenAlbum">打开相册 APP</button></div>
+     <p id="cameraStatus" role="status" aria-live="polite">右键打开终端大界面使用相机；预览约每秒更新一次。</p><p class="camera-note">照片保留游戏画面原始分辨率，仅存本机。自拍使用游戏正面第三人称视角，近墙时镜头会按游戏规则避障。</p>
+     <div id="cameraPhotos" hidden><div class="camera-album-actions"><button class="secondary" id="cameraReturn">返回预览</button><span>最近 200 张照片</span></div><div id="cameraPhotoList"></div><img id="cameraPhoto" alt="本地照片" hidden></div></div>`;
+   host.append(page);
+@@ -48,6 +48,7 @@
+   el('cameraForward').addEventListener('click',()=>action(()=>camera.mode('forward')));
+   el('cameraSelfie').addEventListener('click',()=>action(()=>camera.mode('selfie')));
+   el('cameraShutter').addEventListener('click',()=>action(()=>camera.shutter()));
++  el('cameraOpenAlbum').addEventListener('click',()=>action(async()=>{++opening;++photoEpoch;gallery=true;await camera.stop();await native('terminal.app:album');}));
+   el('cameraResume').addEventListener('click',()=>action(start));el('cameraReturn').addEventListener('click',()=>action(start));
+   async function read(command){for(let i=0;i<8;i++){try{return await invoke(command);}catch(error){if(!error.message.startsWith('429:') || i===7)throw error;await new Promise(resolve=>setTimeout(resolve,150));}}}
+   el('cameraAlbum').addEventListener('click',()=>action(async()=>{
+diff --git a/src/main/resources/assets/muxi_terminal/html/terminal/index.html b/src/main/resources/assets/muxi_terminal/html/terminal/index.html
+--- a/src/main/resources/assets/muxi_terminal/html/terminal/index.html
++++ b/src/main/resources/assets/muxi_terminal/html/terminal/index.html
+@@ -8,6 +8,7 @@
+   <link rel="stylesheet" href="./app-transition.css" />
+   <link rel="stylesheet" href="./apps/minigames/app.css" />
+   <link rel="stylesheet" href="./camera-app.css" />
++  <link rel="stylesheet" href="./album-app.css" />
+   <link rel="stylesheet" href="./settings.css" />
+ </head>
+ <body>
+@@ -156,6 +157,8 @@
+   <script src="./app-container.js"></script>
+   <script src="./camera-controller.js"></script>
+   <script src="./camera-app.js"></script>
++  <script src="./album-controller.js"></script>
++  <script src="./album-app.js"></script>
+   <script src="./web-apps.js"></script>
+   <script src="./settings.js"></script>
+   <script src="./music-app.js"></script>
+diff --git a/tests/album/AlbumLibraryTest.java b/tests/album/AlbumLibraryTest.java
+new file mode 100644
+--- /dev/null
++++ b/tests/album/AlbumLibraryTest.java
+@@ -0,0 +1,50 @@
++package net.muxigame.terminal.client;
++import java.nio.file.*;
++import java.util.*;
++import java.util.concurrent.atomic.AtomicLong;
++public final class AlbumLibraryTest {
++    static int checks;
++    static void check(boolean value,String text){checks++;if(!value)throw new AssertionError(text);}
++    interface Work {void run() throws Exception;}
++    static void rejects(Work work) throws Exception {checks++;try{work.run();throw new AssertionError("Expected rejection");}catch(java.io.IOException | IllegalArgumentException expected){}}
++    public static void main(String[] args) throws Exception {
++        Path root=Path.of(args[0]);Files.createDirectories(root);var store=new TerminalPhotoStore(root.resolve("photos"));
++        byte[] png={(byte)137,80,78,71,13,10,26,10,1,2,3};
++        check(store.list().isEmpty() && store.recycled().isEmpty(),"empty new install");
++        String id=store.save(png);check(store.list().size()==1,"camera save immediately in album");
++        store.recycle(id);check(store.list().isEmpty() && store.recycled().size()==1,"move reflected in both lists");
++        check(!Files.exists(root.resolve("photos").resolve(id)),"no duplicate source copy");
++        check(Arrays.equals(store.readRecycled(id),png),"original photo bytes retained");
++        rejects(()->store.read(id));
++        var reloaded=new TerminalPhotoStore(root.resolve("photos"));check(reloaded.recycled().size()==1,"trash survives restart");
++        reloaded.restore(id);check(Arrays.equals(store.read(id),png) && store.recycled().isEmpty(),"restore original bytes/name");
++        store.recycle(id);byte[] replacement=png.clone();replacement[8]=99;
++        Files.write(root.resolve("photos").resolve(id),replacement);rejects(()->store.restore(id));
++        check(Arrays.equals(store.read(id),replacement) && Arrays.equals(store.readRecycled(id),png),"restore never overwrites existing photo");
++        Files.delete(root.resolve("photos").resolve(id));store.restore(id);
++        Files.write(root.resolve("photos/.recycle").resolve(id),replacement);rejects(()->store.recycle(id));
++        check(Arrays.equals(store.read(id),png) && Arrays.equals(store.readRecycled(id),replacement),"recycle never overwrites existing trash photo");
++        Path outside=root.resolve("real-user-photo.png");Files.write(outside,png);
++        for(String path:List.of("../real-user-photo.png",outside.toString(),"file:///photo.png","a.png")){rejects(()->store.recycle(path));rejects(()->store.restore(path));}
++        check(Arrays.equals(Files.readAllBytes(outside),png),"outside photo untouched");
++        Files.write(root.resolve("photos/unowned.png"),png);check(store.list().size()==1,"unowned resource excluded");
++        boolean linkChecks=false;
++        try{
++            String linked="muxi-20261001-000000-000-00000000-0000-0000-0000-000000000000.png";
++            Files.createSymbolicLink(root.resolve("photos").resolve(linked),outside.toAbsolutePath());
++            rejects(()->store.recycle(linked));check(Arrays.equals(Files.readAllBytes(outside),png),"linked outside photo untouched");
++            Path linkRoot=root.resolve("linked-library");Files.createSymbolicLink(linkRoot,root.resolve("photos").toAbsolutePath());
++            rejects(()->new TerminalPhotoStore(linkRoot).recycle(id));linkChecks=true;
++        }catch(FileSystemException | UnsupportedOperationException | SecurityException unavailable){}
++        AtomicLong now=new AtomicLong(100);var confirmation=new TerminalAlbumConfirmation(now::get);Object browser=new Object(),other=new Object();
++        var ticket=confirmation.prepare(id,browser,4);rejects(()->confirmation.consume(id,browser,4));
++        rejects(()->confirmation.consume(ticket.token(),other,4));rejects(()->confirmation.consume(ticket.token(),browser,5));
++        check(confirmation.consume(ticket.token(),browser,4).equals(id),"owner one-use confirmation consumed");
++        rejects(()->confirmation.consume(ticket.token(),browser,4));
++        String expired=confirmation.prepare(id,browser,4).token();now.addAndGet(30_000);rejects(()->confirmation.consume(expired,browser,4));
++        var cancelled=confirmation.prepare(id,browser,4);confirmation.cancel(browser,4);rejects(()->confirmation.consume(cancelled.token(),browser,4));
++        var old=confirmation.prepare(id,browser,4);var next=confirmation.prepare(id,browser,4);rejects(()->confirmation.consume(old.token(),browser,4));check(!next.token().equals(old.token()),"old dialog superseded");
++        rejects(()->confirmation.prepare("../outside",browser,4));
++        System.out.println("{\"success\":true,\"checks\":"+checks+",\"symlinkTests\":"+linkChecks+",\"photoScope\":\"temporary synthetic library only\"}");
++    }
++}
+diff --git a/tests/album/build-review.py b/tests/album/build-review.py
+new file mode 100644
+--- /dev/null
++++ b/tests/album/build-review.py
+@@ -0,0 +1,11 @@
++from pathlib import Path
++import importlib.util
++root=Path(__file__).resolve().parents[2]
++spec=importlib.util.spec_from_file_location('terminal_build',root/'build.py');build=importlib.util.module_from_spec(spec);spec.loader.exec_module(build)
++original=build.compile_java
++dependency=Path('C:/Users/Administrator/Documents/Codex/2026-10-01/task-21/music-app/build/compiler-dependencies.jar')
++assert dependency.is_file()
++def compile_local(compiler,sources,output,classpath,argfile):return original(compiler,sources,output,str(dependency),argfile)
++build.compile_java=compile_local
++pack=Path('C:/Users/Administrator/WorkSpace/muxigame')
++build.build(pack/'bmc5server',java_home=Path('C:/Program Files/Java/jdk-24'),client_game=pack/'_client_test/game',pack_mods=pack/'better-mc-remake/pack/source/Better MC Remake [FORGE]/mods')
+diff --git a/tests/album/controller.test.cjs b/tests/album/controller.test.cjs
+new file mode 100644
+--- /dev/null
++++ b/tests/album/controller.test.cjs
+@@ -0,0 +1,36 @@
++const assert=require('node:assert/strict');
++const {create}=require('../../src/main/resources/assets/muxi_terminal/html/terminal/album-controller.js');
++async function main(){
++  const commands=[],a={id:'a'},b={id:'b'};let live=[a,b],trash=[],cancelled=0;
++  const invoke=async command=>{
++    commands.push(command);
++    if(command==='album.photos')return live.slice();if(command==='album.recycled')return trash.slice();
++    if(command.startsWith('album.photo:') || command.startsWith('album.thumb:') || command.startsWith('album.recycled-photo:'))return 'data:image/png;base64,TEST';
++    if(command.startsWith('album.prepare-delete:'))return {id:command.slice(21),token:'one-use-ticket'};
++    if(command==='album.cancel-delete')cancelled++;
++    if(command==='album.recycle:one-use-ticket'){const p=live.shift();trash.push(p);}
++    if(command.startsWith('album.restore:')){live.push(trash.shift());}
++    return {ok:true};
++  };
++  const c=create({invoke});await c.load();assert.equal(c.getState().photos.length,2);
++  await c.open('a');assert(c.getState().image);await c.prepareDelete();
++  assert.equal(c.getState().confirm.id,'a');assert(!commands.some(x=>x.startsWith('album.recycle:')));
++  await c.cancelDelete();assert.equal(c.getState().confirm,null);assert.equal(live.length,2);
++  await assert.rejects(c.confirmDelete(),/先确认/);
++  await c.prepareDelete();await c.confirmDelete();assert.equal(live.length,1);assert.equal(trash.length,1);assert.equal(c.getState().image,'');
++  await c.load(true);await c.open('a');await c.restore();assert.equal(trash.length,0);assert.equal(live.length,2);
++  await c.load();await c.open('b');await c.closePhoto();assert.equal(c.getState().image,'');assert.equal(c.getState().selected,null);
++  await assert.rejects(c.open('missing'),/不存在/);
++  let resolveRead,changes=[];
++  const d=create({invoke:cmd=>cmd==='album.photos'?new Promise(r=>resolveRead=r):Promise.resolve({ok:true}),onChange:s=>changes.push(s)});
++  const load=d.load();await d.dispose();const after=changes.length;resolveRead([a]);await load;assert.equal(changes.length,after);assert.equal(d.getState().photos.length,0);
++  let resolveThumb;const e=create({invoke:cmd=>cmd==='album.photos'?Promise.resolve([a]):cmd.startsWith('album.thumb:')?new Promise(r=>resolveThumb=r):Promise.resolve({ok:true})});
++  await e.load();const thumb=e.thumb('a');await e.dispose();resolveThumb('late');assert.equal(await thumb,null);
++  let resolveConfirm;const f=create({invoke:cmd=>cmd==='album.photos'?Promise.resolve([a]):cmd.startsWith('album.photo:')?Promise.resolve('image'):cmd.startsWith('album.prepare-delete:')?new Promise(r=>resolveConfirm=r):Promise.resolve({ok:true})});
++  await f.load();await f.open('a');const confirmation=f.prepareDelete();await f.dispose();resolveConfirm({id:'a',token:'late'});await confirmation;await assert.rejects(f.confirmDelete(),/先确认/);
++  const g=create({invoke:async cmd=>{if(cmd==='album.photos')return [a];if(cmd.startsWith('album.photo:'))return 'image';if(cmd.startsWith('album.prepare-delete:'))return {id:'a',token:'t'};if(cmd.startsWith('album.recycle:'))throw Error('expired');return {ok:true};}});
++  await g.load();await g.open('a');await g.prepareDelete();await assert.rejects(g.confirmDelete(),/expired/);assert.equal(g.getState().confirm,null);assert.equal(g.getState().photos.length,1);
++  assert(commands.every(x=>x.startsWith('album.')));assert(cancelled>0);
++  console.log(JSON.stringify({success:true,checks:16,coverage:['shared list','read-only thumbnail','cancel before mutation','one-use confirmed delete','restore','released viewer pixels','unknown id','stale list/thumbnail/confirmation','expired mutation re-confirm','album-only requests']}));
++}
++main().catch(error=>{console.error(error);process.exitCode=1;});
+diff --git a/tests/album/prepare-browser-qa.py b/tests/album/prepare-browser-qa.py
+new file mode 100644
+--- /dev/null
++++ b/tests/album/prepare-browser-qa.py
+@@ -0,0 +1,77 @@
++from pathlib import Path
++root=Path(__file__).resolve().parents[2];assets=root/'src/main/resources/assets/muxi_terminal/html/terminal'
++html=(assets/'index.html').read_text(encoding='utf-8')
++stub='''<script>
++window.qaCommands=[];window.qaPending=null;window.qaLive=[],window.qaTrash=[];
++const id=n=>'muxi-20261001-00000'+n+'-000-00000000-0000-0000-0000-00000000000'+n+'.png';
++qaLive.push({id:id(1),bytes:256,modified:1},{id:id(2),bytes:256,modified:2});
++const canvas=document.createElement('canvas');canvas.width=640;canvas.height=360;
++const context=canvas.getContext('2d');context.fillStyle='#557b50';context.fillRect(0,0,640,360);context.fillStyle='#f4ebd1';context.font='24px sans-serif';context.fillText('SYNTHETIC ALBUM UI / NOT GAME RENDER',20,180);
++window.qaPreview=canvas.toDataURL('image/png');window.qaState={active:false,busy:false,mode:'forward',sequence:1,preview:'',saved:'',error:''};
++window.muxiTerminalQuery=({request,onSuccess,onFailure})=>setTimeout(()=>{
++  qaCommands.push(request);let answer={ok:true};
++  if(request==='album.photos' || request==='camera.photos')answer=qaLive.slice();
++  if(request==='album.recycled')answer=qaTrash.slice();
++  if(/^(album\\.(thumb|photo|recycled-thumb|recycled-photo)|camera\\.photo):/.test(request))answer=qaPreview;
++  if(request.startsWith('album.prepare-delete:'))answer=qaPending={id:request.slice(21),token:'00000000-0000-0000-0000-000000000000'};
++  if(request==='album.cancel-delete')qaPending=null;
++  if(request.startsWith('album.recycle:')){if(!qaPending){onFailure(400,'confirmation required');return;}const photo=qaLive.find(p=>p.id===qaPending.id);qaLive=qaLive.filter(p=>p!==photo);qaTrash.push(photo);qaPending=null;}
++  if(request.startsWith('album.restore:')){const photo=qaTrash.find(p=>p.id===request.slice(14));qaTrash=qaTrash.filter(p=>p!==photo);qaLive.push(photo);}
++  if(request==='camera.begin'){qaState.active=true;qaState.preview=qaPreview;}
++  if(request==='camera.stop'){qaState.active=false;qaState.preview='';}
++  if(request.startsWith('camera.mode:'))qaState.mode=request.slice(12);
++  if(request==='camera.state')answer={...qaState};
++  if(request==='camera.shutter'){qaState.saved=id(3);qaLive.push({id:qaState.saved,bytes:256,modified:3});}
++  onSuccess(JSON.stringify(answer));
++},10);
++</script>'''
++html=html.replace('<head>','<head>\n<base href="'+assets.as_uri()+'/">\n'+stub,1)
++(Path(__file__).parent/'harness.html').write_text(html,encoding='utf-8')
++source=(root/'tests/app-transition/run-browser-qa.mjs').read_text(encoding='utf-8')
++prefix=source[:source.index("  await cdp('Page.enable')")].replace("pathToFileURL(path.join(directory, 'demo.html')).href","pathToFileURL(path.join(directory, 'harness.html')).href+'#/album'")
++tests=r'''
++  await cdp('Page.enable');await cdp('Runtime.enable');
++  await cdp('Emulation.setDeviceMetricsOverride',{width:960,height:660,deviceScaleFactor:1,mobile:false});await pause(1000);
++  const tests=[];async function check(name,expression){tests.push({name,passed:!!await evaluate(expression)});}
++  async function click(selector){await evaluate('document.querySelector('+JSON.stringify(selector)+').click()');await pause(220);}
++  async function key(key,code=key){await cdp('Input.dispatchKeyEvent',{type:'keyDown',key,code});await cdp('Input.dispatchKeyEvent',{type:'keyUp',key,code});await pause(150);}
++  await check('independent home card and fixed shell','document.querySelectorAll("#albumApp").length===1 && document.querySelectorAll(".shell").length===1 && document.querySelector("#album.page-active")');
++  await check('shared installed-app count observes album card','document.querySelector("#installedAppCount").textContent.startsWith(String(document.querySelectorAll("#home .app-card").length))');
++  await check('original modules retained','document.querySelector("#camera") && document.querySelector("#settings") && document.querySelector("#music") && document.querySelector("#games")');
++  await check('native lazy thumbnail grid','document.querySelectorAll("#albumGrid .album-tile").length===2 && document.querySelector("#albumGrid img").src.startsWith("data:image/png;")');
++  await screenshot('01-thumbnail-grid-synthetic');
++  await click('#albumGrid button');
++  await check('viewer opens and thumbnail bytes released','!document.querySelector("#albumViewer").hidden && document.querySelector("#albumImage").src.startsWith("data:image/png;") && !document.querySelector("#albumGrid img").hasAttribute("src")');
++  await click('#albumZoomIn');await check('zoom control','document.querySelector("#albumImage").style.width==="150%"');await click('#albumFit');
++  await click('#albumDelete');
++  await check('clear confirmation before any mutation','!document.querySelector("#albumConfirm").hidden && qaLive.length===2 && !qaCommands.some(x=>x.startsWith("album.recycle:"))');
++  await check('safe default focus and background excluded','document.activeElement.id==="albumCancelDelete" && [...document.querySelectorAll("#albumBody button")].every(b=>b.disabled)');
++  await screenshot('02-confirmation-synthetic');
++  await key('Tab');await check('shared Tab enters only confirm control','document.activeElement.id==="albumConfirmDelete"');
++  await key('Escape');await check('Escape cancels without navigating or deleting','location.hash==="#/album" && document.querySelector("#albumConfirm").hidden && qaLive.length===2 && document.activeElement.id==="albumDelete"');
++  await click('#albumDelete');await click('#albumCancelDelete');await check('explicit cancel keeps original','qaLive.length===2 && qaTrash.length===0');
++  await click('#albumDelete');await click('#albumConfirmDelete');
++  await check('confirmed recycle refreshes shared list and clears viewed bytes','qaLive.length===1 && qaTrash.length===1 && document.querySelectorAll("#albumGrid button").length===1 && !document.querySelector("#albumImage").hasAttribute("src")');
++  await click('#albumRecycleTab');await click('#albumGrid button');
++  await check('recycle viewer supports restore and hides deletion','!document.querySelector("#albumRestore").hidden && document.querySelector("#albumDelete").hidden');
++  await screenshot('03-recycle-view-synthetic');await click('#albumRestore');await click('#albumPhotosTab');
++  await check('restored photo immediately visible','qaLive.length===2 && qaTrash.length===0 && document.querySelectorAll("#albumGrid button").length===2');
++  await evaluate('location.hash="/camera"');await pause(700);await click('#cameraShutter');await pause(500);
++  await check('camera save uses shared library','qaLive.length===3 && qaState.saved');
++  await check('camera retains embedded album and independent link','document.querySelector("#cameraAlbum") && document.querySelector("#cameraOpenAlbum")');
++  await evaluate('location.hash="/album"');await pause(700);
++  await check('new camera photo immediately present after album switch','document.querySelectorAll("#albumGrid button").length===3');
++  await cdp('Emulation.setDeviceMetricsOverride',{width:420,height:500,deviceScaleFactor:1,mobile:false});await pause(200);
++  await check('compact viewport has no horizontal overflow','document.querySelector("#album").scrollWidth<=document.querySelector("#album").clientWidth');await screenshot('04-small-grid-synthetic');
++  await click('#albumGrid button');await click('#albumDelete');await screenshot('05-small-confirmation-synthetic');
++  await check('compact confirmation visible and scrollable','(() => {const r=document.querySelector("#albumConfirm [role=dialog]").getBoundingClientRect();return r.top>=0 && r.bottom<=innerHeight && r.right<=innerWidth;})()');
++  await evaluate('location.hash="/home"');await pause(250);
++  await check('route exit drops images and pending confirmation','!qaPending && !document.querySelector("#albumImage").hasAttribute("src") && [...document.querySelectorAll("#albumGrid img")].every(i=>!i.hasAttribute("src"))');
++  tests.push({name:'no browser runtime exceptions',passed:errors.length===0,errors});
++  const report={synthetic:true,passed:tests.filter(t=>t.passed).length,total:tests.length,tests};
++  fs.writeFileSync(path.join(output,'results.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report));process.exitCode=report.passed===report.total?0:1;
++  await cdp('Browser.close');
++}finally{if(socket && socket.readyState===WebSocket.OPEN)socket.close();if(child.exitCode===null)child.kill();}
++'''
++(Path(__file__).parent/'run-browser-qa.mjs').write_text(prefix+tests,encoding='utf-8')
++print('Prepared integrated album UI QA with synthetic in-memory photos only')
+diff --git a/tests/album/run-bridge-fixtures.py b/tests/album/run-bridge-fixtures.py
+new file mode 100644
+--- /dev/null
++++ b/tests/album/run-bridge-fixtures.py
+@@ -0,0 +1,68 @@
++"""Run production album/camera bridge and image helper against synthetic native/CEF fixtures."""
++from pathlib import Path
++import importlib.util,subprocess,tempfile,json
++root=Path(__file__).resolve().parents[2];out=root/'build/album-tests';out.mkdir(parents=True,exist_ok=True)
++spec=importlib.util.spec_from_file_location('build',root/'build.py');b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
++javac,java=b.java_tools(None)
++dependency=Path('C:/Users/Administrator/Documents/Codex/2026-10-01/task-21/music-app/build/compiler-dependencies.jar')
++files={
++'org/cef/browser/CefBrowser.java':'''package org.cef.browser; public class CefBrowser { public String url="";public String getURL(){return url;} }''',
++'org/cef/browser/CefFrame.java':'''package org.cef.browser; public class CefFrame {public String url="";public boolean valid=true,main=true;public String getURL(){return url;}}''',
++'org/cef/callback/CefQueryCallback.java':'''package org.cef.callback;public interface CefQueryCallback {void success(String response);void failure(int code,String message);}''',
++'net/minecraft/client/Minecraft.java':'''package net.minecraft.client; public class Minecraft {
++public static final Minecraft INSTANCE=new Minecraft();public Object screen=new net.muxigame.terminal.client.TerminalScreen(),level=new Object(),player=new Object(),connection=new Object();public boolean focused=true;public java.io.File gameDirectory;
++public static Minecraft getInstance(){return INSTANCE;}public boolean isWindowActive(){return focused;}public Object getConnection(){return connection;}public User getUser(){return new User();}
++public static class User {public java.util.UUID getProfileId(){return new java.util.UUID(0,1);}}}''',
++'net/muxigame/terminal/client/TerminalScreen.java':'''package net.muxigame.terminal.client;public class TerminalScreen {}''',
++'net/muxigame/terminal/client/TerminalBrowserSession.java':'''package net.muxigame.terminal.client;import org.cef.browser.*;public class TerminalBrowserSession {
++public static final String HOME_URL="mod://muxi_terminal/terminal/index.html";public enum Kind {HOME,BUILTIN,WEB,ACCOUNT}public record State(Kind kind,String url){}
++public static long gen=1;public static CefBrowser content=new CefBrowser(),shell=new CefBrowser();public static Kind kind=Kind.BUILTIN;public static long generation(){return gen;}public static CefBrowser content(){return content;}public static State state(){return new State(kind,content.url);}
++public static boolean trusted(CefBrowser b,CefFrame f){return b==content && kind==Kind.BUILTIN && f!=null && f.valid && f.main && b.url.equals(f.url);}}''',
++'net/muxigame/terminal/client/TerminalCamera.java':'''package net.muxigame.terminal.client;import org.cef.callback.CefQueryCallback;public class TerminalCamera {
++@FunctionalInterface interface Read {String get() throws Exception;}public static boolean defer,busy;public static java.util.List<Runnable> queued=new java.util.ArrayList<>();public static int begins;
++static void io(Read action,CefQueryCallback callback){if(busy){callback.failure(429,"busy");return;}Runnable r=()->{try{callback.success(action.get());}catch(Exception e){callback.failure(400,e.getMessage());}};if(defer)queued.add(r);else r.run();}
++public static void flush(){var q=java.util.List.copyOf(queued);queued.clear();q.forEach(Runnable::run);}public static void begin(){begins++;}public static void stop(){}public static void mode(boolean v){}public static void shutter(){}public static Object state(){return null;}
++static String data(byte[] data){return "data:image/png;base64,"+java.util.Base64.getEncoder().encodeToString(data);}}''',
++'com/mojang/blaze3d/platform/NativeImage.java':'''package com.mojang.blaze3d.platform;public class NativeImage implements AutoCloseable {
++public static int live,lastWidth,lastHeight;public static boolean failResize;int w,h;boolean closed;public NativeImage(int w,int h,boolean unused){this.w=w;this.h=h;live++;lastWidth=w;lastHeight=h;}
++public static NativeImage read(byte[] png){var b=java.nio.ByteBuffer.wrap(png,16,8);return new NativeImage(b.getInt(),b.getInt(),false);}public int getWidth(){return w;}public int getHeight(){return h;}
++public void resizeSubRectTo(int x,int y,int w,int h,NativeImage target){if(failResize)throw new IllegalStateException("synthetic resize failure");}public byte[] asByteArray(){return new byte[]{1,2,3};}public void close(){if(!closed){closed=true;live--;}}}''',
++'net/muxigame/terminal/client/AlbumBridgeTest.java':'''package net.muxigame.terminal.client;
++import org.cef.browser.*;import org.cef.callback.*;import net.minecraft.client.Minecraft;import java.nio.file.*;import com.google.gson.JsonParser;import com.mojang.blaze3d.platform.NativeImage;
++public class AlbumBridgeTest {
++static int checks;static void check(boolean b,String text){checks++;if(!b)throw new AssertionError(text);}static class Reply implements CefQueryCallback {String value;int code;public void success(String s){value=s;}public void failure(int c,String s){code=c;value=s;}}
++static Reply album(CefBrowser b,CefFrame f,String cmd){Reply r=new Reply();check(TerminalAlbumBridge.dispatch(b,f,cmd,r),"command recognized");return r;}
++static String token(CefBrowser b,CefFrame f,String id){return JsonParser.parseString(album(b,f,"album.prepare-delete:"+id).value).getAsJsonObject().get("token").getAsString();}
++public static void main(String[] args) throws Exception {
++var mc=Minecraft.getInstance();mc.gameDirectory=Path.of(args[0]).toFile();var browser=TerminalBrowserSession.content;var frame=new CefFrame();browser.url=TerminalBrowserSession.HOME_URL+"#/album";frame.url=browser.url;
++var store=TerminalCameraBridge.store();byte[] png=new byte[32];byte[] sig={(byte)137,80,78,71,13,10,26,10};System.arraycopy(sig,0,png,0,8);png[12]=73;png[13]=72;png[14]=68;png[15]=82;java.nio.ByteBuffer.wrap(png,16,8).putInt(800).putInt(600);String id=store.save(png);
++check(album(browser,frame,"album.photos").value.contains(id),"shared camera photo visible");
++Reply camera=new Reply();TerminalCameraBridge.dispatch(browser,frame,"camera.begin",camera);check(camera.code==403 && TerminalCamera.begins==0,"album cannot use screenshot authority");
++check(album(TerminalBrowserSession.shell,frame,"album.photos").code==403,"shell denied");
++for(var kind:new TerminalBrowserSession.Kind[]{TerminalBrowserSession.Kind.WEB,TerminalBrowserSession.Kind.ACCOUNT}){TerminalBrowserSession.kind=kind;check(album(browser,frame,"album.photos").code==403,"external kind denied");}TerminalBrowserSession.kind=TerminalBrowserSession.Kind.BUILTIN;
++frame.main=false;check(album(browser,frame,"album.photos").code==403,"iframe denied");frame.main=true;frame.valid=false;check(album(browser,frame,"album.photos").code==403,"closed frame denied");frame.valid=true;
++String route=browser.url;browser.url=TerminalBrowserSession.HOME_URL+"#/camera";frame.url=browser.url;check(album(browser,frame,"album.photos").code==403,"other builtin denied");browser.url=route;frame.url=route;
++check(album(browser,frame,"album.thumb:"+id).value.startsWith("\\\"data:image/png;base64,"),"thumbnail data only");check(NativeImage.live==0 && NativeImage.lastWidth<=240 && NativeImage.lastHeight<=160,"thumbnail native images released");
++NativeImage.failResize=true;check(album(browser,frame,"album.photo:"+id).code==400 && NativeImage.live==0,"decode/resize failure releases allocations");NativeImage.failResize=false;
++check(album(browser,frame,"album.restore:../outside").code==400,"path traversal denied before IO");
++check(album(browser,frame,"album.recycle:"+id).code==400 && store.list().size()==1,"unconfirmed direct id denied");
++String cancelled=token(browser,frame,id);album(browser,frame,"album.cancel-delete");check(album(browser,frame,"album.recycle:"+cancelled).code==400 && store.list().size()==1,"cancel does not move photo");
++String accepted=token(browser,frame,id);check(album(browser,frame,"album.recycle:"+accepted).code==0 && store.list().isEmpty(),"one-use confirmed library move");check(album(browser,frame,"album.recycle:"+accepted).code==400,"replay denied");
++check(album(browser,frame,"album.recycled").value.contains(id),"trash metadata visible");album(browser,frame,"album.restore:"+id);check(store.list().size()==1 && store.recycled().isEmpty(),"restored in original library");
++String busyTicket=token(browser,frame,id);TerminalCamera.busy=true;check(album(browser,frame,"album.recycle:"+busyTicket).code==429,"bounded worker busy rejection");TerminalCamera.busy=false;check(album(browser,frame,"album.recycle:"+busyTicket).code==0,"busy rejection preserves confirmation");album(browser,frame,"album.restore:"+id);
++String pending=token(browser,frame,id);TerminalCamera.defer=true;Reply delayed=album(browser,frame,"album.recycle:"+pending);TerminalBrowserSession.gen++;TerminalCamera.flush();check(delayed.value==null && store.list().size()==1,"navigation cancels pending mutation/callback");
++String hidden=token(browser,frame,id);Reply closed=album(browser,frame,"album.recycle:"+hidden);Object original=mc.screen;mc.screen=null;TerminalCamera.flush();check(closed.value==null && store.list().size()==1,"screen exit cancels pending mutation");mc.screen=original;
++String unfocused=token(browser,frame,id);Reply blur=album(browser,frame,"album.recycle:"+unfocused);mc.focused=false;TerminalCamera.flush();check(blur.value==null && store.list().size()==1,"focus loss cancels pending mutation");mc.focused=true;
++TerminalCamera.defer=false;check(NativeImage.live==0,"no remaining native fixture image");
++System.out.println("{\\\"success\\\":true,\\\"checks\\\":"+checks+",\\\"fixture\\\":\\\"production bridge logic, simulated CEF/MC/image backend, synthetic temporary files\\\"}");
++}}'''
++}
++with tempfile.TemporaryDirectory(dir=out) as temporary:
++    temp=Path(temporary);sources=[]
++    for name,text in files.items():
++        p=temp/'stubs'/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text,encoding='utf-8');sources.append(p)
++    sources.extend(root/'src/main/java/net/muxigame/terminal/client'/n for n in ['TerminalAlbumBridge.java','TerminalAlbumConfirmation.java','TerminalPhotoImages.java','TerminalPhotoStore.java','TerminalCameraBridge.java'])
++    b.compile_java(javac,sources,temp/'classes',str(dependency),temp/'args')
++    run=subprocess.run([str(java),'-cp',str(temp/'classes')+';'+str(dependency),'net.muxigame.terminal.client.AlbumBridgeTest',str(temp/'synthetic-game')],capture_output=True,text=True)
++    print(run.stdout);print(run.stderr);run.check_returncode();report=json.loads(run.stdout)
++    (out/'bridge-result.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
+diff --git a/tests/album/run-browser-qa.mjs b/tests/album/run-browser-qa.mjs
+new file mode 100644
+--- /dev/null
++++ b/tests/album/run-browser-qa.mjs
+@@ -0,0 +1,101 @@
++// No npm dependencies. Use the installed Chrome and Node's built-in CDP WebSocket.
++import fs from 'node:fs';
++import path from 'node:path';
++import {spawn} from 'node:child_process';
++import {fileURLToPath, pathToFileURL} from 'node:url';
++
++const directory = path.dirname(fileURLToPath(import.meta.url));
++const output = path.join(directory, 'evidence');
++fs.mkdirSync(output, {recursive: true});
++const chrome = process.env.TRANSITION_CHROME || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
++const profile = fs.mkdtempSync(path.join(output, 'chrome-profile-'));
++const child = spawn(chrome, ['--headless=new', '--disable-gpu', '--no-sandbox', '--disable-extensions', '--disable-background-networking', '--disable-component-update', '--no-first-run', '--no-default-browser-check', '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank'], {windowsHide: true, stdio: ['ignore', 'ignore', 'pipe']});
++let stderr = '';
++child.stderr.on('data', chunk => { stderr += chunk; });
++let socket;
++const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
++try {
++  let port;
++  for (let i = 0; i < 150; i++) {
++    const activePort = path.join(profile, 'DevToolsActivePort');
++    if (fs.existsSync(activePort)) { port = Number(fs.readFileSync(activePort, 'utf8').split('\n')[0]); break; }
++    if (child.exitCode !== null) throw new Error(`Chrome exited: ${stderr}`);
++    await pause(100);
++  }
++  if (!port) throw new Error(`Chrome did not start: ${stderr}`);
++  const target = await (await fetch(`http://127.0.0.1:${port}/json/new?${encodeURIComponent(pathToFileURL(path.join(directory, 'harness.html')).href+'#/album')}`, {method: 'PUT'})).json();
++  socket = new WebSocket(target.webSocketDebuggerUrl);
++  await new Promise((resolve, reject) => { socket.addEventListener('open', resolve, {once: true}); socket.addEventListener('error', reject, {once: true}); });
++  let sequence = 0;
++  const pending = new Map(), errors = [];
++  socket.addEventListener('message', event => {
++    const message = JSON.parse(event.data);
++    if (message.id && pending.has(message.id)) {
++      const callback = pending.get(message.id); pending.delete(message.id); clearTimeout(callback.timer);
++      if (message.error) callback.reject(new Error(JSON.stringify(message.error)));
++      else callback.resolve(message.result);
++    } else if (message.method === 'Runtime.exceptionThrown') errors.push(message.params.exceptionDetails);
++  });
++  socket.addEventListener('close', event => {
++    for (const callback of pending.values()) { clearTimeout(callback.timer); callback.reject(new Error(`CDP closed (${event.code}): ${stderr}`)); }
++    pending.clear();
++  });
++  function cdp(method, params = {}) {
++    const id = ++sequence;
++    return new Promise((resolve, reject) => {
++      const timer = setTimeout(() => { pending.delete(id); reject(new Error(`CDP timeout: ${method}; ${stderr}`)); }, 10000);
++      pending.set(id, {resolve, reject, timer}); socket.send(JSON.stringify({id, method, params}));
++    });
++  }
++  async function evaluate(expression) {
++    const result = await cdp('Runtime.evaluate', {expression, awaitPromise: true, returnByValue: true});
++    if (result.exceptionDetails) throw new Error(JSON.stringify(result.exceptionDetails));
++    return result.result.value;
++  }
++  async function screenshot(name) {
++    const result = await cdp('Page.captureScreenshot', {format: 'png', captureBeyondViewport: false});
++    fs.writeFileSync(path.join(output, `${name}.png`), Buffer.from(result.data, 'base64'));
++  }
++
++  await cdp('Page.enable');await cdp('Runtime.enable');
++  await cdp('Emulation.setDeviceMetricsOverride',{width:960,height:660,deviceScaleFactor:1,mobile:false});await pause(1000);
++  const tests=[];async function check(name,expression){tests.push({name,passed:!!await evaluate(expression)});}
++  async function click(selector){await evaluate('document.querySelector('+JSON.stringify(selector)+').click()');await pause(220);}
++  async function key(key,code=key){await cdp('Input.dispatchKeyEvent',{type:'keyDown',key,code});await cdp('Input.dispatchKeyEvent',{type:'keyUp',key,code});await pause(150);}
++  await check('independent home card and fixed shell','document.querySelectorAll("#albumApp").length===1 && document.querySelectorAll(".shell").length===1 && document.querySelector("#album.page-active")');
++  await check('shared installed-app count observes album card','document.querySelector("#installedAppCount").textContent.startsWith(String(document.querySelectorAll("#home .app-card").length))');
++  await check('original modules retained','document.querySelector("#camera") && document.querySelector("#settings") && document.querySelector("#music") && document.querySelector("#games")');
++  await check('native lazy thumbnail grid','document.querySelectorAll("#albumGrid .album-tile").length===2 && document.querySelector("#albumGrid img").src.startsWith("data:image/png;")');
++  await screenshot('01-thumbnail-grid-synthetic');
++  await click('#albumGrid button');
++  await check('viewer opens and thumbnail bytes released','!document.querySelector("#albumViewer").hidden && document.querySelector("#albumImage").src.startsWith("data:image/png;") && !document.querySelector("#albumGrid img").hasAttribute("src")');
++  await click('#albumZoomIn');await check('zoom control','document.querySelector("#albumImage").style.width==="150%"');await click('#albumFit');
++  await click('#albumDelete');
++  await check('clear confirmation before any mutation','!document.querySelector("#albumConfirm").hidden && qaLive.length===2 && !qaCommands.some(x=>x.startsWith("album.recycle:"))');
++  await check('safe default focus and background excluded','document.activeElement.id==="albumCancelDelete" && [...document.querySelectorAll("#albumBody button")].every(b=>b.disabled)');
++  await screenshot('02-confirmation-synthetic');
++  await key('Tab');await check('shared Tab enters only confirm control','document.activeElement.id==="albumConfirmDelete"');
++  await key('Escape');await check('Escape cancels without navigating or deleting','location.hash==="#/album" && document.querySelector("#albumConfirm").hidden && qaLive.length===2 && document.activeElement.id==="albumDelete"');
++  await click('#albumDelete');await click('#albumCancelDelete');await check('explicit cancel keeps original','qaLive.length===2 && qaTrash.length===0');
++  await click('#albumDelete');await click('#albumConfirmDelete');
++  await check('confirmed recycle refreshes shared list and clears viewed bytes','qaLive.length===1 && qaTrash.length===1 && document.querySelectorAll("#albumGrid button").length===1 && !document.querySelector("#albumImage").hasAttribute("src")');
++  await click('#albumRecycleTab');await click('#albumGrid button');
++  await check('recycle viewer supports restore and hides deletion','!document.querySelector("#albumRestore").hidden && document.querySelector("#albumDelete").hidden');
++  await screenshot('03-recycle-view-synthetic');await click('#albumRestore');await click('#albumPhotosTab');
++  await check('restored photo immediately visible','qaLive.length===2 && qaTrash.length===0 && document.querySelectorAll("#albumGrid button").length===2');
++  await evaluate('location.hash="/camera"');await pause(700);await click('#cameraShutter');await pause(500);
++  await check('camera save uses shared library','qaLive.length===3 && qaState.saved');
++  await check('camera retains embedded album and independent link','document.querySelector("#cameraAlbum") && document.querySelector("#cameraOpenAlbum")');
++  await evaluate('location.hash="/album"');await pause(700);
++  await check('new camera photo immediately present after album switch','document.querySelectorAll("#albumGrid button").length===3');
++  await cdp('Emulation.setDeviceMetricsOverride',{width:420,height:500,deviceScaleFactor:1,mobile:false});await pause(200);
++  await check('compact viewport has no horizontal overflow','document.querySelector("#album").scrollWidth<=document.querySelector("#album").clientWidth');await screenshot('04-small-grid-synthetic');
++  await click('#albumGrid button');await click('#albumDelete');await screenshot('05-small-confirmation-synthetic');
++  await check('compact confirmation visible and scrollable','(() => {const r=document.querySelector("#albumConfirm [role=dialog]").getBoundingClientRect();return r.top>=0 && r.bottom<=innerHeight && r.right<=innerWidth;})()');
++  await evaluate('location.hash="/home"');await pause(250);
++  await check('route exit drops images and pending confirmation','!qaPending && !document.querySelector("#albumImage").hasAttribute("src") && [...document.querySelectorAll("#albumGrid img")].every(i=>!i.hasAttribute("src"))');
++  tests.push({name:'no browser runtime exceptions',passed:errors.length===0,errors});
++  const report={synthetic:true,passed:tests.filter(t=>t.passed).length,total:tests.length,tests};
++  fs.writeFileSync(path.join(output,'results.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report));process.exitCode=report.passed===report.total?0:1;
++  await cdp('Browser.close');
++}finally{if(socket && socket.readyState===WebSocket.OPEN)socket.close();if(child.exitCode===null)child.kill();}
+diff --git a/tests/album/run-library-tests.py b/tests/album/run-library-tests.py
+new file mode 100644
+--- /dev/null
++++ b/tests/album/run-library-tests.py
+@@ -0,0 +1,11 @@
++from pathlib import Path
++import importlib.util,subprocess,tempfile,json
++root=Path(__file__).resolve().parents[2]
++spec=importlib.util.spec_from_file_location('build',root/'build.py');b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
++javac,java=b.java_tools(None);output=root/'build/album-tests';output.mkdir(parents=True,exist_ok=True)
++with tempfile.TemporaryDirectory(dir=output) as temp:
++    temp=Path(temp);sources=[root/'src/main/java/net/muxigame/terminal/client'/n for n in ['TerminalPhotoStore.java','TerminalAlbumConfirmation.java']]+[root/'tests/album/AlbumLibraryTest.java']
++    b.compile_java(javac,sources,temp/'classes','',temp/'args')
++    run=subprocess.run([str(java),'-cp',str(temp/'classes'),'net.muxigame.terminal.client.AlbumLibraryTest',str(temp/'synthetic-library')],capture_output=True,text=True)
++    print(run.stdout);print(run.stderr);run.check_returncode()
++    (output/'library-result.json').write_text(json.dumps(json.loads(run.stdout),indent=2),encoding='utf-8')

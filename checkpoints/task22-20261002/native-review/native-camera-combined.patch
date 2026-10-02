@@ -1,0 +1,651 @@
+diff --git a/src/main/java/net/muxigame/terminal/client/TerminalCamera.java b/src/main/java/net/muxigame/terminal/client/TerminalCamera.java
+--- a/src/main/java/net/muxigame/terminal/client/TerminalCamera.java
++++ b/src/main/java/net/muxigame/terminal/client/TerminalCamera.java
+@@ -12,116 +12,136 @@
+ import java.util.Base64;
+ import java.util.concurrent.atomic.AtomicBoolean;
+ 
+-/** Reads the already rendered world; no second world pass, entity mutation or private YSM API. */
++/** Native world view. Browser objects/navigation stay alive, but are never drawn in this Screen. */
+ public final class TerminalCamera {
+     private static boolean installed;
+     private static Session session;
+-    private static CameraType previous;
+-    private static boolean previousHideGui;
++    private static CameraType frameCamera;
++    private static boolean frameHideGui;
+     private static final AtomicBoolean working=new AtomicBoolean();
+     private static volatile State result=new State(false,"forward",false,0,"","","");
+     public record State(boolean active,String mode,boolean busy,long sequence,String preview,String saved,String error){}
+     private static final class Session {
+-        final long generation;final Object browser;
+-        boolean selfie,shutter;long nextFrame,sequence;
++        final long generation=TerminalBrowserSession.generation();
++        final Object browser=TerminalBrowserSession.current(),content=TerminalBrowserSession.content();
++        final Object level=Minecraft.getInstance().level,player=Minecraft.getInstance().player,connection=Minecraft.getInstance().getConnection();
++        final CameraType cameraType=Minecraft.getInstance().options.getCameraType();
++        final boolean hideGui=Minecraft.getInstance().options.hideGui;
++        final TerminalScreen terminal;
++        final TerminalCameraScreen screen=new TerminalCameraScreen();
++        boolean selfie,shutter;float yaw,pitch;
+         volatile boolean closed;
+-        Session(){generation=TerminalBrowserSession.generation();browser=TerminalBrowserSession.content();}
++        Session(TerminalScreen terminal){this.terminal=terminal;}
+     }
+     private TerminalCamera(){}
+     public static void begin(){
+-        Minecraft mc=Minecraft.getInstance();
+-        if(mc.screen instanceof TerminalHeldScreen)throw new IllegalStateException("Right-click to open the large terminal view before using camera");
+-        if(mc.level==null || mc.player==null || !(mc.screen instanceof TerminalScreen) || !mc.isWindowActive())throw new IllegalStateException("Return to the focused game to use camera");
+-        if(!installed){
+-            installed=true;
+-            NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST,TerminalCamera::beforeFrame);
+-            NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST,TerminalCamera::afterFrame);
+-            NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST,TerminalCamera::beforeGui);
+-            NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST,TerminalCamera::hand);
+-            NeoForge.EVENT_BUS.addListener(TerminalCamera::tick);
+-            TerminalBrowserSession.addStateListener(s->{if(session!=null && !valid(session))stop();});
++        var mc=Minecraft.getInstance();
++        if(session!=null && valid(session))return;
++        if(!(mc.screen instanceof TerminalScreen terminal) || mc.level==null || mc.player==null || !mc.player.isAlive() || mc.getConnection()==null || !mc.isWindowActive())
++            throw new IllegalStateException("请在已进入世界的终端中打开相机");
++        install();stop(false);var next=new Session(terminal);session=next;
++        result=new State(true,"forward",false,0,"","","");
++        try{mc.setScreen(next.screen);}catch(RuntimeException | Error failed){stop(false);mc.setScreen(terminal);throw failed;}
++    }
++    private static void install(){
++        if(installed)return;installed=true;
++        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST,TerminalCamera::beforeFrame);
++        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST,TerminalCamera::afterFrame);
++        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST,TerminalCamera::hand);
++        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST,TerminalCamera::angles);
++        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST,TerminalCamera::gui);
++        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST,TerminalCamera::layer);
++        NeoForge.EVENT_BUS.addListener(TerminalCamera::tick);
++        TerminalBrowserSession.addStateListener(s->{if(session!=null && !context(session))stop(true);});
++    }
++    public static void stop(){stop(true);}
++    static void removed(TerminalCameraScreen screen){if(session!=null && session.screen==screen)stop(false);}
++    private static void stop(boolean returnTerminal){
++        var s=session;if(s!=null)s.closed=true;session=null;restoreFrame();
++        if(s!=null){var mc=Minecraft.getInstance();mc.options.setCameraType(s.cameraType);mc.options.hideGui=s.hideGui;}
++        result=new State(false,result.mode(),working.get(),result.sequence(),"",result.saved(),result.error());
++        if(s!=null && returnTerminal && Minecraft.getInstance().screen==s.screen){
++            // No home/openApp/loadURL calls: same Screen and same live browser DOM/history.
++            Minecraft.getInstance().setScreen(context(s)?s.terminal:null);
+         }
+-        if(session!=null && valid(session))return;
+-        stop();session=new Session();result=new State(true,"forward",false,0,"","","");
+     }
+-    public static void stop(){
+-        if(session!=null)session.closed=true;
+-        session=null;restore();
+-        result=new State(false,result.mode(),false,result.sequence(),"",result.saved(),result.error());
++    private static boolean context(Session s){
++        var mc=Minecraft.getInstance();
++        return mc.level!=null && mc.level==s.level && mc.player==s.player && mc.player!=null && mc.player.isAlive()
++            && mc.getConnection()!=null && mc.getConnection()==s.connection
++            && TerminalBrowserSession.generation()==s.generation && TerminalBrowserSession.current()==s.browser
++            && TerminalBrowserSession.content()==s.content
++            && (!(s.terminal instanceof TerminalHeldScreen) || TerminalHeldScreen.holdingTerminal());
+     }
++    private static boolean valid(Session s){return !s.closed && context(s) && Minecraft.getInstance().screen==s.screen;}
++    private static Session require(){var s=session;if(s==null || !valid(s))throw new IllegalStateException("相机已关闭");return s;}
+     public static void mode(boolean selfie){
+-        require();if(session.shutter || working.get())throw new IllegalStateException("Wait for the current photo");
+-        session.selfie=selfie;session.nextFrame=0;
+-        // Prevent a frame from the previous lens being presented as the new lens.
++        var s=require();if(s.shutter || working.get())throw new IllegalStateException("正在保存照片，请稍候");
++        s.selfie=selfie;s.yaw=s.pitch=0;
+         result=new State(true,selfie?"selfie":"forward",false,result.sequence(),"",result.saved(),"");
+     }
+-    public static void shutter(){require();if(working.get() || session.shutter)throw new IllegalStateException("Photo is busy");session.shutter=true;session.nextFrame=0;}
+-    public static State state(){var s=session;return new State(s!=null,result.mode(),working.get() || (s!=null && s.shutter),result.sequence(),result.preview(),result.saved(),result.error());}
+-    private static void require(){if(session==null || !valid(session))throw new IllegalStateException("Preview paused; resume camera first");}
+-    private static boolean valid(Session s){
+-        Minecraft mc=Minecraft.getInstance();
+-        return !s.closed && mc.level!=null && mc.player!=null && mc.screen instanceof TerminalScreen && !(mc.screen instanceof TerminalHeldScreen) && mc.isWindowActive()
+-            && TerminalBrowserSession.generation()==s.generation && TerminalBrowserSession.content()==s.browser
+-            && TerminalBrowserSession.activeBrowser()==s.browser && TerminalBrowserSession.contentVisible()
+-            && (TerminalBrowserSession.HOME_URL+"#/camera").equals(TerminalBrowserSession.state().url());
++    public static void shutter(){
++        var s=require();if(!Minecraft.getInstance().isWindowActive())throw new IllegalStateException("请先返回游戏窗口");
++        if(working.get() || s.shutter)throw new IllegalStateException("正在保存照片，请稍候");
++        s.shutter=true;result=new State(true,result.mode(),true,result.sequence(),"",result.saved(),"");
+     }
++    static void aim(double dx,double dy){var s=require();s.yaw+=(float)dx*0.15f;s.pitch=Math.max(-70,Math.min(70,s.pitch+(float)dy*0.15f));}
++    public static State state(){var s=session;return new State(s!=null,result.mode(),working.get() || (s!=null && s.shutter),result.sequence(),"",result.saved(),result.error());}
++    static boolean focused(){return Minecraft.getInstance().isWindowActive();}
+     private static void beforeFrame(RenderFrameEvent.Pre event){
+-        restore();if(session==null)return;if(!valid(session)){stop();return;}
+-        var mc=Minecraft.getInstance();previous=mc.options.getCameraType();previousHideGui=mc.options.hideGui;
+-        mc.options.setCameraType(session.selfie?CameraType.THIRD_PERSON_FRONT:CameraType.FIRST_PERSON);
+-        mc.options.hideGui=false; // Makes the pre-HUD hook available even after F1; restored this frame.
++        restoreFrame();var s=session;if(s==null)return;if(!valid(s)){stop(true);return;}
++        var mc=Minecraft.getInstance();frameCamera=s.cameraType;frameHideGui=s.hideGui;
++        mc.options.setCameraType(s.selfie?CameraType.THIRD_PERSON_FRONT:CameraType.FIRST_PERSON);
++        mc.options.hideGui=true; // Temporary; never saved to options.txt. Normal HUD/map layers are disabled.
+     }
+-    private static void afterFrame(RenderFrameEvent.Post event){restore();}
+-    private static void restore(){if(previous!=null){var mc=Minecraft.getInstance();mc.options.setCameraType(previous);mc.options.hideGui=previousHideGui;previous=null;}}
+-    private static void tick(ClientTickEvent.Pre event){restore();if(session!=null && !valid(session))stop();}
++    private static void afterFrame(RenderFrameEvent.Post event){restoreFrame();}
++    private static void restoreFrame(){
++        if(frameCamera!=null){var mc=Minecraft.getInstance();mc.options.setCameraType(frameCamera);mc.options.hideGui=frameHideGui;frameCamera=null;}
++    }
++    private static void tick(ClientTickEvent.Pre event){
++        restoreFrame();var s=session;if(s==null)return;
++        if(!valid(s)){stop(true);return;}
++        if(s.shutter && !focused()){
++            s.shutter=false;result=new State(true,result.mode(),working.get(),result.sequence(),"",result.saved(),"窗口失焦，本次拍照已取消");
++        }
++    }
+     private static void hand(RenderHandEvent event){if(session!=null && valid(session))event.setCanceled(true);}
+-    private static void beforeGui(RenderGuiEvent.Pre event){
+-        Session s=session;if(s==null || previous==null || !valid(s) || working.get() || System.nanoTime()<s.nextFrame)return;
+-        RenderSystem.assertOnRenderThread();
+-        boolean save=s.shutter;s.shutter=false;s.nextFrame=System.nanoTime()+1_000_000_000L;
+-        NativeImage image=null;
+-        int binding=GlStateManager._getInteger(0x8069); // GL_TEXTURE_BINDING_2D
+-        int[] names={0x0D05,0x0D02,0x0D03,0x0D04}; // PACK_ALIGNMENT / ROW_LENGTH / SKIP_ROWS / SKIP_PIXELS
+-        int[] values=new int[names.length];for(int i=0;i<names.length;i++)values[i]=GlStateManager._getInteger(names[i]);
++    private static void gui(RenderGuiEvent.Pre event){if(session!=null && valid(session))event.setCanceled(true);}
++    private static void layer(RenderGuiLayerEvent.Pre event){if(session!=null && valid(session))event.setCanceled(true);}
++    private static void angles(ViewportEvent.ComputeCameraAngles event){
++        var s=session;if(s!=null && valid(s) && frameCamera!=null){event.setYaw(event.getYaw()+s.yaw);event.setPitch(Math.max(-89,Math.min(89,event.getPitch()+s.pitch)));}
++    }
++    /** First statement of native Screen.render, after world/shader output and BEFORE camera controls. */
++    static void capture(){
++        var s=session;if(s==null || !valid(s) || frameCamera==null || !s.shutter || working.get() || !focused())return;
++        RenderSystem.assertOnRenderThread();s.shutter=false;
++        NativeImage image=null;int binding=GlStateManager._getInteger(0x8069);
++        int[] names={0x0D05,0x0D02,0x0D03,0x0D04},values=new int[names.length];
++        for(int i=0;i<names.length;i++)values[i]=GlStateManager._getInteger(names[i]);
+         try{
+             var target=Minecraft.getInstance().getMainRenderTarget();
+-            if((long)target.width*target.height>16_777_216L)throw new IllegalStateException("Camera supports frames up to 16 megapixels");
+-            // Own allocation before download so an OpenGL/readback failure also closes it.
+-            // Same bind/download/flip sequence as 1.21.1 Screenshot.takeScreenshot.
++            if(target.width<=0 || target.height<=0 || (long)target.width*target.height>16_777_216L)throw new IllegalStateException("照片支持最大 1600 万像素");
+             image=new NativeImage(target.width,target.height,false);
+             RenderSystem.bindTexture(target.getColorTextureId());image.downloadTexture(0,true);image.flipY();
+-            if(!save){
+-                int width=Math.min(640,image.getWidth()),height=Math.max(1,(int)((long)width*image.getHeight()/image.getWidth()));
+-                NativeImage small=new NativeImage(width,height,false);
+-                try{image.resizeSubRectTo(0,0,image.getWidth(),image.getHeight(),small);}catch(Throwable error){small.close();throw error;}
+-                image.close();image=small;
+-            }
+-            NativeImage owned=image;image=null;
+-            TerminalPhotoStore store=TerminalCameraBridge.store();String mode=s.selfie?"selfie":"forward";
++            NativeImage owned=image;image=null;var store=TerminalCameraBridge.store();String mode=s.selfie?"selfie":"forward";
+             try{if(!submit(()->{
+                 try(owned){
+                     if(s.closed)return;
+-                    byte[] png=owned.asByteArray();String saved=save?store.save(png):result.saved();
+-                    String preview;
+-                    if(save){
+-                        int w=Math.min(640,owned.getWidth()),h=Math.max(1,(int)((long)w*owned.getHeight()/owned.getWidth()));
+-                        try(var small=new NativeImage(w,h,false)){owned.resizeSubRectTo(0,0,owned.getWidth(),owned.getHeight(),small);preview=data(small.asByteArray());}
+-                    }else preview=data(png);
+-                    if(!s.closed)result=new State(true,mode,false,++s.sequence,preview,saved,"");
+-                }catch(Exception error){if(!s.closed)result=new State(true,mode,false,result.sequence(),result.preview(),result.saved(),"Photo could not be saved or read");}
+-            })){owned.close();}}catch(RuntimeException | Error error){owned.close();throw error;}
+-        }catch(Exception error){result=new State(true,s.selfie?"selfie":"forward",false,result.sequence(),result.preview(),result.saved(),"Camera frame unavailable");}
++                    String saved=store.save(owned.asByteArray());
++                    if(!s.closed)result=new State(true,mode,false,result.sequence()+1,"",saved,"");
++                }catch(Exception failure){if(!s.closed)result=new State(true,mode,false,result.sequence(),"",result.saved(),"保存失败，请检查本机磁盘空间");}
++            })){owned.close();result=new State(true,mode,false,result.sequence(),"",result.saved(),"照片保存忙，请重试");}}
++            catch(RuntimeException | Error failure){owned.close();throw failure;}
++        }catch(Exception failure){result=new State(true,s.selfie?"selfie":"forward",false,result.sequence(),"",result.saved(),"无法读取当前画面，请重试");}
+         finally{if(image!=null)image.close();GlStateManager._bindTexture(binding);for(int i=0;i<names.length;i++)GlStateManager._pixelStore(names[i],values[i]);}
+     }
+     @FunctionalInterface interface Read {String get() throws Exception;}
+     static void io(Read read,CefQueryCallback callback){
+         if(!submit(()->{try{String response=read.get();Minecraft.getInstance().execute(()->callback.success(response));}catch(Exception error){Minecraft.getInstance().execute(()->callback.failure(400,"Photo unavailable"));}}))callback.failure(429,"Camera is busy");
+     }
+-    // One bounded daemon task at a time; the worker exits after each operation. No persistent thread or queue.
+     private static boolean submit(Runnable action){
+         if(!working.compareAndSet(false,true))return false;
+-        Thread worker=new Thread(()->{try{action.run();}finally{working.set(false);}},"muxi-terminal-camera-io");
+-        worker.setDaemon(true);
++        Thread worker=new Thread(()->{try{action.run();}finally{working.set(false);}},"muxi-terminal-camera-io");worker.setDaemon(true);
+         try{worker.start();return true;}catch(RuntimeException | Error error){working.set(false);throw error;}
+     }
+     static String data(byte[] png){return "data:image/png;base64,"+Base64.getEncoder().encodeToString(png);}
+diff --git a/src/main/java/net/muxigame/terminal/client/TerminalCameraScreen.java b/src/main/java/net/muxigame/terminal/client/TerminalCameraScreen.java
+new file mode 100644
+--- /dev/null
++++ b/src/main/java/net/muxigame/terminal/client/TerminalCameraScreen.java
+@@ -0,0 +1,59 @@
++package net.muxigame.terminal.client;
++
++import net.minecraft.client.gui.GuiGraphics;
++import net.minecraft.client.gui.components.Button;
++import net.minecraft.client.gui.screens.Screen;
++import net.minecraft.network.chat.Component;
++
++/** Transparent native viewfinder. MC widgets/fonts; no browser, tint, blur or secondary world pass. */
++public final class TerminalCameraScreen extends Screen {
++    private Button shutter,lens;
++    private String error="";
++    public TerminalCameraScreen(){super(Component.literal("终端相机"));}
++    @Override protected void init(){
++        int w=Math.max(60,Math.min(112,(width-32)/3)),x=(width-(w*3+16))/2,y=height-42;
++        shutter=addRenderableWidget(Button.builder(Component.literal("拍照 [空格]"),b->act(TerminalCamera::shutter)).bounds(x,y,w,24).build());
++        lens=addRenderableWidget(Button.builder(Component.literal("切换自拍 [F]"),b->toggle()).bounds(x+w+8,y,w,24).build());
++        addRenderableWidget(Button.builder(Component.literal("关闭相机 [Esc]"),b->onClose()).bounds(x+(w+8)*2,y,w,24).build());
++    }
++    private void act(Runnable action){try{action.run();error="";}catch(RuntimeException failed){error=failed.getMessage()==null?"相机暂不可用":failed.getMessage();}}
++    private void toggle(){act(()->TerminalCamera.mode(!"selfie".equals(TerminalCamera.state().mode())));}
++    @Override public boolean isPauseScreen(){return false;}
++    @Override public void renderBackground(GuiGraphics g,int x,int y,float delta){}
++    @Override public void render(GuiGraphics g,int mouseX,int mouseY,float partialTick){
++        TerminalCamera.capture();
++        var s=TerminalCamera.state();boolean focused=TerminalCamera.focused();
++        shutter.active=s.active() && !s.busy() && focused;lens.active=s.active() && !s.busy() && focused;
++        lens.setMessage(Component.literal("selfie".equals(s.mode())?"切换前拍 [F]":"切换自拍 [F]"));
++        int a=Math.max(12,width/12),b=Math.max(12,height/10),right=width-a,bottom=height-56,length=20,color=0xDFFFF4D5;
++        g.fill(a,b,a+length,b+2,color);g.fill(a,b,a+2,b+length,color);
++        g.fill(right-length,b,right,b+2,color);g.fill(right-2,b,right,b+length,color);
++        g.fill(a,bottom-2,a+length,bottom,color);g.fill(a,bottom-length,a+2,bottom,color);
++        g.fill(right-length,bottom-2,right,bottom,color);g.fill(right-2,bottom-length,right,bottom,color);
++        String status=!error.isEmpty()?error:!focused?"返回游戏窗口继续拍照":s.busy()?"正在保存到本机…":!s.error().isEmpty()?s.error():!s.saved().isEmpty()?"已保存 · 关闭后可在相册查看":"拖动空白画面调整取景 · 照片仅存本机";
++        g.drawCenteredString(font,status,width/2,Math.max(4,height-58),0xFFF4D5);
++        super.render(g,mouseX,mouseY,partialTick);
++    }
++    @Override public boolean keyPressed(int key,int scan,int modifiers){
++        if(key==256){onClose();return true;}
++        if(key==32){act(TerminalCamera::shutter);return true;}
++        if(key==70){toggle();return true;}
++        return super.keyPressed(key,scan,modifiers);
++    }
++    @Override public boolean mouseDragged(double x,double y,int button,double dx,double dy){
++        if(button==0 && getFocused()==null){act(()->TerminalCamera.aim(dx,dy));return true;}
++        return super.mouseDragged(x,y,button,dx,dy);
++    }
++    @Override public boolean mouseClicked(double x,double y,int button){
++        if(super.mouseClicked(x,y,button))return true;
++        setFocused(null);return button==0;
++    }
++    @Override public void tick(){if(!TerminalCamera.state().active())onClose();}
++    @Override public void onClose(){
++        if(net.minecraft.client.Minecraft.getInstance().screen!=this)return;
++        TerminalCamera.stop();
++        // Defensive safe exit if a screen was constructed without a resumable terminal session.
++        if(net.minecraft.client.Minecraft.getInstance().screen==this)net.minecraft.client.Minecraft.getInstance().setScreen(null);
++    }
++    @Override public void removed(){TerminalCamera.removed(this);super.removed();}
++}
+diff --git a/src/main/java/net/muxigame/terminal/client/TerminalCameraBridge.java b/src/main/java/net/muxigame/terminal/client/TerminalCameraBridge.java
+--- a/src/main/java/net/muxigame/terminal/client/TerminalCameraBridge.java
++++ b/src/main/java/net/muxigame/terminal/client/TerminalCameraBridge.java
+@@ -17,15 +17,23 @@
+             && (TerminalBrowserSession.HOME_URL+"#/camera").equals(frame.getURL());
+     }
+     public static boolean dispatch(CefBrowser browser,CefFrame frame,String request,CefQueryCallback callback){
++        if(request.equals("camera.open") || request.equals("terminal.app:camera")){
++            var mc=Minecraft.getInstance();
++            boolean local=TerminalBrowserSession.trusted(browser,frame)
++                && (TerminalBrowserSession.isShell(browser) || (browser==TerminalBrowserSession.content()
++                    && TerminalBrowserSession.state().kind()==TerminalBrowserSession.Kind.BUILTIN))
++                && mc.screen instanceof TerminalScreen;
++            if(!local){callback.failure(403,"Only the owned terminal can open native camera");return true;}
++            try{TerminalCamera.begin();callback.success("{\"ok\":true,\"native\":true}");}
++            catch(Exception failed){callback.failure(400,failed.getMessage());}
++            return true;
++        }
+         if(!request.startsWith("camera."))return false;
+         if(!authorized(browser,frame)){callback.failure(403,"Camera is available only in the owned camera app");return true;}
+         try{
+             switch(request){
+                 case "camera.begin" -> {TerminalCamera.begin();callback.success("{\"ok\":true}");}
+-                case "camera.stop" -> {TerminalCamera.stop();callback.success("{\"ok\":true}");}
+-                case "camera.mode:forward" -> {TerminalCamera.mode(false);callback.success("{\"ok\":true}");}
+-                case "camera.mode:selfie" -> {TerminalCamera.mode(true);callback.success("{\"ok\":true}");}
+-                case "camera.shutter" -> {TerminalCamera.shutter();callback.success("{\"ok\":true}");}
++                case "camera.stop", "camera.mode:forward", "camera.mode:selfie", "camera.shutter" -> callback.failure(403,"Use the native camera controls");
+                 case "camera.state" -> callback.success(JSON.toJson(TerminalCamera.state()));
+                 case "camera.photos" -> {var photos=store();TerminalCamera.io(()->JSON.toJson(photos.list()),callback);}
+                 default -> {
+diff --git a/src/main/java/net/muxigame/terminal/client/TerminalAlbumBridge.java b/src/main/java/net/muxigame/terminal/client/TerminalAlbumBridge.java
+--- a/src/main/java/net/muxigame/terminal/client/TerminalAlbumBridge.java
++++ b/src/main/java/net/muxigame/terminal/client/TerminalAlbumBridge.java
+@@ -25,8 +25,7 @@
+         var mc=Minecraft.getInstance();var screen=mc.screen;var level=mc.level;var player=mc.player;var connection=mc.getConnection();
+         long generation=TerminalBrowserSession.generation();
+         BooleanSupplier valid=()->authorized(browser,frame) && mc.screen==screen && mc.level==level && mc.player==player && mc.getConnection()==connection && mc.isWindowActive()
+-            && TerminalBrowserSession.generation()==generation && TerminalBrowserSession.content()==browser
+-            && (TerminalBrowserSession.HOME_URL+"#/album").equals(TerminalBrowserSession.state().url());
++            && TerminalBrowserSession.generation()==generation && TerminalBrowserSession.content()==browser;
+         try{
+             var photos=TerminalCameraBridge.store();
+             if(request.equals("album.photos")){io(valid,()->JSON.toJson(photos.list()),callback);return true;}
+@@ -58,8 +57,11 @@
+     private static void checkId(String id){if(!TerminalPhotoStore.validId(id))throw new IllegalArgumentException("Invalid photo id");}
+     private static void io(BooleanSupplier valid,TerminalCamera.Read action,CefQueryCallback callback){
+         TerminalCamera.io(()->{if(!valid.getAsBoolean())throw new IllegalStateException("Album view changed");return action.get();},new CefQueryCallback(){
+-            @Override public void success(String value){if(valid.getAsBoolean())callback.success(value);}
+-            @Override public void failure(int code,String value){if(valid.getAsBoolean())callback.failure(code,value);}
++            // Complete a still-live query even when focus/screen context changed. Silently dropping
++            // its callback leaves JCEF to fail it from CefQueryCallback_N.finalize(). Never return
++            // photo data on an invalid context; the outer owner guard still blocks stale documents.
++            @Override public void success(String value){if(valid.getAsBoolean())callback.success(value);else callback.failure(409,"Album view changed");}
++            @Override public void failure(int code,String value){if(valid.getAsBoolean())callback.failure(code,value);else callback.failure(409,"Album view changed");}
+         });
+     }
+ }
+diff --git a/src/main/java/net/muxigame/terminal/client/camera/mixin/NativeCameraHudMixin.java b/src/main/java/net/muxigame/terminal/client/camera/mixin/NativeCameraHudMixin.java
+new file mode 100644
+--- /dev/null
++++ b/src/main/java/net/muxigame/terminal/client/camera/mixin/NativeCameraHudMixin.java
+@@ -0,0 +1,20 @@
++package net.muxigame.terminal.client.camera.mixin;
++
++import net.minecraft.client.DeltaTracker;
++import net.minecraft.client.Minecraft;
++import net.minecraft.client.gui.Gui;
++import net.minecraft.client.gui.GuiGraphics;
++import net.muxigame.terminal.client.TerminalCameraScreen;
++import org.spongepowered.asm.mixin.Mixin;
++import org.spongepowered.asm.mixin.injection.At;
++import org.spongepowered.asm.mixin.injection.Inject;
++import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
++
++/** GameRenderer also invokes this outside the cancellable HUD layer. Never changes the autosave option. */
++@Mixin(value=Gui.class,remap=false)
++public abstract class NativeCameraHudMixin {
++    @Inject(method="renderSavingIndicator(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V",at=@At("HEAD"),cancellable=true)
++    private void muxi$nativeCamera(GuiGraphics graphics,DeltaTracker delta,CallbackInfo callback){
++        if(Minecraft.getInstance().screen instanceof TerminalCameraScreen)callback.cancel();
++    }
++}
+diff --git a/src/main/resources/assets/muxi_terminal/html/terminal/camera-app.js b/src/main/resources/assets/muxi_terminal/html/terminal/camera-app.js
+--- a/src/main/resources/assets/muxi_terminal/html/terminal/camera-app.js
++++ b/src/main/resources/assets/muxi_terminal/html/terminal/camera-app.js
+@@ -1,79 +1,16 @@
+-/* Additive built-in module; retains existing MC shell, card, button and keyboard styles. */
++/* Native camera launcher. Retains the existing terminal card/icon and never navigates the shell. */
+ (() => {
+   const host=document.querySelector('#app-content'),grid=document.querySelector('#home .app-grid');
+   if(!host || !grid)return;
+   const card=document.createElement('button');card.className='app-card';card.id='cameraApp';
+-  card.innerHTML='<span class="app-icon camera-icon"><i></i></span><span class="app-name">相机</span><span class="app-desc">前拍 / 自拍 · 本地相册</span>';
++  card.innerHTML='<span class="app-icon camera-icon"><i></i></span><span class="app-name">相机</span><span class="app-desc">前拍 / 自拍 · 本机相册</span>';
+   grid.append(card);
+-  card.addEventListener('click',()=>window.terminalLaunch({kind:'builtin',id:'camera',name:'相机',source:card}).catch(error=>setStatus(error.message)));
++  const open=()=>native('camera.open').catch(error=>setStatus(error.message));
++  card.addEventListener('click',open);
++  // Existing bookmarks may still use #/camera. They show only a native entry, never a web viewfinder.
+   const page=document.createElement('section');page.id='camera';page.className='page';
+-  page.innerHTML=`<div class="toolbar"><button class="back" id="cameraHome" aria-label="返回首页">‹</button><div><div class="eyebrow">APP / CAMERA</div><h2>相机</h2></div><span class="camera-local">仅保存在本机</span></div>
+-    <div class="camera-layout"><div class="camera-view"><img id="cameraPreview" alt="游戏内相机预览" hidden><span id="cameraPlaceholder">等待游戏画面…</span><span id="cameraLens">前拍</span></div>
+-    <div class="camera-controls"><button class="secondary" id="cameraForward" aria-pressed="true">前拍</button><button class="secondary" id="cameraSelfie" aria-pressed="false">自拍</button><button class="primary" id="cameraShutter" disabled>拍照 [空格]</button><button class="secondary" id="cameraResume">恢复预览</button><button class="secondary" id="cameraAlbum">本地相册</button><button class="secondary" id="cameraOpenAlbum">打开相册 APP</button></div>
+-    <p id="cameraStatus" role="status" aria-live="polite">右键打开终端大界面使用相机；预览约每秒更新一次。</p><p class="camera-note">照片保留游戏画面原始分辨率，仅存本机。自拍使用游戏正面第三人称视角，近墙时镜头会按游戏规则避障。</p>
+-    <div id="cameraPhotos" hidden><div class="camera-album-actions"><button class="secondary" id="cameraReturn">返回预览</button><span>最近 200 张照片</span></div><div id="cameraPhotoList"></div><img id="cameraPhoto" alt="本地照片" hidden></div></div>`;
++  page.innerHTML='<div class="toolbar"><button class="back" data-open="home" aria-label="返回首页">←</button><div><div class="eyebrow">APP / CAMERA</div><h2>相机</h2></div></div><button class="primary" id="cameraNativeOpen">进入拍摄</button><p>拍摄时隐藏终端与游戏 HUD；关闭后返回当前终端。照片仅保存在本机，可在相册查看。</p>';
+   host.append(page);
+-  const el=id=>document.getElementById(id);
+-  const message=text=>{el('cameraStatus').textContent=text;};
+-  let gallery=false,disposed=false,photoEpoch=0,opening=0,lastSaved='';
+-  function invoke(command){
+-    let deadline;
+-    return Promise.race([native(command),new Promise((_,reject)=>{deadline=setTimeout(()=>reject(new Error('相机响应超时，请重新打开相机。')),4000);})]).finally(()=>clearTimeout(deadline));
+-  }
+-  const camera=MuxiCameraController.create({invoke,onError:error=>message(error.message),onState:state=>{
+-    if(disposed)return;
+-    el('cameraShutter').disabled=gallery || !state.active || state.busy || !state.preview;
+-    el('cameraForward').disabled=el('cameraSelfie').disabled=gallery || !state.active || state.busy;
+-    el('cameraResume').hidden=!!state.active || gallery;
+-    const selfie=state.mode==='selfie';el('cameraLens').textContent=selfie?'自拍':'前拍';
+-    el('cameraForward').setAttribute('aria-pressed',String(!selfie));el('cameraSelfie').setAttribute('aria-pressed',String(selfie));
+-    if(!gallery){el('cameraPreview').hidden=!state.preview;el('cameraPlaceholder').hidden=!!state.preview;
+-      el('cameraPlaceholder').textContent=state.active?'等待游戏画面…':'预览已暂停';
+-      if(state.preview)el('cameraPreview').src=state.preview;else el('cameraPreview').removeAttribute('src');}
+-    if(state.error)message('画面或保存失败，请重试。');
+-    else if(state.saved && state.saved!==lastSaved){lastSaved=state.saved;message('已保存到本地相册：'+state.saved);}
+-  }});
+-  const active=()=>contentView && location.hash==='#/camera';
+-  async function start(){
+-    const attempt=++opening;gallery=false;++photoEpoch;el('cameraPhotos').hidden=true;
+-    el('cameraPhoto').removeAttribute('src');el('cameraPhoto').hidden=true;
+-    // The native container reveals a loaded/painted view after its existing launch animation.
+-    for(let i=0;i<12 && attempt===opening && active() && !disposed;i++){
+-      try{await camera.start();if(camera.getState().active)return;}catch{}
+-      await new Promise(resolve=>setTimeout(resolve,250));
+-    }
+-  }
+-  function action(work){work().catch(error=>message(error.message));}
+-  el('cameraHome').addEventListener('click',()=>{++opening;action(async()=>{await camera.stop();await native('terminal.home');});});
+-  el('cameraForward').addEventListener('click',()=>action(()=>camera.mode('forward')));
+-  el('cameraSelfie').addEventListener('click',()=>action(()=>camera.mode('selfie')));
+-  el('cameraShutter').addEventListener('click',()=>action(()=>camera.shutter()));
+-  el('cameraOpenAlbum').addEventListener('click',()=>action(async()=>{++opening;++photoEpoch;gallery=true;await camera.stop();await native('terminal.app:album');}));
+-  el('cameraResume').addEventListener('click',()=>action(start));el('cameraReturn').addEventListener('click',()=>action(start));
+-  async function read(command){for(let i=0;i<8;i++){try{return await invoke(command);}catch(error){if(!error.message.startsWith('429:') || i===7)throw error;await new Promise(resolve=>setTimeout(resolve,150));}}}
+-  el('cameraAlbum').addEventListener('click',()=>action(async()=>{
+-    ++opening;gallery=true;const e=++photoEpoch;await camera.stop();el('cameraPhotos').hidden=false;
+-    el('cameraPreview').removeAttribute('src');el('cameraPreview').hidden=true;el('cameraPlaceholder').hidden=false;
+-    el('cameraPlaceholder').textContent='本地相册';el('cameraResume').hidden=true;
+-    const list=el('cameraPhotoList');list.replaceChildren();
+-    const photos=await read('camera.photos');if(e!==photoEpoch || disposed || !active())return;
+-    if(!photos.length){list.textContent='还没有照片，返回预览拍一张吧。';return;}
+-    for(const photo of photos){const button=document.createElement('button');button.className='secondary';button.textContent=photo.id;
+-      button.addEventListener('click',()=>action(async()=>{
+-        const p=++photoEpoch;const data=await read('camera.photo:'+photo.id);
+-        if(p!==photoEpoch || disposed || !gallery || !active())return;
+-        if(typeof data!=='string' || !data.startsWith('data:image/png;base64,'))throw new Error('照片格式无效。');
+-        el('cameraPhoto').src=data;el('cameraPhoto').hidden=false;
+-      }));list.append(button);}
+-  }));
+-  function sync(){if(active()) {show('camera');action(start);}else{++opening;++photoEpoch;camera.stop();}}
+-  window.addEventListener('hashchange',sync);
+-  window.addEventListener('pagehide',()=>{disposed=true;++opening;++photoEpoch;camera.dispose();el('cameraPreview').removeAttribute('src');el('cameraPhoto').removeAttribute('src');});
+-  document.addEventListener('visibilitychange',()=>{if(document.hidden){++opening;camera.stop();}});
+-  document.addEventListener('keydown',event=>{
+-    if(!active() || gallery || event.repeat || event.defaultPrevented || /INPUT|TEXTAREA/.test(event.target.tagName))return;
+-    // Enter activates the focused control; Space always uses the camera shutter.
+-    if(event.code==='Space'){event.preventDefault();action(()=>camera.shutter());}
+-  });
+-  if(active())sync();
++  page.querySelector('#cameraNativeOpen').addEventListener('click',open);
++  page.querySelector('[data-open]').addEventListener('click',()=>navigate('home'));
+ })();
+diff --git a/src/main/resources/muxi_terminal.camera.mixins.json b/src/main/resources/muxi_terminal.camera.mixins.json
+new file mode 100644
+--- /dev/null
++++ b/src/main/resources/muxi_terminal.camera.mixins.json
+@@ -0,0 +1,8 @@
++{
++  "required": true,
++  "minVersion": "0.8",
++  "package": "net.muxigame.terminal.client.camera.mixin",
++  "compatibilityLevel": "JAVA_21",
++  "client": ["NativeCameraHudMixin"],
++  "injectors": { "defaultRequire": 1 }
++}
+diff --git a/src/main/java/net/muxigame/terminal/client/TerminalClient.java b/src/main/java/net/muxigame/terminal/client/TerminalClient.java
+--- a/src/main/java/net/muxigame/terminal/client/TerminalClient.java
++++ b/src/main/java/net/muxigame/terminal/client/TerminalClient.java
+@@ -54,6 +54,10 @@
+         Minecraft mc = Minecraft.getInstance();
+         if (MCEF.isInitialized()) {
+             var browser=TerminalBrowserSession.getOrCreate();
++            if("camera".equals(app)){
++                if(!(mc.screen instanceof TerminalScreen))mc.setScreen(new TerminalScreen(browser));
++                TerminalCamera.begin();return;
++            }
+             TerminalBrowserSession.openApp(app);
+             mc.setScreen(new TerminalScreen(browser));
+             return;
+@@ -64,6 +68,7 @@
+ 
+         MCEF.scheduleForInit(success -> mc.execute(() -> {
+             if (success) {
++                if("camera".equals(app)){openApp(app);return;}
+                 var browser=TerminalBrowserSession.getOrCreate();
+                 TerminalBrowserSession.openApp(app);
+                 mc.setScreen(new TerminalScreen(browser));
+diff --git a/src/main/resources/assets/muxi_terminal/html/terminal/app.js b/src/main/resources/assets/muxi_terminal/html/terminal/app.js
+--- a/src/main/resources/assets/muxi_terminal/html/terminal/app.js
++++ b/src/main/resources/assets/muxi_terminal/html/terminal/app.js
+@@ -116,6 +116,7 @@
+ 
+ function navigate(id,source){
+   if(typeof window.muxiTerminalQuery==='function'){
++    if(id==='camera'){native('camera.open').catch(error=>setStatus(error.message));return;}
+     if(contentView && id==='home'){native('terminal.home').catch(error=>setStatus(error.message));return;}
+     if(!contentView && ['tasks','guide','games','camera','friends','album','settings','music'].includes(id)){
+       if(window.terminalLaunch)window.terminalLaunch({kind:'builtin',id,name:id==='friends'?'平台好友':id==='album'?'相册':id==='music'?'音乐':id==='settings'?'设置':id==='camera'?'相机':id==='games'?'小游戏':id==='tasks'?'任务':'游戏指南',source}).catch(error=>setStatus(error.message));
+diff --git a/src/main/resources/META-INF/neoforge.mods.toml b/src/main/resources/META-INF/neoforge.mods.toml
+--- a/src/main/resources/META-INF/neoforge.mods.toml
++++ b/src/main/resources/META-INF/neoforge.mods.toml
+@@ -35,3 +35,6 @@
+ [[mixins]]
+ config="muxi_terminal.music.mixins.json"
+ 
++[[mixins]]
++config="muxi_terminal.camera.mixins.json"
++
+diff --git a/tests/camera/native-entry.test.cjs b/tests/camera/native-entry.test.cjs
+new file mode 100644
+--- /dev/null
++++ b/tests/camera/native-entry.test.cjs
+@@ -0,0 +1,17 @@
++const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
++const assets=path.join(__dirname,'../../src/main/resources/assets/muxi_terminal/html/terminal');
++let calls=[],launches=0,status='';
++function element(){return {listeners:{},children:[],addEventListener(k,fn){this.listeners[k]=fn;},append(x){this.children.push(x);},querySelector(s){return this.nodes[s]??=(element());},nodes:{}};}
++const host=element(),grid=element(),location={hash:'#/music'};
++const context={document:{querySelector:s=>s==='#app-content'?host:s==='#home .app-grid'?grid:null,createElement:()=>element()},location,native:async s=>{calls.push(s);return {ok:true,native:true};},setStatus:s=>status=s,navigate:()=>{},window:{terminalLaunch:()=>{launches++;}},console};
++vm.runInNewContext(fs.readFileSync(path.join(assets,'camera-app.js'),'utf8'),context);
++assert.equal(grid.children.length,1);assert.equal(grid.children[0].className,'app-card');assert.equal(grid.children[0].id,'cameraApp');
++assert.ok(grid.children[0].innerHTML.includes('camera-icon'));assert.ok(grid.children[0].innerHTML.includes('相机'));
++grid.children[0].listeners.click();assert.deepEqual(calls,['camera.open']);assert.equal(launches,0);assert.equal(location.hash,'#/music');
++assert.equal(host.children.length,1);assert.ok(!host.children[0].innerHTML.includes('<img'));assert.ok(!host.children[0].innerHTML.includes('cameraPreview'));
++host.children[0].nodes['#cameraNativeOpen'].listeners.click();assert.equal(calls.at(-1),'camera.open');assert.equal(location.hash,'#/music');
++const source=fs.readFileSync(path.join(assets,'app.js'),'utf8');
++const fn=source.slice(source.indexOf('function navigate(id,source){'),source.indexOf("document.querySelectorAll('[data-open]')"));
++context.show=()=>{throw Error('camera must not show a web page');};context.contentView=true;context.window.muxiTerminalQuery=()=>{};
++vm.runInNewContext(fn,context);context.navigate('camera',grid.children[0]);assert.equal(calls.at(-1),'camera.open');assert.equal(location.hash,'#/music');assert.equal(launches,0);
++console.log(JSON.stringify({success:true,checks:16,scope:'native entry, shell URL preserved, no web preview/launch transition; simulated DOM'}));
+diff --git a/tests/camera/run-native-state.py b/tests/camera/run-native-state.py
+new file mode 100644
+--- /dev/null
++++ b/tests/camera/run-native-state.py
+@@ -0,0 +1,65 @@
++"""Production camera lifecycle against deterministic MC/GL fixtures. NOT real render acceptance."""
++from pathlib import Path
++import importlib.util,subprocess,tempfile,json
++root=Path(__file__).resolve().parents[2];out=root/'build/native-camera-tests';out.mkdir(parents=True,exist_ok=True)
++spec=importlib.util.spec_from_file_location('build',root/'build.py');build=importlib.util.module_from_spec(spec);spec.loader.exec_module(build)
++javac,java=build.java_tools(None)
++dependency=Path('C:/Users/Administrator/Documents/Codex/2026-10-01/task-21/music-app/build/compiler-dependencies.jar')
++files={
++'net/minecraft/client/Minecraft.java':'''package net.minecraft.client;import net.minecraft.client.gui.screens.Screen;public class Minecraft {
++static final Minecraft INSTANCE=new Minecraft();public static Minecraft getInstance(){return INSTANCE;}
++public Screen screen;public Object level=new Object(),connection=new Object();public Player player=new Player();public Options options=new Options();public boolean focus=true;
++public boolean isWindowActive(){return focus;}public Object getConnection(){return connection;}public void execute(Runnable r){r.run();}
++public void setScreen(Screen next){var old=screen;screen=next;if(old!=null)old.removed();}public Target target=new Target();public Target getMainRenderTarget(){return target;}
++public static class Target{public int width=800,height=600;public int getColorTextureId(){return 88;}}
++public static class Player{public boolean alive=true;public boolean isAlive(){return alive;}}
++public static class Options{public boolean hideGui;public CameraType camera=CameraType.THIRD_PERSON_BACK;public CameraType getCameraType(){return camera;}public void setCameraType(CameraType c){camera=c;}}
++}''',
++'net/minecraft/client/gui/screens/Screen.java':'''package net.minecraft.client.gui.screens;public class Screen{public void removed(){}}''',
++'net/muxigame/terminal/client/TerminalScreen.java':'''package net.muxigame.terminal.client;public class TerminalScreen extends net.minecraft.client.gui.screens.Screen{}''',
++'net/muxigame/terminal/client/TerminalHeldScreen.java':'''package net.muxigame.terminal.client;public class TerminalHeldScreen extends TerminalScreen{public static boolean holding=true;public static boolean holdingTerminal(){return holding;}}''',
++'net/muxigame/terminal/client/TerminalCameraScreen.java':'''package net.muxigame.terminal.client;public class TerminalCameraScreen extends net.minecraft.client.gui.screens.Screen{public void removed(){TerminalCamera.removed(this);}}''',
++'net/muxigame/terminal/client/TerminalBrowserSession.java':'''package net.muxigame.terminal.client;public class TerminalBrowserSession{public static long gen=7;public static Object browser=new Object(),content=new Object();public static long generation(){return gen;}public static Object current(){return browser;}public static Object content(){return content;}public static void addStateListener(java.util.function.Consumer<Object> l){}}''',
++'net/muxigame/terminal/client/TerminalCameraBridge.java':'''package net.muxigame.terminal.client;public class TerminalCameraBridge {static Store store=new Store();public static Store store(){return store;}public static class Store{public int saves;public String save(byte[] bytes){saves++;return "photo-"+saves;}}}''',
++'net/neoforged/neoforge/common/NeoForge.java':'''package net.neoforged.neoforge.common;public class NeoForge {public static Bus EVENT_BUS=new Bus();public static class Bus{public <T>void addListener(java.util.function.Consumer<T> c){}public <T>void addListener(net.neoforged.bus.api.EventPriority p,java.util.function.Consumer<T> c){}}}''',
++'com/mojang/blaze3d/platform/GlStateManager.java':'''package com.mojang.blaze3d.platform;public class GlStateManager{public static int binding=3;public static java.util.Map<Integer,Integer> pack=new java.util.HashMap<>();static{for(int n:new int[]{0x0D05,0x0D02,0x0D03,0x0D04})pack.put(n,n+1);}public static int _getInteger(int n){return n==0x8069?binding:pack.get(n);}public static void _bindTexture(int b){binding=b;}public static void _pixelStore(int n,int v){pack.put(n,v);}}''',
++'com/mojang/blaze3d/systems/RenderSystem.java':'''package com.mojang.blaze3d.systems;public class RenderSystem{public static void assertOnRenderThread(){}public static void bindTexture(int id){com.mojang.blaze3d.platform.GlStateManager.binding=id;}}''',
++'com/mojang/blaze3d/platform/NativeImage.java':'''package com.mojang.blaze3d.platform;public class NativeImage implements AutoCloseable {public static volatile int live,downloads;public static boolean failDownload,failEncode;private boolean closed;public NativeImage(int w,int h,boolean b){live++;}public void downloadTexture(int l,boolean b){downloads++;GlStateManager.pack.replaceAll((k,v)->0);if(failDownload)throw new IllegalStateException("download");}public void flipY(){}public byte[] asByteArray(){if(failEncode)throw new IllegalStateException("encode");return new byte[]{1};}public void close(){if(!closed){closed=true;live--;}}}''',
++'net/muxigame/terminal/client/NativeCameraStateTest.java':'''package net.muxigame.terminal.client;
++import net.minecraft.client.*;import net.minecraft.client.gui.screens.Screen;import com.mojang.blaze3d.platform.*;import net.neoforged.neoforge.client.event.*;
++public class NativeCameraStateTest {
++static int checks;static void check(boolean b,String m){checks++;if(!b)throw new AssertionError(m);}static void call(String n,Class<?> t)throws Exception{var m=TerminalCamera.class.getDeclaredMethod(n,t);m.setAccessible(true);m.invoke(null,(Object)null);}
++static void pre()throws Exception{call("beforeFrame",RenderFrameEvent.Pre.class);}static void post()throws Exception{call("afterFrame",RenderFrameEvent.Post.class);}static void tick()throws Exception{call("tick",ClientTickEvent.Pre.class);}
++static void waitIO()throws Exception{for(int i=0;i<200&&TerminalCamera.state().busy();i++)Thread.sleep(5);check(!TerminalCamera.state().busy(),"bounded worker completed");}
++public static void main(String[] args)throws Exception {
++var mc=Minecraft.getInstance();var terminal=new TerminalScreen();mc.screen=terminal;var camera=mc.options.camera;long gen=TerminalBrowserSession.gen;Object browser=TerminalBrowserSession.browser,content=TerminalBrowserSession.content,player=mc.player,level=mc.level;
++TerminalCamera.begin();check(mc.screen instanceof TerminalCameraScreen,"native screen entered");check(TerminalCamera.state().active(),"session active");check(TerminalBrowserSession.gen==gen && TerminalBrowserSession.browser==browser && TerminalBrowserSession.content==content,"browser navigation untouched");
++var hud=new net.muxigame.terminal.client.camera.mixin.NativeCameraHudMixin(){};var method=net.muxigame.terminal.client.camera.mixin.NativeCameraHudMixin.class.getDeclaredMethod("muxi$nativeCamera",net.minecraft.client.gui.GuiGraphics.class,net.minecraft.client.DeltaTracker.class,org.spongepowered.asm.mixin.injection.callback.CallbackInfo.class);method.setAccessible(true);var callback=new org.spongepowered.asm.mixin.injection.callback.CallbackInfo("test",true);method.invoke(hud,null,null,callback);check(callback.isCancelled(),"standalone saving indicator canceled in native Screen");check(mc.options.camera==camera && !mc.options.hideGui,"saving indicator filter does not change options");
++pre();check(mc.options.hideGui && mc.options.camera==CameraType.FIRST_PERSON,"forward world without HUD");TerminalCamera.capture();check(NativeImage.downloads==0,"live native preview does not read back/encode frames");post();check(!mc.options.hideGui && mc.options.camera==camera,"frame settings restored");
++TerminalCamera.mode(true);pre();check(mc.options.camera==CameraType.THIRD_PERSON_FRONT,"selfie standard game camera");post();check(mc.options.camera==camera,"selfie perspective restored");TerminalCamera.mode(false);
++TerminalCamera.stop();mc.options.hideGui=true;TerminalCamera.begin();pre();post();check(mc.options.hideGui,"existing F1 hidden state preserved");TerminalCamera.stop();mc.options.hideGui=false;TerminalCamera.begin();
++pre();TerminalCamera.shutter();TerminalCamera.capture();post();waitIO();check(TerminalCameraBridge.store.saves==1 && TerminalCamera.state().sequence()==1,"one shutter saved once");check(NativeImage.live==0,"native image closed");check(GlStateManager.binding==3 && GlStateManager.pack.entrySet().stream().allMatch(e->e.getValue()==e.getKey()+1),"texture binding and pixel-pack params restored");
++pre();NativeImage.failDownload=true;TerminalCamera.shutter();TerminalCamera.capture();post();check(NativeImage.live==0 && !TerminalCamera.state().error().isEmpty(),"failed readback closed allocation");check(GlStateManager.binding==3 && GlStateManager.pack.entrySet().stream().allMatch(e->e.getValue()==e.getKey()+1),"failed readback restores GL state");NativeImage.failDownload=false;
++pre();NativeImage.failEncode=true;TerminalCamera.shutter();TerminalCamera.capture();post();waitIO();check(NativeImage.live==0 && TerminalCameraBridge.store.saves==1,"failed PNG encode closed image, no file");NativeImage.failEncode=false;
++mc.target.width=10000;mc.target.height=10000;pre();TerminalCamera.shutter();TerminalCamera.capture();post();check(NativeImage.live==0 && TerminalCameraBridge.store.saves==1,"oversized frames fail before allocation/save");mc.target.width=800;mc.target.height=600;
++TerminalCamera.shutter();mc.focus=false;tick();check(!TerminalCamera.state().busy(),"queued shutter canceled on focus loss");boolean denied=false;try{TerminalCamera.shutter();}catch(IllegalStateException e){denied=true;}check(denied,"unfocused shutter denied");check(TerminalCamera.state().active() && mc.screen instanceof TerminalCameraScreen,"native mode stays available while unfocused");mc.focus=true;
++pre();TerminalCamera.stop();check(mc.screen==terminal,"close returns exact saved terminal screen");check(mc.options.camera==camera && !mc.options.hideGui,"close mid-frame restores options");check(TerminalBrowserSession.gen==gen && TerminalBrowserSession.content==content,"same page after close");check(mc.player==player && mc.level==level,"no player/level replacement");
++callback=new org.spongepowered.asm.mixin.injection.callback.CallbackInfo("test",true);method.invoke(hud,null,null,callback);check(!callback.isCancelled(),"normal terminal saving indicator restored after camera close");
++TerminalCamera.begin();TerminalCamera.shutter();TerminalCamera.stop();check(TerminalCameraBridge.store.saves==1 && !TerminalCamera.state().active(),"cancel before render creates no PNG");
++TerminalCamera.begin();pre();var replacement=new Screen();mc.setScreen(replacement);check(!TerminalCamera.state().active() && mc.screen==replacement,"external screen replacement releases mode without overriding it");check(mc.options.camera==camera && !mc.options.hideGui,"replacement restores options");
++mc.screen=terminal;TerminalCamera.begin();TerminalBrowserSession.gen++;tick();check(mc.screen==null && !TerminalCamera.state().active(),"invalid browser context safely exits without old terminal");
++mc.screen=terminal;TerminalCamera.begin();pre();mc.connection=null;tick();check(mc.screen==null && !TerminalCamera.state().active() && !mc.options.hideGui && mc.options.camera==camera,"disconnect releases session/options without stale terminal");
++mc.connection=new Object();var held=new TerminalHeldScreen();mc.screen=held;TerminalCamera.begin();TerminalCamera.stop();check(mc.screen==held,"held interaction returns exact held terminal screen");TerminalCamera.begin();TerminalHeldScreen.holding=false;tick();check(mc.screen==null && !TerminalCamera.state().active(),"removed held terminal invalidates return context");
++check(NativeImage.live==0,"no remaining native image allocation");System.out.println("{\\"success\\":true,\\"checks\\":"+checks+",\\"scope\\":\\"production lifecycle and readback logic; deterministic MC/GL fixtures, not a real game render\\"}");
++}}
++'''
++}
++with tempfile.TemporaryDirectory(dir=out) as temporary:
++    temp=Path(temporary);sources=[]
++    for name,source in files.items():
++        p=temp/'stubs'/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(source,encoding='utf-8');sources.append(p)
++    sources.extend(root/'src/main/java/net/muxigame/terminal/client'/name for name in ['TerminalCamera.java','camera/mixin/NativeCameraHudMixin.java'])
++    build.compile_java(javac,sources,temp/'classes',str(dependency),temp/'compile.args')
++    run=subprocess.run([str(java),'-cp',str(temp/'classes')+';'+str(dependency),'net.muxigame.terminal.client.NativeCameraStateTest'],capture_output=True,text=True)
++    print(run.stdout);print(run.stderr);run.check_returncode();report=json.loads(run.stdout)
++    (out/'native-state-result.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
+diff --git a/tests/album/run-bridge-fixtures.py b/tests/album/run-bridge-fixtures.py
+--- a/tests/album/run-bridge-fixtures.py
++++ b/tests/album/run-bridge-fixtures.py
+@@ -16,11 +16,12 @@
+ 'net/muxigame/terminal/client/TerminalScreen.java':'''package net.muxigame.terminal.client;public class TerminalScreen {}''',
+ 'net/muxigame/terminal/client/TerminalBrowserSession.java':'''package net.muxigame.terminal.client;import org.cef.browser.*;public class TerminalBrowserSession {
+ public static final String HOME_URL="mod://muxi_terminal/terminal/index.html";public enum Kind {HOME,BUILTIN,WEB,ACCOUNT}public record State(Kind kind,String url){}
+-public static long gen=1;public static CefBrowser content=new CefBrowser(),shell=new CefBrowser();public static Kind kind=Kind.BUILTIN;public static long generation(){return gen;}public static CefBrowser content(){return content;}public static State state(){return new State(kind,content.url);}
+-public static boolean trusted(CefBrowser b,CefFrame f){return b==content && kind==Kind.BUILTIN && f!=null && f.valid && f.main && b.url.equals(f.url);}}''',
++public static long gen=1;public static CefBrowser content=new CefBrowser(),shell=new CefBrowser();public static Kind kind=Kind.BUILTIN;public static long generation(){return gen;}public static CefBrowser content(){return content;}public static State state(){return new State(kind,HOME_URL);}
++public static boolean isShell(CefBrowser b){return b==shell;}
++public static boolean trusted(CefBrowser b,CefFrame f){return (b==shell || (b==content && kind==Kind.BUILTIN)) && f!=null && f.valid && f.main && b.url.equals(f.url);}}''',
+ 'net/muxigame/terminal/client/TerminalCamera.java':'''package net.muxigame.terminal.client;import org.cef.callback.CefQueryCallback;public class TerminalCamera {
+-@FunctionalInterface interface Read {String get() throws Exception;}public static boolean defer,busy;public static java.util.List<Runnable> queued=new java.util.ArrayList<>();public static int begins;
+-static void io(Read action,CefQueryCallback callback){if(busy){callback.failure(429,"busy");return;}Runnable r=()->{try{callback.success(action.get());}catch(Exception e){callback.failure(400,e.getMessage());}};if(defer)queued.add(r);else r.run();}
++@FunctionalInterface interface Read {String get() throws Exception;}public static boolean defer,busy;public static Runnable afterReadHook;public static java.util.List<Runnable> queued=new java.util.ArrayList<>();public static int begins;
++static void io(Read action,CefQueryCallback callback){if(busy){callback.failure(429,"busy");return;}Runnable r=()->{try{String value=action.get();if(afterReadHook!=null)afterReadHook.run();callback.success(value);}catch(Exception e){callback.failure(400,e.getMessage());}};if(defer)queued.add(r);else r.run();}
+ public static void flush(){var q=java.util.List.copyOf(queued);queued.clear();q.forEach(Runnable::run);}public static void begin(){begins++;}public static void stop(){}public static void mode(boolean v){}public static void shutter(){}public static Object state(){return null;}
+ static String data(byte[] data){return "data:image/png;base64,"+java.util.Base64.getEncoder().encodeToString(data);}}''',
+ 'com/mojang/blaze3d/platform/NativeImage.java':'''package com.mojang.blaze3d.platform;public class NativeImage implements AutoCloseable {
+@@ -37,6 +38,11 @@
+ var mc=Minecraft.getInstance();mc.gameDirectory=Path.of(args[0]).toFile();var browser=TerminalBrowserSession.content;var frame=new CefFrame();browser.url=TerminalBrowserSession.HOME_URL+"#/album";frame.url=browser.url;
+ var store=TerminalCameraBridge.store();byte[] png=new byte[32];byte[] sig={(byte)137,80,78,71,13,10,26,10};System.arraycopy(sig,0,png,0,8);png[12]=73;png[13]=72;png[14]=68;png[15]=82;java.nio.ByteBuffer.wrap(png,16,8).putInt(800).putInt(600);String id=store.save(png);
+ check(album(browser,frame,"album.photos").value.contains(id),"shared camera photo visible");
++Reply open=new Reply();TerminalCameraBridge.dispatch(browser,frame,"camera.open",open);check(open.code==0 && TerminalCamera.begins==1,"owned builtin opens native camera from same page");TerminalCamera.begins=0;
++for(var kind:new TerminalBrowserSession.Kind[]{TerminalBrowserSession.Kind.WEB,TerminalBrowserSession.Kind.ACCOUNT}){TerminalBrowserSession.kind=kind;Reply external=new Reply();TerminalCameraBridge.dispatch(browser,frame,"camera.open",external);check(external.code==403 && TerminalCamera.begins==0,"external custom app cannot open native camera");}TerminalBrowserSession.kind=TerminalBrowserSession.Kind.BUILTIN;
++frame.main=false;Reply iframe=new Reply();TerminalCameraBridge.dispatch(browser,frame,"camera.open",iframe);check(iframe.code==403 && TerminalCamera.begins==0,"iframe cannot open native camera");frame.main=true;
++Object screen=mc.screen;mc.screen=null;Reply closedCamera=new Reply();TerminalCameraBridge.dispatch(browser,frame,"camera.open",closedCamera);check(closedCamera.code==403 && TerminalCamera.begins==0,"closed terminal cannot open native camera");mc.screen=screen;
++var shellFrame=new CefFrame();TerminalBrowserSession.shell.url=TerminalBrowserSession.HOME_URL;shellFrame.url=TerminalBrowserSession.HOME_URL;Reply shellCamera=new Reply();TerminalCameraBridge.dispatch(TerminalBrowserSession.shell,shellFrame,"camera.open",shellCamera);check(shellCamera.code==0 && TerminalCamera.begins==1,"owned home card opens native mode without web route");TerminalCamera.begins=0;
+ Reply camera=new Reply();TerminalCameraBridge.dispatch(browser,frame,"camera.begin",camera);check(camera.code==403 && TerminalCamera.begins==0,"album cannot use screenshot authority");
+ check(album(TerminalBrowserSession.shell,frame,"album.photos").code==403,"shell denied");
+ for(var kind:new TerminalBrowserSession.Kind[]{TerminalBrowserSession.Kind.WEB,TerminalBrowserSession.Kind.ACCOUNT}){TerminalBrowserSession.kind=kind;check(album(browser,frame,"album.photos").code==403,"external kind denied");}TerminalBrowserSession.kind=TerminalBrowserSession.Kind.BUILTIN;
+@@ -50,11 +56,13 @@
+ String accepted=token(browser,frame,id);check(album(browser,frame,"album.recycle:"+accepted).code==0 && store.list().isEmpty(),"one-use confirmed library move");check(album(browser,frame,"album.recycle:"+accepted).code==400,"replay denied");
+ check(album(browser,frame,"album.recycled").value.contains(id),"trash metadata visible");album(browser,frame,"album.restore:"+id);check(store.list().size()==1 && store.recycled().isEmpty(),"restored in original library");
+ String busyTicket=token(browser,frame,id);TerminalCamera.busy=true;check(album(browser,frame,"album.recycle:"+busyTicket).code==429,"bounded worker busy rejection");TerminalCamera.busy=false;check(album(browser,frame,"album.recycle:"+busyTicket).code==0,"busy rejection preserves confirmation");album(browser,frame,"album.restore:"+id);
+-String pending=token(browser,frame,id);TerminalCamera.defer=true;Reply delayed=album(browser,frame,"album.recycle:"+pending);TerminalBrowserSession.gen++;TerminalCamera.flush();check(delayed.value==null && store.list().size()==1,"navigation cancels pending mutation/callback");
+-String hidden=token(browser,frame,id);Reply closed=album(browser,frame,"album.recycle:"+hidden);Object original=mc.screen;mc.screen=null;TerminalCamera.flush();check(closed.value==null && store.list().size()==1,"screen exit cancels pending mutation");mc.screen=original;
+-String unfocused=token(browser,frame,id);Reply blur=album(browser,frame,"album.recycle:"+unfocused);mc.focused=false;TerminalCamera.flush();check(blur.value==null && store.list().size()==1,"focus loss cancels pending mutation");mc.focused=true;
+-String replaced=token(browser,frame,id);Reply replacedFrame=album(browser,frame,"album.recycle:"+replaced);frame.url="https://outside.example/";TerminalCamera.flush();check(replacedFrame.value==null && store.list().size()==1,"actual frame replacement cancels mutation without generation update");frame.url=route;
+-String destroyed=token(browser,frame,id);Reply invalidFrame=album(browser,frame,"album.recycle:"+destroyed);frame.valid=false;TerminalCamera.flush();check(invalidFrame.value==null && store.list().size()==1,"actual invalid frame cancels mutation without generation update");frame.valid=true;
++String pending=token(browser,frame,id);TerminalCamera.defer=true;Reply delayed=album(browser,frame,"album.recycle:"+pending);TerminalBrowserSession.gen++;TerminalCamera.flush();check(delayed.code==409 && store.list().size()==1,"navigation denies pending mutation and completes callback safely");
++String hidden=token(browser,frame,id);Reply closed=album(browser,frame,"album.recycle:"+hidden);Object original=mc.screen;mc.screen=null;TerminalCamera.flush();check(closed.code==409 && store.list().size()==1,"screen exit denies mutation and completes callback safely");mc.screen=original;
++String unfocused=token(browser,frame,id);Reply blur=album(browser,frame,"album.recycle:"+unfocused);mc.focused=false;TerminalCamera.flush();check(blur.code==409 && store.list().size()==1,"focus loss denies mutation and completes callback safely");mc.focused=true;
++String replaced=token(browser,frame,id);Reply replacedFrame=album(browser,frame,"album.recycle:"+replaced);frame.url="https://outside.example/";TerminalCamera.flush();check(replacedFrame.code==409 && store.list().size()==1,"actual frame replacement denies mutation without generation update");frame.url=route;
++String destroyed=token(browser,frame,id);Reply invalidFrame=album(browser,frame,"album.recycle:"+destroyed);frame.valid=false;TerminalCamera.flush();check(invalidFrame.code==409 && store.list().size()==1,"actual invalid frame denies mutation without generation update");frame.valid=true;
++Reply readBlur=album(browser,frame,"album.photo:"+id);mc.focused=false;TerminalCamera.flush();check(readBlur.code==409 && readBlur.value.equals("Album view changed"),"blurred read returns no photo bytes and cannot leave a native callback pending");mc.focused=true;
++Reply lateBlur=album(browser,frame,"album.photo:"+id);TerminalCamera.afterReadHook=()->mc.focused=false;TerminalCamera.flush();check(lateBlur.code==409 && lateBlur.value.equals("Album view changed"),"focus loss after image decode completes callback without returning photo data");TerminalCamera.afterReadHook=null;mc.focused=true;
+ TerminalCamera.defer=false;check(NativeImage.live==0,"no remaining native fixture image");
+ System.out.println("{\\\"success\\\":true,\\\"checks\\\":"+checks+",\\\"fixture\\\":\\\"production bridge logic, simulated CEF/MC/image backend, synthetic temporary files\\\"}");
+ }}'''
