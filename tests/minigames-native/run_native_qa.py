@@ -225,6 +225,10 @@ def main():
                 started=command(observer,'observe')
                 if attempt%10==0:start_trace.append({'observedUTC':datetime.now(timezone.utc).isoformat(),'players':[{k:p[k] for k in ['name','dimension','x','y','z','returnsPending']} for p in started['players']]})
                 if len(started['players'])==2 and all(p['dimension']!=next(b for b in baseline['players'] if b['uuid']==p['uuid'])['dimension'] for p in started['players']):break
+                if len(started['players'])==2 and all(not p['games'].get('activeGame') for p in started['players']):
+                    write(home/(stage+'-start-transition-trace.json'),start_trace)
+                    write(home/(stage+'-started-real-players.json'),started)
+                    raise AssertionError('Actual room ended before both players entered its arena; inspect preserved start receipt and native observations')
                 time.sleep(.5)
             write(home/(stage+'-start-transition-trace.json'),start_trace)
             write(home/(stage+'-started-real-players.json'),started)
@@ -232,7 +236,13 @@ def main():
             checks.append(game+': only explicit host Start sent both real players into the map')
             for role in ['guest','host']:
                 command(role,'js',"await window.MuxiMinigamesApp.activate();const leave=[...document.querySelectorAll('[data-mg-action]')].find(b=>/\u9000\u51fa|\u79bb\u5f00/.test(b.textContent));if(!leave)throw Error('No leave action');leave.click();document.getElementById('mg-confirm-ok').click();for(let i=0;i<100;i++){await wait(200);const s=await q('games.snapshot');if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed'&&!s.activeGame)return s;}throw Error('Leave not confirmed');")
-            restored=command(observer,'observe');write(home/(stage+'-restored-real-players.json'),restored)
+            for attempt in range(200):
+                restored=command(observer,'observe')
+                try:same_inventory_and_location(baseline,restored);break
+                except AssertionError:
+                    if attempt==199:raise
+                    time.sleep(.2)
+            write(home/(stage+'-restored-real-players.json'),restored)
             same_inventory_and_location(baseline,restored)
             checks.append(game+': confirmed Leave restored both original inventories and locations')
             if dedicated:verify_actual_settlement(stage,game)
@@ -252,7 +262,7 @@ def main():
                     command(role,'open')
                 checks.append('Both real clients disconnected normally and rejoined with separately fresh consumed Auth grants and matching Core UID/social UID')
         result['success']=True
-        result['unverified']=['Full in-map campaign completion and durable settlement/duplicate results still require their own real observations'] if dedicated else ['Trusted account friends and SSO are unavailable in isolated offline QA; no trust grants enabled']
+        result['unverified']=['Full combat campaign completion and positive win rewards were not tested; the observed settlements are actual leave/forfeit results'] if dedicated else ['Trusted account friends and SSO are unavailable in isolated offline QA; no trust grants enabled']
     except Exception as error:
         result['success']=False;result['error']=str(error);print('REAL_QA_FAILED '+str(error),flush=True)
     finally:
