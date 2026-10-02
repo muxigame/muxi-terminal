@@ -14,23 +14,24 @@ import org.cef.browser.CefMessageRouter;
 import org.cef.callback.CefQueryCallback;
 import org.cef.handler.CefMessageRouterHandlerAdapter;
 import java.util.Base64;
+import com.google.gson.Gson;
+import com.google.gson.JsonParser;
+import org.cef.CefClient;
 
 /** A deliberately tiny capability bridge. Web apps do not get arbitrary Java access. */
 public final class TerminalNativeBridge {
-    private static CefMessageRouter router;
+    private static final Gson JSON=new Gson();
 
     private TerminalNativeBridge() {}
 
     public static void installWhenReady() {
-        if (MCEF.isInitialized()) install();
-        else MCEF.scheduleForInit(success -> { if (success) install(); });
+        // Routers are attached only to independently owned trusted clients by TerminalViewClient.
     }
 
-    private static synchronized void install() {
-        if (router != null) return;
-        router = CefMessageRouter.create(new Handler());
-        MCEF.getClient().getHandle().addMessageRouter(router);
-        TerminalPassportNavigation.install();
+    static void attach(CefClient client) {
+        // Keep the private trusted client; WebDisplays owns the default query name.
+        var config=new CefMessageRouter.CefMessageRouterConfig("muxiTerminalQuery","muxiTerminalCancel");
+        client.addMessageRouter(CefMessageRouter.create(config,new Handler()));
     }
 
     private static final class Handler extends CefMessageRouterHandlerAdapter {
@@ -38,79 +39,143 @@ public final class TerminalNativeBridge {
         public boolean onQuery(CefBrowser browser, CefFrame frame, long queryId, String request,
                                boolean persistent, CefQueryCallback callback) {
             Minecraft mc = Minecraft.getInstance();
-            String frameUrl=frame==null?"":frame.getURL();
-            if(frameUrl==null || !frameUrl.startsWith("mod://muxi_terminal/")) {
-                callback.failure(403,"Native bridge is available only to local Muxi Terminal apps");
+            if(!TerminalBrowserSession.trusted(browser,frame)) {
+                callback.failure(403,"Native bridge is available only to the owned local terminal main frame");
                 return true;
             }
+            if(persistent || request==null || request.length()>8192){callback.failure(400,"Invalid terminal request");return true;}
+            long epoch=TerminalBrowserSession.generation();String document=frame.getURL();
+            CefQueryCallback guarded=new CefQueryCallback(){
+                private boolean valid(){return TerminalBrowserSession.generation()==epoch && TerminalBrowserSession.trusted(browser,frame) && document.equals(frame.getURL());}
+                @Override public void success(String response){if(valid())callback.success(response);}
+                @Override public void failure(int code,String message){if(valid())callback.failure(code,message);}
+            };
+            mc.execute(()->{
+                if(TerminalBrowserSession.generation()!=epoch || !TerminalBrowserSession.trusted(browser,frame) || !document.equals(frame.getURL()))return;
+                dispatch(mc,browser,frame,request,guarded);
+            });
+            return true;
+        }
+
+        private void dispatch(Minecraft mc,CefBrowser browser,CefFrame frame,String request,CefQueryCallback callback){
+            if(request.startsWith("terminal.launch:") || request.startsWith("terminal.reveal:") || request.startsWith("terminal.cancel-launch:")){
+                if(!TerminalBrowserSession.isShell(browser)){callback.failure(403,"Only the trusted shell controls views");return;}
+                try{
+                    if(request.startsWith("terminal.cancel-launch:")){callback.success("{\"ok\":true}");TerminalBrowserSession.cancelLaunch(request.substring(23));return;}
+                    var data=JsonParser.parseString(request.substring(request.indexOf(':')+1)).getAsJsonObject();
+                    String token=data.get("token").getAsString();if(!token.matches("[0-9]{1,16}"))throw new IllegalArgumentException("Invalid launch token");
+                    if(request.startsWith("terminal.reveal:")){
+                        boolean ok=TerminalBrowserSession.revealView(data.get("viewId").getAsLong(),token,data.get("visible").getAsBoolean(),data.has("reducedMotion") && data.get("reducedMotion").getAsBoolean());
+                        callback.success("{\"ok\":"+ok+"}");return;
+                    }
+                    String kind=data.get("kind").getAsString(),id=data.get("id").getAsString();
+                    if(kind.equals("builtin") && (id.equals("guide") || id.equals("tasks"))){
+                        callback.success("{\"ok\":true}");TerminalBrowserSession.beginLaunch(token,TerminalBrowserSession.Kind.BUILTIN,id);TerminalBrowserSession.openApp(id);return;
+                    }
+                    if(kind.equals("web")){
+                        var app=TerminalBrowserSession.personalApps().get(id);callback.success("{\"ok\":true}");
+                        TerminalBrowserSession.beginLaunch(token,TerminalBrowserSession.Kind.WEB,app.name());TerminalBrowserSession.openWebApp(app.url(),app.name());return;
+                    }
+                    if(kind.equals("account")){
+                        callback.success("{\"ok\":true}");TerminalBrowserSession.beginLaunch(token,TerminalBrowserSession.Kind.ACCOUNT,"木夕账户");TerminalPassportNavigation.open();return;
+                    }
+                    throw new IllegalArgumentException("Unknown application");
+                }catch(Exception e){callback.failure(400,e.getMessage()==null?"Application could not open":e.getMessage());}
+                return;
+            }
+            if(request.startsWith("apps.")){
+                if(!TerminalBrowserSession.isShell(browser)){callback.failure(403,"Personal apps are managed by the shell only");return;}
+                try {
+                    var store=TerminalBrowserSession.personalApps();
+                    if(request.equals("apps.list")){callback.success(JSON.toJson(store.list()));return;}
+                    if(request.startsWith("apps.save:")){
+                        var data=JsonParser.parseString(request.substring(10)).getAsJsonObject();
+                        String id=data.has("id")?data.get("id").getAsString():"";
+                        callback.success(JSON.toJson(store.save(id,data.get("name").getAsString(),data.get("url").getAsString())));return;
+                    }
+                    if(request.startsWith("apps.delete:")){store.delete(request.substring(12));callback.success("{\"ok\":true}");return;}
+                    if(request.startsWith("apps.open:")){
+                        var app=store.get(request.substring(10));callback.success("{\"ok\":true}");
+                        TerminalBrowserSession.openWebApp(app.url(),app.name());return;
+                    }
+                    callback.failure(404,"Unknown personal app command");
+                }catch(Exception e){callback.failure(400,e.getMessage()==null?"网页应用操作失败":e.getMessage());}
+                return;
+            }
+            if(request.equals("terminal.state")){callback.success(JSON.toJson(TerminalBrowserSession.state()));return;}
+            if(request.startsWith("terminal.app:")){
+                callback.success("{\"ok\":true}");TerminalBrowserSession.openApp(request.substring(13));return;
+            }
+            if(request.equals("terminal.back")){callback.success("{\"ok\":true}");TerminalBrowserSession.back();return;}
             if(request.equals("passport.open")) {
                 var current=TerminalBrowserSession.current();
                 if(current==null || browser.getIdentifier()!=current.getIdentifier() || !frame.isMain()) {
-                    callback.failure(403,"Passport is available only in the terminal main frame");return true;
+                    callback.failure(403,"Passport is available only in the terminal main frame");return;
                 }
-                mc.execute(TerminalPassportNavigation::open);callback.success("{\"ok\":true}");return true;
+                callback.success("{\"ok\":true}");mc.execute(TerminalPassportNavigation::open);return;
             }
-            if (request.equals("terminal.home")) {
-                mc.execute(TerminalBrowserSession::home);
+            if (request.equals("terminal.home") || request.equals("terminal.home:reduced")) {
                 callback.success("{\"ok\":true}");
-                return true;
+                mc.execute(()->TerminalBrowserSession.animateHome(request.endsWith(":reduced")));
+                return;
             }
             if (request.equals("terminal.close")) {
                 mc.execute(() -> mc.setScreen(null));
                 callback.success("{\"ok\":true}");
-                return true;
+                return;
             }
             if(request.startsWith("terminal.external:")) {
-                boolean ok=TerminalBrowserSession.openExternal(request.substring("terminal.external:".length()));
-                if(ok) callback.success("{\"ok\":true}"); else callback.failure(403,"External URL is not allowed");
-                return true;
+                String url=request.substring("terminal.external:".length());
+                if(TerminalWebPolicy.account(url)){callback.success("{\"ok\":true}");TerminalBrowserSession.openExternal(url);}
+                else callback.failure(403,"External URL is not allowed");
+                return;
             }
             if(request.startsWith("resource.data:")) {
                 resourceData(mc,request.substring("resource.data:".length()),callback);
-                return true;
+                return;
             }
             if(request.equals("tasks.snapshot")) {
                 mc.execute(() -> callback.success(invokeTaskString("snapshotJson")));
-                return true;
+                return;
             }
             if(request.equals("tasks.request")) {
-                mc.execute(()->invokeTaskVoid("request",null)); callback.success("{\"ok\":true}"); return true;
+                mc.execute(()->invokeTaskVoid("request",null)); callback.success("{\"ok\":true}"); return;
             }
             if(request.startsWith("tasks.claim:")) {
                 String id=request.substring("tasks.claim:".length());
-                mc.execute(()->invokeTaskVoid("claim",id)); callback.success("{\"ok\":true}"); return true;
+                mc.execute(()->invokeTaskVoid("claim",id)); callback.success("{\"ok\":true}"); return;
             }
             if(request.startsWith("tasks.reroll:")) {
                 String id=request.substring("tasks.reroll:".length());
-                mc.execute(()->invokeTaskVoid("reroll",id)); callback.success("{\"ok\":true}"); return true;
+                mc.execute(()->invokeTaskVoid("reroll",id)); callback.success("{\"ok\":true}"); return;
             }
             if(request.startsWith("tasks.track:")) {
                 String id=request.substring("tasks.track:".length());
-                mc.execute(()->invokeTaskVoid("toggleTracked",id)); callback.success("{\"ok\":true}"); return true;
+                mc.execute(()->invokeTaskVoid("toggleTracked",id)); callback.success("{\"ok\":true}"); return;
             }
             if(request.equals("challenge.open")) {
-                mc.execute(Handler::openChallenge); callback.success("{\"ok\":true}"); return true;
+                mc.execute(Handler::openChallenge); callback.success("{\"ok\":true}"); return;
             }
             if(request.startsWith("manual.open:")) {
                 String manual=request.substring("manual.open:".length());
                 if(manual.startsWith("patchouli:")) {
                     String value=manual.substring("patchouli:".length());
                     ResourceLocation id=ResourceLocation.tryParse(value);
-                    if(id==null){callback.failure(400,"Invalid Patchouli book id");return true;}
-                    if(!ModList.get().isLoaded("patchouli")){callback.failure(404,"Patchouli is not installed");return true;}
-                    mc.execute(()->openPatchouliBook(id)); callback.success("{\"ok\":true}"); return true;
+                    if(id==null){callback.failure(400,"Invalid Patchouli book id");return;}
+                    if(!ModList.get().isLoaded("patchouli")){callback.failure(404,"Patchouli is not installed");return;}
+                    mc.execute(()->openPatchouliBook(id)); callback.success("{\"ok\":true}"); return;
                 }
                 if("starcatcher".equals(manual)) {
-                    mc.execute(Handler::openStarcatcherGuide); callback.success("{\"ok\":true}"); return true;
+                    mc.execute(Handler::openStarcatcherGuide); callback.success("{\"ok\":true}"); return;
                 }
                 if("alexsmobs".equals(manual)) {
-                    mc.execute(Handler::openAlexDictionary); callback.success("{\"ok\":true}"); return true;
+                    mc.execute(Handler::openAlexDictionary); callback.success("{\"ok\":true}"); return;
                 }
                 if("iceandfire".equals(manual)) {
-                    mc.execute(Handler::openIceAndFireBestiary); callback.success("{\"ok\":true}"); return true;
+                    mc.execute(Handler::openIceAndFireBestiary); callback.success("{\"ok\":true}"); return;
                 }
                 if("create".equals(manual)) {
-                    mc.execute(Handler::openCreatePonderIndex); callback.success("{\"ok\":true}"); return true;
+                    mc.execute(Handler::openCreatePonderIndex); callback.success("{\"ok\":true}"); return;
                 }
             }
             if (request.startsWith("patchouli.open:")) {
@@ -118,18 +183,18 @@ public final class TerminalNativeBridge {
                 ResourceLocation id = ResourceLocation.tryParse(value);
                 if (id == null) {
                     callback.failure(400, "Invalid book id");
-                    return true;
+                    return;
                 }
                 if (!ModList.get().isLoaded("patchouli")) {
                     callback.failure(404, "Patchouli is not installed");
-                    return true;
+                    return;
                 }
                 mc.execute(() -> openPatchouliBook(id));
                 callback.success("{\"ok\":true}");
-                return true;
+                return;
             }
             callback.failure(404, "Unknown terminal command");
-            return true;
+            return;
         }
 
         private static void resourceData(Minecraft mc,String value,CefQueryCallback callback) {

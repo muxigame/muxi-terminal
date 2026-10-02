@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>玩家终端</title>
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./app-transition.css" />
 </head>
 <body>
   <main id="app" class="shell">
@@ -13,6 +14,7 @@
       <div class="status-right"><span id="statusText">本地模式</span><span id="clock">00:00</span></div>
     </header>
 
+    <div id="app-content">
     <section id="home" class="page page-active">
       <div class="hero">
         <div>
@@ -42,7 +44,19 @@
         </button>
       </div>
 
-      <div class="dock-hint">更多应用将在后续版本加入</div>
+      <div class="section-title"><span>我的网页应用</span><button id="addWebApp" class="secondary">＋ 添加网页</button></div>
+      <div id="webApps" class="web-app-list"></div>
+      <p id="webAppsError" class="web-error" role="alert"></p>
+      <form id="webAppForm" class="web-app-form" hidden>
+        <h3 id="webFormTitle">添加网页应用</h3>
+        <input id="webAppId" type="hidden">
+        <label>网页链接<input id="webAppUrl" type="url" placeholder="https://example.com" required maxlength="4096" autocomplete="off"></label>
+        <label>名称（可编辑）<input id="webAppName" type="text" maxlength="80" placeholder="留空使用域名" autocomplete="off"></label>
+        <p id="webTarget" class="web-target">只支持 http / https</p>
+        <p id="webFormError" class="web-error" role="alert"></p>
+        <div class="detail-actions"><button class="primary" type="submit">保存</button><button id="cancelWebApp" class="secondary" type="button">取消</button></div>
+      </form>
+      <div class="dock-hint">网页快捷应用保存在当前启动器账户的本地配置中。外站不能读取游戏任务或账户票据；下载和设备权限默认不授权。</div>
     </section>
 
     <section id="guide" class="page">
@@ -114,8 +128,12 @@
         <div id="mainlineList" class="task-list"></div>
       </div>
     </section>
+    </div>
   </main>
+  <script src="./app-transition.js"></script>
   <script src="./app.js"></script>
+  <script src="./app-container.js"></script>
+  <script src="./web-apps.js"></script>
 </body>
 </html>
 
