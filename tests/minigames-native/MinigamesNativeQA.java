@@ -55,6 +55,10 @@ public final class MinigamesNativeQA {
         row.addProperty("ready",ready);row.addProperty("command",lastCommand);
         row.addProperty("realNetworkPlayer",mc.getConnection()!=null&&mc.player!=null);
         row.addProperty("gpu",GL11.glGetString(GL11.GL_RENDERER));
+        row.addProperty("programBinaryCacheEnabled",Boolean.getBoolean("muxi.programBinaryCache"));
+        row.addProperty("veilShaderEventDispatchEnabled",Boolean.getBoolean("muxi.veilShaderEventDispatch"));
+        row.addProperty("uiDelay",delay);
+        if(mc.player!=null){row.addProperty("alive",mc.player.isAlive());row.addProperty("health",mc.player.getHealth());row.addProperty("dimension",mc.level.dimension().location().toString());}
         if(mc.player!=null){row.addProperty("name",mc.player.getGameProfile().getName());row.addProperty("uuid",mc.player.getUUID().toString());}
         return row;
     }
