@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import time
+import urllib.request
 from datetime import datetime, timezone
 
 REPO=Path(__file__).resolve().parent.parent.parent
@@ -100,6 +101,14 @@ def main():
             assert player['dimension']==original['dimension'],(original['name'],'dimension changed before start')
             assert all(abs(player[axis]-original[axis])<.6 for axis in ['x','y','z']),(original['name'],'position changed before start')
             assert player['returnsPending']==original['returnsPending']
+    def auth_observation(label):
+        request=urllib.request.Request(backend['url'],data=json.dumps({'action':'state'}).encode(),headers={'Content-Type':'application/json','X-Muxi-QA-Control':backend['capability']})
+        with urllib.request.urlopen(request,timeout=10) as response:state=json.load(response)
+        rows=state['auth_requests']
+        write(home/(label+'-auth-http.json'),{'actualNativeMode':state['actual_native_mode'],'requests':rows,'credentialsIncluded':False})
+        consumed=[r for r in rows if r['method']=='POST' and 'consume' in r['path'] and r['status']==200]
+        if not consumed:raise AssertionError('No actual successful Auth consume HTTP response')
+        return len(consumed)
     try:
         # Reserve enough visible-client capacity for a genuine pair before loading
         # either JVM; do not occupy the fourth slot indefinitely with only a host.
@@ -134,36 +143,54 @@ def main():
             assert all(p['admittedUid']==int(p['name']) and p['socialUid']==int(p['name']) for p in baseline['players']), 'Actual login and social proof not both verified'
             checks.append('Both actual Core LoginGate admissions and independently consumed terminal social proofs match each real connection')
             write(home/'baseline-real-players.json',baseline)
+            assert auth_observation('initial-admission')>=2
+            checks.append('Actual Auth POST consume returned 200 for both initial connections, independently of social proof')
         for role in ['host','guest']:command(role,'open')
         command('host','js',"await wait(1000);return {snapshot:await q('games.snapshot'),clean:document.getElementById('mg-games').hidden&&document.getElementById('mg-room-invitations').hidden&&!document.querySelector('[data-mg-choice]')};")
-        for game in ['outbreak','zombie-challenge']:
+        for round_index,game in enumerate(['outbreak','zombie-challenge','outbreak'],1):
+            stage=f'round-{round_index}-{game}'
             print(json.dumps({'testing':game}),flush=True)
             created=command('host','js',"document.getElementById('mg-back').click();document.querySelector('[data-mg-create]').click();document.querySelector('[data-mg-game=\""+game+"\"]').click();const maps=[...document.querySelectorAll('[data-mg-map]')];const map=maps.find(b=>['campaign_city_zero','metro_escape','research_lab'].includes(b.dataset.mgMap))||maps[0];if(!map)throw Error('No map');map.click();document.querySelector('[data-mg-action]').click();document.querySelector('[data-mg-action]').click();for(let i=0;i<100;i++){await wait(200);const s=await q('games.snapshot');const g=s.games.find(g=>g.id==='"+game+"');if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed'&&g.state.rooms.some(r=>r.mine)){return {snapshot:s,room:g.state.rooms.find(r=>r.mine),selected:map.dataset.mgMap};}}throw Error('Create not confirmed');")
-            write(home/(game+'-create.json'),created)
+            write(home/(stage+'-create.json'),created)
             assert created['room']['phase'] in ['WAITING','BUILDING','LOBBY']
             before_join=command(observer,'observe');same_inventory_and_location(baseline,before_join)
             checks.append(game+': UI create confirmed a waiting room without teleport or inventory changes')
             if dedicated:
                 friend_list=command('host','js',"document.getElementById('friendsInviteFriends').click();for(let i=0;i<100;i++){await wait(200);const peer=document.querySelector('[data-invite-uid=\"10001\"]');if(peer&&!peer.disabled)return {friendUid:peer.dataset.inviteUid,source:'actual authenticated Web friend list',runtime:await q('friends.invites.snapshot')};}throw Error('Actual online friend absent from invitation UI');")
-                write(home/(game+'-actual-friend-list.json'),friend_list)
+                write(home/(stage+'-actual-friend-list.json'),friend_list)
                 checks.append(game+': actual authenticated A/B friendship appears in the room invitation UI')
                 invited=command('host','js',"document.getElementById('friendsInviteOnline').click();await wait(500);const peer=document.querySelector('[data-invite-uid=\"10001\"]');if(!peer||peer.disabled)throw Error('No actual online peer');peer.click();for(let i=0;i<100;i++){await wait(200);const s=await q('games.snapshot');const ticket=s.social?.invitations?.find(t=>t.game==='"+game+"'&&t.status==='PENDING');if(ticket)return {snapshot:s,ticket};}throw Error('Actual online invitation not confirmed');")
             else:invited=command('host','js',"await window.MuxiMinigamesApp.activate();const prior=(await q('games.snapshot')).operation?.request;const invite=[...document.querySelectorAll('[data-mg-action]')].find(b=>!b.disabled&&b.textContent.includes('\u9080\u8bf7'));if(!invite)throw Error('No native online invitation control');invite.click();for(let i=0;i<100;i++){await wait(200);const s=await q('games.snapshot');if(s.operation?.request===prior)continue;if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed')return s;}throw Error('Online invitation not confirmed');")
-            write(home/(game+'-online-invite.json'),invited)
+            write(home/(stage+'-online-invite.json'),invited)
             checks.append(game+': real online guest invitation sent through the room UI and confirmed by the server')
             joined=command('guest','js',"document.getElementById('mg-back').click();await window.MuxiMinigamesApp.activate();let join;for(let i=0;i<100;i++){join="+("document.querySelector('[data-mg-invite-op=\"accept\"]')" if dedicated else "[...document.querySelectorAll('[data-mg-action]')].find(b=>!b.disabled)")+";if(join&&!join.disabled)break;await wait(200);await window.MuxiMinigamesApp.activate();}if(!join)throw Error('No valid room invitation/join action');join.click();for(let i=0;i<100;i++){await wait(200);const s=await q('games.snapshot');const g=s.games.find(g=>g.id==='"+game+"');if(s.operation?.status==='failed')throw Error(s.operation.notice);if(g.state.rooms.some(r=>r.mine))return {snapshot:s,room:g.state.rooms.find(r=>r.mine)};}throw Error('Join not confirmed');")
-            write(home/(game+'-join.json'),joined)
+            write(home/(stage+'-join.json'),joined)
             waiting=command(observer,'observe');same_inventory_and_location(baseline,waiting)
             checks.append(game+': second real client joined waiting room; both retained original world and inventory')
             command('host','js',"await window.MuxiMinigamesApp.activate();for(let i=0;i<150;i++){await wait(200);await window.MuxiMinigamesApp.activate();const start=[...document.querySelectorAll('[data-mg-action]')].find(b=>b.textContent.includes('\u5f00\u59cb'));if(start&&!start.disabled){const prior=(await q('games.snapshot')).operation?.request;start.click();for(let j=0;j<50;j++){await wait(200);const s=await q('games.snapshot');if(s.operation?.request===prior)continue;if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed')return s;}throw Error('Start not confirmed');}}throw Error('Host start unavailable');",timeout=120)
-            started=command(observer,'observe');write(home/(game+'-started-real-players.json'),started)
+            started=command(observer,'observe');write(home/(stage+'-started-real-players.json'),started)
             assert all(p['dimension']!=next(b for b in baseline['players'] if b['uuid']==p['uuid'])['dimension'] for p in started['players'])
             checks.append(game+': only explicit host Start sent both real players into the map')
             for role in ['guest','host']:
                 command(role,'js',"await window.MuxiMinigamesApp.activate();const leave=[...document.querySelectorAll('[data-mg-action]')].find(b=>/\u9000\u51fa|\u79bb\u5f00/.test(b.textContent));if(!leave)throw Error('No leave action');leave.click();document.getElementById('mg-confirm-ok').click();for(let i=0;i<100;i++){await wait(200);const s=await q('games.snapshot');if(s.operation?.status==='failed')throw Error(s.operation.notice);if(s.operation?.status==='completed'&&!s.activeGame)return s;}throw Error('Leave not confirmed');")
-            restored=command(observer,'observe');write(home/(game+'-restored-real-players.json'),restored)
+            restored=command(observer,'observe');write(home/(stage+'-restored-real-players.json'),restored)
             same_inventory_and_location(baseline,restored)
             checks.append(game+': confirmed Leave restored both original inventories and locations')
+            if dedicated and round_index==1:
+                count=auth_observation('before-reconnect')
+                for role in ['guest','host']:
+                    command(role,'reconnect');wait_file(coordinator/f'ready-{role}.json',180)
+                    for attempt in range(100):
+                        observed=command(observer,'observe')
+                        if len(observed['players'])==2 and all(p['admittedUid']==int(p['name']) and p['socialUid']==int(p['name']) for p in observed['players']):break
+                        time.sleep(.2)
+                    same_inventory_and_location(baseline,observed)
+                    next_count=auth_observation('reconnect-'+role)
+                    assert next_count>count,'Reconnect did not consume a fresh actual Auth join grant'
+                    count=next_count
+                    write(home/('reconnect-'+role+'-real-players.json'),observed)
+                    command(role,'open')
+                checks.append('Both real clients disconnected normally and rejoined with separately fresh consumed Auth grants and matching Core UID/social UID')
         result['success']=True
         result['unverified']=['Full in-map campaign completion and durable settlement/duplicate results still require their own real observations'] if dedicated else ['Trusted account friends and SSO are unavailable in isolated offline QA; no trust grants enabled']
     except Exception as error:

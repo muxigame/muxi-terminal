@@ -84,7 +84,7 @@ def main():
                     'muxi_game_core':REPO.parent/'muxi-game-core',
                     'muxi_zombie_challenge':FROZEN/'muxi-zombie-challenge',
                     'muxi_outbreak':FROZEN/'muxi-outbreak'}.get(row['id'])
-        if candidate and row['id']=='muxi_game_core':source=Path(candidate['artifacts']['muxi-game-core']['path'])
+        if candidate:source=Path(candidate['artifacts'][row['id'].replace('_','-')]['path'])
         elif owner_repo:
             release=json.loads((owner_repo/'build/release.json').read_text(encoding='utf-8'))
             source=owner_repo/'build/libs'/release['artifact']

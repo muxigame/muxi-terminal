@@ -91,6 +91,21 @@ public final class MinigamesNativeQA {
             if(command!=null&&command.get("type").getAsString().equals("stop")){
                 closeNormally(mc);return;
             }
+            if(command!=null&&command.get("type").getAsString().equals("reconnect")){
+                if(!dedicated||!ready)throw new IllegalStateException("Reconnect requires an admitted dedicated connection");
+                int id=lastCommand;command=null;starting=true;ready=false;
+                Files.deleteIfExists(coordinator.resolve("mint-join-"+role+".json"));
+                Files.deleteIfExists(coordinator.resolve("join-minted-"+role+".json"));
+                Files.deleteIfExists(coordinator.resolve("ready-"+role+".json"));
+                mc.tell(()->{
+                    try {
+                        TerminalBrowserSession.close();if(mc.level!=null)mc.level.disconnect();mc.disconnect(new TitleScreen());
+                        joinRequested=false;passportRequested=false;worldReadyTicks=0;starting=false;
+                        JsonObject row=status(mc);row.addProperty("ok",true);row.addProperty("normalDisconnect",true);
+                        write(coordinator.resolve("result-"+role+"-"+id+".json"),row);
+                    } catch(Exception error){throw new RuntimeException(error);}
+                });return;
+            }
             if(!MCEF.isInitialized())return;
             if(!starting&&mc.getOverlay()==null&&mc.screen instanceof TitleScreen){
                 mc.options.renderDistance().set(3);mc.options.bobView().set(false);mc.options.setCameraType(CameraType.FIRST_PERSON);
