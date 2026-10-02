@@ -1,0 +1,1632 @@
+{
+  "observedUtc": "2026-10-02T10:49:12.297375Z",
+  "machine": "131 / JBC_FCRL / Session 2",
+  "productCommit": "75715da18d3d183ca35be1fd95c524ac1d9266fe",
+  "candidateSha256": "551ff376de97e8807f0cd5301a25fd3dd0620db0afe61914794fed90d42b64b4",
+  "candidateJar": "C:\\Users\\ranzh\\Documents\\Codex\\2026-10-02\\task-10\\album-build\\muxi-terminal-album-dev-qa.jar",
+  "candidateBuildSource": {
+    "jar": "C:\\Users\\ranzh\\Documents\\Codex\\2026-10-02\\task-10\\album-build\\muxi-terminal-album-dev-qa.jar",
+    "sha256": "551ff376de97e8807f0cd5301a25fd3dd0620db0afe61914794fed90d42b64b4",
+    "head": "b3fcab3920062ef5f6abed2ecbdcdb0346544db5",
+    "sourceDirty": " M THIRD_PARTY_NOTICES.md\n M build.py\n M src/main/java/net/muxigame/terminal/client/TerminalBrowserSession.java\n M src/main/java/net/muxigame/terminal/client/TerminalClient.java\n M src/main/java/net/muxigame/terminal/client/TerminalPassportNavigation.java\n M src/main/java/net/muxigame/terminal/client/TerminalViewClient.java\n M src/main/resources/META-INF/neoforge.mods.toml\n M src/main/resources/assets/muxi_terminal/html/terminal/apps/minigames/app.js\n M tests/minigames-browser/run-browser-qa.mjs\n M tests/minigames-native/MinigamesNativeQA.java\n M tests/minigames-native/prepare_native_qa.py\n M tests/minigames-native/run_native_qa.py\n?? src/main/java/net/muxigame/terminal/client/compat/\n?? src/main/resources/muxi_terminal.compat.mixins.json\n",
+    "scope": "private QA candidate from shared dev; not released"
+  },
+  "installedMcefUnchanged": true,
+  "installedMcefSha256": "0c7696216fa5cfee659d687475873c847a9a17cc8ce3a56119a69c946eeb8772",
+  "pairSummary": {
+    "success": true,
+    "labA": "C:\\Users\\ranzh\\Documents\\Codex\\2026-10-02\\task-10\\album-runtime-20261002-100200-4d24b885",
+    "labB": "C:\\Users\\ranzh\\Documents\\Codex\\2026-10-02\\task-10\\album-runtime-20261002-100202-33fb8bb7",
+    "Achecks": 28,
+    "Bchecks": 58,
+    "Aexit": 0,
+    "Bexit": 0,
+    "BpeerSurvival": true,
+    "BreopenCycles": 24,
+    "AhelpersRemaining": [],
+    "BhelpersRemaining": [],
+    "normalOnly": true
+  },
+  "A": {
+    "success": true,
+    "normalLogout": true,
+    "cleanExit": true,
+    "exitCode": 0,
+    "reopenCycles": 8,
+    "mcefShutdownGuard": "disabled:1",
+    "forceTerminationPerformed": false,
+    "ownedHelpersObserved": 6,
+    "ownedHelperResidue": [],
+    "helperResidueWaitLimitSeconds": 10,
+    "lab": "C:\\Users\\ranzh\\Documents\\Codex\\2026-10-02\\task-10\\album-runtime-20261002-100200-4d24b885",
+    "nativePid": 36600,
+    "nativeCreateTime": 1790937632.561663,
+    "checks": [
+      "actual installed MCEF global shutdown handler disabled by project compat transform",
+      "actual isolated 131 window visible and focused",
+      "installed ESC screenshot manager default equals this native instance screenshots",
+      "fresh independent gameDirectory starts with own empty native screenshot directory",
+      "native F2 creates actual game screenshot before album opens",
+      "historical actual F2 visible with decoded real CEF thumbnail",
+      "F2 while album stays open appears through product automatic refresh",
+      "native F2 opens real bounded CEF large image",
+      "prepare-delete dialog leaves native F2 untouched",
+      "cancel-delete leaves native F2 untouched",
+      "confirmed native F2 moved to recoverable current-instance recycle with no copy",
+      "restore preserves original native F2 filename and SHA-256 bytes",
+      "album camera button opens actual native camera screen",
+      "actual native camera output shares current native F2 directory",
+      "camera return shows native camera output and both F2 photos in same CEF album",
+      "actual camera output opens in CEF album",
+      "native terminal exit clears retained CEF thumbnail and large-image sources",
+      "native F2/camera screenshot image allocations all closed",
+      "reopening retained terminal resumes album and thumbnails",
+      "cycle 0 has no native screenshot image leak",
+      "cycle 1 has no native screenshot image leak",
+      "cycle 2 has no native screenshot image leak",
+      "cycle 3 has no native screenshot image leak",
+      "cycle 4 has no native screenshot image leak",
+      "cycle 5 has no native screenshot image leak",
+      "cycle 6 has no native screenshot image leak",
+      "cycle 7 has no native screenshot image leak",
+      "all real close-state resource samples collected"
+    ],
+    "nativeScreenshotImageMaximum": 0,
+    "cameraWorkerMaximum": 0,
+    "visualEvidenceSha256": {
+      "album-native-camera-shared.png": "9882aee9a9543f7fa9cc850b1298845999cba78115b11b552ee020f542622863",
+      "album-native-history.png": "f1a692aaa31565a3e02b75c00b0d0675d45c0ef65200957d1374e5d054d52105",
+      "album-native-large.png": "c9aa43452a23094cb4d03d5da607120f2e93123971201bc6d161cd6d0a322f1f",
+      "album-native-new-f2.png": "a9b93d21ca563f01f8135fb5ada3906d5b3af28add1368859bda58c129ac9167",
+      "album-native-recycle.png": "68e8c7e919379c1568e3035d37a066264f25a9f4263176a02036fb81797fa53f"
+    }
+  },
+  "B": {
+    "success": true,
+    "normalLogout": true,
+    "cleanExit": true,
+    "exitCode": 0,
+    "reopenCycles": 24,
+    "mcefShutdownGuard": "disabled:1",
+    "peerExitSurvival": true,
+    "forceTerminationPerformed": false,
+    "forcedGc": false,
+    "loadedModCount": 525,
+    "shaderPackInUse": true,
+    "ysmModel": "default",
+    "ysmTexture": "default",
+    "ysmSelfieRendererCalls": 148,
+    "ysmSelfieRendered": 148,
+    "ownedHelpersObserved": 6,
+    "ownedHelperResidue": [],
+    "helperResidueWaitLimitSeconds": 10,
+    "lab": "C:\\Users\\ranzh\\Documents\\Codex\\2026-10-02\\task-10\\album-runtime-20261002-100202-33fb8bb7",
+    "nativePid": 8600,
+    "nativeCreateTime": 1790937343.0269544,
+    "checks": [
+      "actual installed MCEF global shutdown handler disabled by project compat transform",
+      "actual full pack loaded over 400 mod IDs",
+      "actual Iris shader pipeline enabled in full-pack scene",
+      "installed YSM native engine available",
+      "private local QA player has actual installed native YSM player-model data",
+      "actual isolated 131 window visible and focused",
+      "installed ESC screenshot manager default equals this native instance screenshots",
+      "fresh independent gameDirectory starts with own empty native screenshot directory",
+      "native F2 creates actual game screenshot before album opens",
+      "historical actual F2 visible with decoded real CEF thumbnail",
+      "second actual Minecraft instance excludes previous instance native F2 and camera photos",
+      "F2 while album stays open appears through product automatic refresh",
+      "native F2 opens real bounded CEF large image",
+      "prepare-delete dialog leaves native F2 untouched",
+      "cancel-delete leaves native F2 untouched",
+      "confirmed native F2 moved to recoverable current-instance recycle with no copy",
+      "restore preserves original native F2 filename and SHA-256 bytes",
+      "actual YSM renderer replaces vanilla player in native selfie frames",
+      "album camera button opens actual native camera screen",
+      "actual native camera output shares current native F2 directory",
+      "camera return shows native camera output and both F2 photos in same CEF album",
+      "actual camera output opens in CEF album",
+      "native terminal exit clears retained CEF thumbnail and large-image sources",
+      "native F2/camera screenshot image allocations all closed",
+      "reopening retained terminal resumes album and thumbnails",
+      "peer A completed real guarded album QA and normal shutdown without helper residue",
+      "B executes fresh real CEF DOM after peer A process exited",
+      "B completes fresh native image query after A exits; no stale-pixel survival assertion",
+      "B screenshot allocations released after post-peer image view",
+      "cycle 0 has no native screenshot image leak",
+      "cycle 1 has no native screenshot image leak",
+      "cycle 2 has no native screenshot image leak",
+      "cycle 3 has no native screenshot image leak",
+      "cycle 4 has no native screenshot image leak",
+      "cycle 5 has no native screenshot image leak",
+      "cycle 6 has no native screenshot image leak",
+      "cycle 7 has no native screenshot image leak",
+      "cycle 8 has no native screenshot image leak",
+      "cycle 9 has no native screenshot image leak",
+      "cycle 10 has no native screenshot image leak",
+      "cycle 11 has no native screenshot image leak",
+      "cycle 12 has no native screenshot image leak",
+      "cycle 13 has no native screenshot image leak",
+      "cycle 14 has no native screenshot image leak",
+      "cycle 15 has no native screenshot image leak",
+      "cycle 16 has no native screenshot image leak",
+      "cycle 17 has no native screenshot image leak",
+      "cycle 18 has no native screenshot image leak",
+      "cycle 19 has no native screenshot image leak",
+      "cycle 20 has no native screenshot image leak",
+      "cycle 21 has no native screenshot image leak",
+      "cycle 22 has no native screenshot image leak",
+      "cycle 23 has no native screenshot image leak",
+      "all real close-state resource samples collected",
+      "content browser destroyed after controlled navigation close",
+      "all terminal CEF clients and owned textures return to full-pack engine baseline after explicit close",
+      "all observed real native queries settled after close idle",
+      "all F2/camera screenshot native images released after full-pack phased run"
+    ],
+    "nativeScreenshotImageMaximum": 0,
+    "cameraWorkerMaximum": 0,
+    "visualEvidenceSha256": {
+      "album-full-loaded-hold.png": "d906a0922eb68de0a226ba95d09a0a531135ac1d268d37a2e9aee113b991c607",
+      "album-full-ysm-selfie.png": "78e2c7fadab3db1bf7b0241204e835b7a342a70d283f80fe7af6a6a8436275ae",
+      "album-guard-peer-survived.png": "535eba411fd6c7a195db5260750cd2d53ae9e18f7ceca99c20f80ed24d516ac4",
+      "album-native-camera-shared.png": "d946f8f6c411ff8f15ed0b68ebc886b2c5bde948b5a6255fd547126e59eac953",
+      "album-native-history.png": "946d7cf292bb6565a4c3650d0a49a9adefd36ffe9c628932214cf266dd2a66ee",
+      "album-native-large.png": "fc97b5a51030636c758904ffa4b615cacdb5cc6d52d412416eeafdad3820b767",
+      "album-native-new-f2.png": "b042d3f89a29dad85dea8e1b0bdd65162d08b925678b620c9fd443c1c71abd0c",
+      "album-native-recycle.png": "8788b4aab88c6598bee1146495b0122e6cda51caf58280d5dcd95c2ea8072a4e"
+    }
+  },
+  "actualTransformA": {
+    "observedUtc": "2026-10-02T10:41:16.558562Z",
+    "lab": "album-runtime-20261002-100200-4d24b885",
+    "actualExportSha256": "2d3db931b5d3ea0130797e67ee8e1bb73f522a4168a78ed576d91a5ed4141632",
+    "mcefJarSha256": "0c7696216fa5cfee659d687475873c847a9a17cc8ce3a56119a69c946eeb8772",
+    "mcefJarUnchanged": true,
+    "handler": "handler$zzh000$mcef$close",
+    "handlerInstruction": "0: return",
+    "closeInjectionCallsitePreserved": true,
+    "noMcefProcessCommandsInActualMethod": true,
+    "bootStatusDisabled1": true
+  },
+  "actualTransformB": {
+    "observedUtc": "2026-10-02T10:37:09.610049Z",
+    "lab": "C:\\Users\\ranzh\\Documents\\Codex\\2026-10-02\\task-10\\album-runtime-20261002-100202-33fb8bb7",
+    "actualExportSha256": "f12c0a6e073a8f44afdd7afdbc5b84e8c03f24c6447c22422e735d9a808e156e",
+    "mcefJarSha256": "0c7696216fa5cfee659d687475873c847a9a17cc8ce3a56119a69c946eeb8772",
+    "mcefJarUnchanged": true,
+    "handler": "handler$cnm003$mcef$close",
+    "handlerInstruction": "0: return",
+    "closeInjectionCallsitePreserved": true,
+    "noMcefProcessCommandsInActualMethod": true,
+    "bootStatusDisabled1": true
+  },
+  "oldUnfixedInstance": {
+    "observedUtc": "2026-10-02T10:35:41.889476Z",
+    "pid": 20496,
+    "createTime": 1790930089.1596017,
+    "name": "java.exe",
+    "modified": false,
+    "closed": false
+  },
+  "pidReuseObservation": {
+    "nativeAFormerPid": 36600,
+    "nativeAExitedCode": 0,
+    "observedCurrentPidName": "conhost.exe",
+    "observedCurrentCreateTime": 1790937813.1509476,
+    "currentPidIsNativeA": false,
+    "operationPerformed": false,
+    "nativeAOriginalCreateTime": 1790937632.561663
+  },
+  "resourceAnalysis": {
+    "lab": "album-runtime-20261002-100202-33fb8bb7",
+    "runCompleted": true,
+    "success": true,
+    "cleanExit": true,
+    "forcedGc": false,
+    "productSha256": "551ff376de97e8807f0cd5301a25fd3dd0620db0afe61914794fed90d42b64b4",
+    "finalizerMentions": 0,
+    "cefGpuUnexpectedExitLogs": 0,
+    "cefNetworkCrashLogs": 0,
+    "phases": [
+      {
+        "phase": "functional",
+        "samples": 12,
+        "seconds": 102.28,
+        "privateMemory": {
+          "cef-child-total": {
+            "firstMiB": 71.21,
+            "lastMiB": 222.56,
+            "deltaMiB": 151.35,
+            "rangeMiB": [
+              71.12,
+              222.56
+            ]
+          },
+          "conhost.exe": {
+            "firstMiB": 1.17,
+            "lastMiB": 1.17,
+            "deltaMiB": 0.0,
+            "rangeMiB": [
+              1.17,
+              1.17
+            ]
+          },
+          "gpu-process": {
+            "firstMiB": 62.1,
+            "lastMiB": 129.27,
+            "deltaMiB": 67.17,
+            "rangeMiB": [
+              62.04,
+              129.27
+            ]
+          },
+          "minecraft": {
+            "firstMiB": 10981.7,
+            "lastMiB": 12025.28,
+            "deltaMiB": 1043.57,
+            "rangeMiB": [
+              10981.7,
+              12048.69
+            ]
+          },
+          "renderer": {
+            "firstMiB": 0.0,
+            "lastMiB": 75.71,
+            "deltaMiB": 75.71,
+            "rangeMiB": [
+              0.0,
+              75.71
+            ]
+          },
+          "utility": {
+            "firstMiB": 9.11,
+            "lastMiB": 17.58,
+            "deltaMiB": 8.46,
+            "rangeMiB": [
+              9.08,
+              17.59
+            ]
+          }
+        }
+      },
+      {
+        "phase": "peer-hold",
+        "samples": 14,
+        "seconds": 78.02,
+        "privateMemory": {
+          "cef-child-total": {
+            "firstMiB": 222.11,
+            "lastMiB": 206.65,
+            "deltaMiB": -15.46,
+            "rangeMiB": [
+              204.8,
+              222.11
+            ]
+          },
+          "conhost.exe": {
+            "firstMiB": 1.17,
+            "lastMiB": 1.26,
+            "deltaMiB": 0.09,
+            "rangeMiB": [
+              1.17,
+              1.26
+            ]
+          },
+          "gpu-process": {
+            "firstMiB": 128.29,
+            "lastMiB": 128.04,
+            "deltaMiB": -0.25,
+            "rangeMiB": [
+              128.0,
+              129.55
+            ]
+          },
+          "minecraft": {
+            "firstMiB": 12025.94,
+            "lastMiB": 11960.86,
+            "deltaMiB": -65.08,
+            "rangeMiB": [
+              11960.54,
+              12031.02
+            ]
+          },
+          "renderer": {
+            "firstMiB": 76.25,
+            "lastMiB": 61.05,
+            "deltaMiB": -15.2,
+            "rangeMiB": [
+              59.21,
+              76.25
+            ]
+          },
+          "utility": {
+            "firstMiB": 17.58,
+            "lastMiB": 17.57,
+            "deltaMiB": -0.01,
+            "rangeMiB": [
+              17.53,
+              17.58
+            ]
+          }
+        }
+      },
+      {
+        "phase": "warmup",
+        "samples": 8,
+        "seconds": 29.99,
+        "privateMemory": {
+          "cef-child-total": {
+            "firstMiB": 223.31,
+            "lastMiB": 232.1,
+            "deltaMiB": 8.79,
+            "rangeMiB": [
+              223.31,
+              235.42
+            ]
+          },
+          "conhost.exe": {
+            "firstMiB": 1.26,
+            "lastMiB": 1.18,
+            "deltaMiB": -0.08,
+            "rangeMiB": [
+              1.18,
+              1.26
+            ]
+          },
+          "gpu-process": {
+            "firstMiB": 137.73,
+            "lastMiB": 143.12,
+            "deltaMiB": 5.39,
+            "rangeMiB": [
+              137.73,
+              143.12
+            ]
+          },
+          "minecraft": {
+            "firstMiB": 11961.36,
+            "lastMiB": 11961.62,
+            "deltaMiB": 0.27,
+            "rangeMiB": [
+              11961.36,
+              11961.72
+            ]
+          },
+          "renderer": {
+            "firstMiB": 68.01,
+            "lastMiB": 71.41,
+            "deltaMiB": 3.4,
+            "rangeMiB": [
+              66.99,
+              77.29
+            ]
+          },
+          "utility": {
+            "firstMiB": 17.57,
+            "lastMiB": 17.57,
+            "deltaMiB": 0.0,
+            "rangeMiB": [
+              17.57,
+              17.57
+            ]
+          }
+        }
+      },
+      {
+        "phase": "loaded-hold",
+        "samples": 10,
+        "seconds": 54.01,
+        "privateMemory": {
+          "cef-child-total": {
+            "firstMiB": 238.09,
+            "lastMiB": 228.02,
+            "deltaMiB": -10.07,
+            "rangeMiB": [
+              228.0,
+              238.36
+            ]
+          },
+          "conhost.exe": {
+            "firstMiB": 1.18,
+            "lastMiB": 1.18,
+            "deltaMiB": 0.0,
+            "rangeMiB": [
+              1.18,
+              1.18
+            ]
+          },
+          "gpu-process": {
+            "firstMiB": 143.1,
+            "lastMiB": 143.09,
+            "deltaMiB": -0.01,
+            "rangeMiB": [
+              143.09,
+              143.25
+            ]
+          },
+          "minecraft": {
+            "firstMiB": 11961.51,
+            "lastMiB": 11961.57,
+            "deltaMiB": 0.07,
+            "rangeMiB": [
+              11961.51,
+              11961.57
+            ]
+          },
+          "renderer": {
+            "firstMiB": 77.42,
+            "lastMiB": 67.4,
+            "deltaMiB": -10.02,
+            "rangeMiB": [
+              67.35,
+              77.56
+            ]
+          },
+          "utility": {
+            "firstMiB": 17.57,
+            "lastMiB": 17.53,
+            "deltaMiB": -0.04,
+            "rangeMiB": [
+              17.53,
+              17.57
+            ]
+          }
+        }
+      },
+      {
+        "phase": "closed-hold",
+        "samples": 10,
+        "seconds": 54.01,
+        "privateMemory": {
+          "cef-child-total": {
+            "firstMiB": 227.05,
+            "lastMiB": 228.01,
+            "deltaMiB": 0.96,
+            "rangeMiB": [
+              226.85,
+              228.04
+            ]
+          },
+          "conhost.exe": {
+            "firstMiB": 1.18,
+            "lastMiB": 1.18,
+            "deltaMiB": 0.0,
+            "rangeMiB": [
+              1.18,
+              1.18
+            ]
+          },
+          "gpu-process": {
+            "firstMiB": 142.08,
+            "lastMiB": 143.05,
+            "deltaMiB": 0.98,
+            "rangeMiB": [
+              142.08,
+              143.21
+            ]
+          },
+          "minecraft": {
+            "firstMiB": 11963.56,
+            "lastMiB": 11967.38,
+            "deltaMiB": 3.82,
+            "rangeMiB": [
+              11963.45,
+              12045.02
+            ]
+          },
+          "renderer": {
+            "firstMiB": 67.54,
+            "lastMiB": 67.52,
+            "deltaMiB": -0.02,
+            "rangeMiB": [
+              67.34,
+              67.54
+            ]
+          },
+          "utility": {
+            "firstMiB": 17.43,
+            "lastMiB": 17.43,
+            "deltaMiB": 0.0,
+            "rangeMiB": [
+              17.43,
+              17.43
+            ]
+          }
+        }
+      },
+      {
+        "phase": "measured-block-1",
+        "samples": 8,
+        "seconds": 30.01,
+        "privateMemory": {
+          "cef-child-total": {
+            "firstMiB": 230.7,
+            "lastMiB": 240.48,
+            "deltaMiB": 9.78,
+            "rangeMiB": [
+              229.98,
+              240.63
+            ]
+          },
+          "conhost.exe": {
+            "firstMiB": 1.18,
+            "lastMiB": 1.18,
+            "deltaMiB": 0.0,
+            "rangeMiB": [
+              1.18,
+              1.18
+            ]
+          },
+          "gpu-process": {
+            "firstMiB": 143.48,
+            "lastMiB": 148.37,
+            "deltaMiB": 4.89,
+            "rangeMiB": [
+              143.25,
+              148.37
+            ]
+          },
+          "minecraft": {
+            "firstMiB": 11968.48,
+            "lastMiB": 11967.81,
+            "deltaMiB": -0.67,
+            "rangeMiB": [
+              11967.59,
+              11968.48
+            ]
+          },
+          "renderer": {
+            "firstMiB": 69.79,
+            "lastMiB": 74.57,
+            "deltaMiB": 4.79,
+            "rangeMiB": [
+              69.2,
+              77.78
+            ]
+          },
+          "utility": {
+            "firstMiB": 17.43,
+            "lastMiB": 17.54,
+            "deltaMiB": 0.11,
+            "rangeMiB": [
+              17.43,
+              17.55
+            ]
+          }
+        }
+      },
+      {
+        "phase": "between-blocks-idle",
+        "samples": 10,
+        "seconds": 54.01,
+        "privateMemory": {
+          "cef-child-total": {
+            "firstMiB": 238.99,
+            "lastMiB": 238.42,
+            "deltaMiB": -0.57,
+            "rangeMiB": [
+              238.42,
+              239.4
+            ]
+          },
+          "conhost.exe": {
+            "firstMiB": 1.18,
+            "lastMiB": 1.26,
+            "deltaMiB": 0.08,
+            "rangeMiB": [
+              1.18,
+              1.26
+            ]
+          },
+          "gpu-process": {
+            "firstMiB": 147.76,
+            "lastMiB": 146.88,
+            "deltaMiB": -0.88,
+            "rangeMiB": [
+              146.88,
+              147.76
+            ]
+          },
+          "minecraft": {
+            "firstMiB": 11968.05,
+            "lastMiB": 11948.01,
+            "deltaMiB": -20.04,
+            "rangeMiB": [
+              11948.01,
+              11968.05
+            ]
+          },
+          "renderer": {
+            "firstMiB": 73.69,
+            "lastMiB": 73.91,
+            "deltaMiB": 0.23,
+            "rangeMiB": [
+              73.69,
+              74.01
+            ]
+          },
+          "utility": {
+            "firstMiB": 17.54,
+            "lastMiB": 17.62,
+            "deltaMiB": 0.08,
+            "rangeMiB": [
+              17.54,
+              17.65
+            ]
+          }
+        }
+      },
+      {
+        "phase": "measured-block-2",
+        "samples": 8,
+        "seconds": 30.05,
+        "privateMemory": {
+          "cef-child-total": {
+            "firstMiB": 236.39,
+            "lastMiB": 244.16,
+            "deltaMiB": 7.77,
+            "rangeMiB": [
+              236.39,
+              244.88
+            ]
+          },
+          "conhost.exe": {
+            "firstMiB": 1.26,
+            "lastMiB": 1.26,
+            "deltaMiB": 0.0,
+            "rangeMiB": [
+              1.26,
+              1.26
+            ]
+          },
+          "gpu-process": {
+            "firstMiB": 148.91,
+            "lastMiB": 154.02,
+            "deltaMiB": 5.11,
+            "rangeMiB": [
+              148.91,
+              155.17
+            ]
+          },
+          "minecraft": {
+            "firstMiB": 11948.02,
+            "lastMiB": 11948.04,
+            "deltaMiB": 0.03,
+            "rangeMiB": [
+              11947.91,
+              11948.78
+            ]
+          },
+          "renderer": {
+            "firstMiB": 69.86,
+            "lastMiB": 72.52,
+            "deltaMiB": 2.66,
+            "rangeMiB": [
+              66.82,
+              75.41
+            ]
+          },
+          "utility": {
+            "firstMiB": 17.62,
+            "lastMiB": 17.62,
+            "deltaMiB": 0.0,
+            "rangeMiB": [
+              17.62,
+              17.62
+            ]
+          }
+        }
+      },
+      {
+        "phase": "content-destroy-idle",
+        "samples": 10,
+        "seconds": 54.02,
+        "privateMemory": {
+          "cef-child-total": {
+            "firstMiB": 210.0,
+            "lastMiB": 209.83,
+            "deltaMiB": -0.18,
+            "rangeMiB": [
+              209.76,
+              210.07
+            ]
+          },
+          "conhost.exe": {
+            "firstMiB": 1.26,
+            "lastMiB": 1.18,
+            "deltaMiB": -0.07,
+            "rangeMiB": [
+              1.18,
+              1.26
+            ]
+          },
+          "gpu-process": {
+            "firstMiB": 152.79,
+            "lastMiB": 152.78,
+            "deltaMiB": -0.02,
+            "rangeMiB": [
+              152.78,
+              152.93
+            ]
+          },
+          "minecraft": {
+            "firstMiB": 11947.84,
+            "lastMiB": 11948.64,
+            "deltaMiB": 0.8,
+            "rangeMiB": [
+              11947.65,
+              11948.64
+            ]
+          },
+          "renderer": {
+            "firstMiB": 39.56,
+            "lastMiB": 39.44,
+            "deltaMiB": -0.12,
+            "rangeMiB": [
+              39.37,
+              39.56
+            ]
+          },
+          "utility": {
+            "firstMiB": 17.65,
+            "lastMiB": 17.61,
+            "deltaMiB": -0.04,
+            "rangeMiB": [
+              17.61,
+              17.68
+            ]
+          }
+        }
+      },
+      {
+        "phase": "all-views-destroyed-idle",
+        "samples": 10,
+        "seconds": 54.0,
+        "privateMemory": {
+          "cef-child-total": {
+            "firstMiB": 184.21,
+            "lastMiB": 184.09,
+            "deltaMiB": -0.12,
+            "rangeMiB": [
+              184.09,
+              184.21
+            ]
+          },
+          "conhost.exe": {
+            "firstMiB": 1.18,
+            "lastMiB": 1.18,
+            "deltaMiB": 0.0,
+            "rangeMiB": [
+              1.18,
+              1.18
+            ]
+          },
+          "gpu-process": {
+            "firstMiB": 153.38,
+            "lastMiB": 153.32,
+            "deltaMiB": -0.06,
+            "rangeMiB": [
+              153.32,
+              153.38
+            ]
+          },
+          "minecraft": {
+            "firstMiB": 11947.6,
+            "lastMiB": 11947.76,
+            "deltaMiB": 0.16,
+            "rangeMiB": [
+              11947.47,
+              11947.76
+            ]
+          },
+          "renderer": {
+            "firstMiB": 13.26,
+            "lastMiB": 13.26,
+            "deltaMiB": 0.0,
+            "rangeMiB": [
+              13.26,
+              13.26
+            ]
+          },
+          "utility": {
+            "firstMiB": 17.57,
+            "lastMiB": 17.51,
+            "deltaMiB": -0.06,
+            "rangeMiB": [
+              17.51,
+              17.57
+            ]
+          }
+        }
+      },
+      {
+        "phase": "normal-logout",
+        "samples": 1,
+        "seconds": 0.0,
+        "privateMemory": {
+          "cef-child-total": {
+            "firstMiB": 184.09,
+            "lastMiB": 184.09,
+            "deltaMiB": 0.0,
+            "rangeMiB": [
+              184.09,
+              184.09
+            ]
+          },
+          "conhost.exe": {
+            "firstMiB": 1.18,
+            "lastMiB": 1.18,
+            "deltaMiB": 0.0,
+            "rangeMiB": [
+              1.18,
+              1.18
+            ]
+          },
+          "gpu-process": {
+            "firstMiB": 153.32,
+            "lastMiB": 153.32,
+            "deltaMiB": 0.0,
+            "rangeMiB": [
+              153.32,
+              153.32
+            ]
+          },
+          "minecraft": {
+            "firstMiB": 11788.84,
+            "lastMiB": 11788.84,
+            "deltaMiB": 0.0,
+            "rangeMiB": [
+              11788.84,
+              11788.84
+            ]
+          },
+          "renderer": {
+            "firstMiB": 13.26,
+            "lastMiB": 13.26,
+            "deltaMiB": 0.0,
+            "rangeMiB": [
+              13.26,
+              13.26
+            ]
+          },
+          "utility": {
+            "firstMiB": 17.51,
+            "lastMiB": 17.51,
+            "deltaMiB": 0.0,
+            "rangeMiB": [
+              17.51,
+              17.51
+            ]
+          }
+        }
+      }
+    ],
+    "resourcePhases": [
+      {
+        "phase": "functional",
+        "samples": 1,
+        "resources": {
+          "heapUsed": {
+            "first": 6753952000,
+            "last": 6753952000,
+            "min": 6753952000,
+            "max": 6753952000
+          },
+          "naturalGcCount": {
+            "first": 181,
+            "last": 181,
+            "min": 181,
+            "max": 181
+          },
+          "nativeImagesLive": {
+            "first": 210915,
+            "last": 210915,
+            "min": 210915,
+            "max": 210915
+          },
+          "nativeImageBytesLive": {
+            "first": 393149944,
+            "last": 393149944,
+            "min": 393149944,
+            "max": 393149944
+          },
+          "cefTexturesOwned": {
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "max": 2
+          },
+          "cefTexturesLive": {
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "max": 2
+          },
+          "cefClients": {
+            "first": 3,
+            "last": 3,
+            "min": 3,
+            "max": 3
+          },
+          "bridgeQueriesOutstanding": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          },
+          "directBufferBytes": {
+            "first": 108007654,
+            "last": 108007654,
+            "min": 108007654,
+            "max": 108007654
+          },
+          "cameraWorkerThreads": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "phase": "peer-hold",
+        "samples": 1,
+        "resources": {
+          "heapUsed": {
+            "first": 4998072512,
+            "last": 4998072512,
+            "min": 4998072512,
+            "max": 4998072512
+          },
+          "naturalGcCount": {
+            "first": 189,
+            "last": 189,
+            "min": 189,
+            "max": 189
+          },
+          "nativeImagesLive": {
+            "first": 210915,
+            "last": 210915,
+            "min": 210915,
+            "max": 210915
+          },
+          "nativeImageBytesLive": {
+            "first": 393149944,
+            "last": 393149944,
+            "min": 393149944,
+            "max": 393149944
+          },
+          "cefTexturesOwned": {
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "max": 2
+          },
+          "cefTexturesLive": {
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "max": 2
+          },
+          "cefClients": {
+            "first": 3,
+            "last": 3,
+            "min": 3,
+            "max": 3
+          },
+          "bridgeQueriesOutstanding": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          },
+          "directBufferBytes": {
+            "first": 89459653,
+            "last": 89459653,
+            "min": 89459653,
+            "max": 89459653
+          },
+          "cameraWorkerThreads": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "phase": "warmup",
+        "samples": 8,
+        "resources": {
+          "heapUsed": {
+            "first": 5878876352,
+            "last": 5167625584,
+            "min": 5167625584,
+            "max": 7618951480
+          },
+          "naturalGcCount": {
+            "first": 191,
+            "last": 194,
+            "min": 191,
+            "max": 194
+          },
+          "nativeImagesLive": {
+            "first": 210915,
+            "last": 210915,
+            "min": 210915,
+            "max": 210915
+          },
+          "nativeImageBytesLive": {
+            "first": 393149944,
+            "last": 393149944,
+            "min": 393149944,
+            "max": 393149944
+          },
+          "cefTexturesOwned": {
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "max": 2
+          },
+          "cefTexturesLive": {
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "max": 2
+          },
+          "cefClients": {
+            "first": 3,
+            "last": 3,
+            "min": 3,
+            "max": 3
+          },
+          "bridgeQueriesOutstanding": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          },
+          "directBufferBytes": {
+            "first": 89328581,
+            "last": 89328581,
+            "min": 89328581,
+            "max": 89328581
+          },
+          "cameraWorkerThreads": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "phase": "loaded-hold",
+        "samples": 14,
+        "resources": {
+          "heapUsed": {
+            "first": 5436061040,
+            "last": 6428033120,
+            "min": 4739563520,
+            "max": 7709733528
+          },
+          "naturalGcCount": {
+            "first": 196,
+            "last": 202,
+            "min": 196,
+            "max": 202
+          },
+          "nativeImagesLive": {
+            "first": 210915,
+            "last": 210915,
+            "min": 210915,
+            "max": 210915
+          },
+          "nativeImageBytesLive": {
+            "first": 393149944,
+            "last": 393149944,
+            "min": 393149944,
+            "max": 393149944
+          },
+          "cefTexturesOwned": {
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "max": 2
+          },
+          "cefTexturesLive": {
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "max": 2
+          },
+          "cefClients": {
+            "first": 3,
+            "last": 3,
+            "min": 3,
+            "max": 3
+          },
+          "bridgeQueriesOutstanding": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          },
+          "directBufferBytes": {
+            "first": 89328581,
+            "last": 89328581,
+            "min": 89328581,
+            "max": 89328581
+          },
+          "cameraWorkerThreads": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "phase": "closed-hold",
+        "samples": 14,
+        "resources": {
+          "heapUsed": {
+            "first": 6545473632,
+            "last": 7050499152,
+            "min": 4823474936,
+            "max": 7493911528
+          },
+          "naturalGcCount": {
+            "first": 202,
+            "last": 207,
+            "min": 202,
+            "max": 207
+          },
+          "nativeImagesLive": {
+            "first": 210915,
+            "last": 210915,
+            "min": 210915,
+            "max": 210915
+          },
+          "nativeImageBytesLive": {
+            "first": 393149944,
+            "last": 393149944,
+            "min": 393149944,
+            "max": 393149944
+          },
+          "cefTexturesOwned": {
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "max": 2
+          },
+          "cefTexturesLive": {
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "max": 2
+          },
+          "cefClients": {
+            "first": 3,
+            "last": 3,
+            "min": 3,
+            "max": 3
+          },
+          "bridgeQueriesOutstanding": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          },
+          "directBufferBytes": {
+            "first": 89328581,
+            "last": 89330451,
+            "min": 89328581,
+            "max": 89330451
+          },
+          "cameraWorkerThreads": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "phase": "measured-block-1",
+        "samples": 8,
+        "resources": {
+          "heapUsed": {
+            "first": 4750186912,
+            "last": 6382097264,
+            "min": 4750186912,
+            "max": 7152579456
+          },
+          "naturalGcCount": {
+            "first": 208,
+            "last": 212,
+            "min": 208,
+            "max": 212
+          },
+          "nativeImagesLive": {
+            "first": 210915,
+            "last": 210915,
+            "min": 210915,
+            "max": 210915
+          },
+          "nativeImageBytesLive": {
+            "first": 393149944,
+            "last": 393149944,
+            "min": 393149944,
+            "max": 393149944
+          },
+          "cefTexturesOwned": {
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "max": 2
+          },
+          "cefTexturesLive": {
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "max": 2
+          },
+          "cefClients": {
+            "first": 3,
+            "last": 3,
+            "min": 3,
+            "max": 3
+          },
+          "bridgeQueriesOutstanding": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          },
+          "directBufferBytes": {
+            "first": 89330451,
+            "last": 89416326,
+            "min": 89330451,
+            "max": 89416326
+          },
+          "cameraWorkerThreads": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "phase": "between-blocks-idle",
+        "samples": 14,
+        "resources": {
+          "heapUsed": {
+            "first": 6499537776,
+            "last": 7144046816,
+            "min": 4652630240,
+            "max": 7400611344
+          },
+          "naturalGcCount": {
+            "first": 212,
+            "last": 217,
+            "min": 212,
+            "max": 217
+          },
+          "nativeImagesLive": {
+            "first": 210915,
+            "last": 210915,
+            "min": 210915,
+            "max": 210915
+          },
+          "nativeImageBytesLive": {
+            "first": 393149944,
+            "last": 393149944,
+            "min": 393149944,
+            "max": 393149944
+          },
+          "cefTexturesOwned": {
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "max": 2
+          },
+          "cefTexturesLive": {
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "max": 2
+          },
+          "cefClients": {
+            "first": 3,
+            "last": 3,
+            "min": 3,
+            "max": 3
+          },
+          "bridgeQueriesOutstanding": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          },
+          "directBufferBytes": {
+            "first": 89416326,
+            "last": 89391245,
+            "min": 89391245,
+            "max": 89416326
+          },
+          "cameraWorkerThreads": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "phase": "measured-block-2",
+        "samples": 8,
+        "resources": {
+          "heapUsed": {
+            "first": 4818623560,
+            "last": 6374666088,
+            "min": 4818623560,
+            "max": 7195846384
+          },
+          "naturalGcCount": {
+            "first": 218,
+            "last": 222,
+            "min": 218,
+            "max": 222
+          },
+          "nativeImagesLive": {
+            "first": 210915,
+            "last": 210915,
+            "min": 210915,
+            "max": 210915
+          },
+          "nativeImageBytesLive": {
+            "first": 393149944,
+            "last": 393149944,
+            "min": 393149944,
+            "max": 393149944
+          },
+          "cefTexturesOwned": {
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "max": 2
+          },
+          "cefTexturesLive": {
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "max": 2
+          },
+          "cefClients": {
+            "first": 3,
+            "last": 3,
+            "min": 3,
+            "max": 3
+          },
+          "bridgeQueriesOutstanding": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          },
+          "directBufferBytes": {
+            "first": 89325709,
+            "last": 89260173,
+            "min": 89260173,
+            "max": 89325709
+          },
+          "cameraWorkerThreads": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "phase": "content-destroy-idle",
+        "samples": 14,
+        "resources": {
+          "heapUsed": {
+            "first": 6383054696,
+            "last": 6873762632,
+            "min": 4923921592,
+            "max": 7485239544
+          },
+          "naturalGcCount": {
+            "first": 222,
+            "last": 227,
+            "min": 222,
+            "max": 227
+          },
+          "nativeImagesLive": {
+            "first": 210915,
+            "last": 210915,
+            "min": 210915,
+            "max": 210915
+          },
+          "nativeImageBytesLive": {
+            "first": 393149944,
+            "last": 393149944,
+            "min": 393149944,
+            "max": 393149944
+          },
+          "cefTexturesOwned": {
+            "first": 1,
+            "last": 1,
+            "min": 1,
+            "max": 1
+          },
+          "cefTexturesLive": {
+            "first": 1,
+            "last": 1,
+            "min": 1,
+            "max": 1
+          },
+          "cefClients": {
+            "first": 2,
+            "last": 2,
+            "min": 2,
+            "max": 2
+          },
+          "bridgeQueriesOutstanding": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          },
+          "directBufferBytes": {
+            "first": 89260173,
+            "last": 89260173,
+            "min": 89260173,
+            "max": 89260173
+          },
+          "cameraWorkerThreads": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "phase": "all-views-destroyed-idle",
+        "samples": 14,
+        "resources": {
+          "heapUsed": {
+            "first": 6890539848,
+            "last": 4654091888,
+            "min": 4645703280,
+            "max": 7348390984
+          },
+          "naturalGcCount": {
+            "first": 227,
+            "last": 233,
+            "min": 227,
+            "max": 233
+          },
+          "nativeImagesLive": {
+            "first": 210915,
+            "last": 210915,
+            "min": 210915,
+            "max": 210915
+          },
+          "nativeImageBytesLive": {
+            "first": 393149944,
+            "last": 393149944,
+            "min": 393149944,
+            "max": 393149944
+          },
+          "cefTexturesOwned": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          },
+          "cefTexturesLive": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          },
+          "cefClients": {
+            "first": 2,
+            "last": 1,
+            "min": 1,
+            "max": 2
+          },
+          "bridgeQueriesOutstanding": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          },
+          "directBufferBytes": {
+            "first": 89260173,
+            "last": 89257490,
+            "min": 89257490,
+            "max": 89260173
+          },
+          "cameraWorkerThreads": {
+            "first": 0,
+            "last": 0,
+            "min": 0,
+            "max": 0
+          }
+        }
+      }
+    ],
+    "backgroundResourcesBeforeTerminal": {
+      "phase": "before-terminal",
+      "bridgeQueriesStarted": 0,
+      "bridgeQueriesSettled": 0,
+      "bridgeQueriesOutstanding": 0,
+      "round": 0,
+      "nanoTime": 795420465968200,
+      "heapUsed": 5666504704,
+      "heapCommitted": 8053063680,
+      "naturalGcCount": 177,
+      "nativeImagesLive": 210915,
+      "nativeImageBytesLive": 393149944,
+      "nativeImageAllocations": 213562,
+      "nativeImageCloses": 2647,
+      "cefTexturesOwned": 0,
+      "cefTexturesLive": 0,
+      "cefTextureAllocations": 0,
+      "cefTextureCloses": 0,
+      "mainColorTexture": 3,
+      "cameraWorkerThreads": 0,
+      "mappedBuffers": 0,
+      "mappedBufferBytes": 0,
+      "directBuffers": 611,
+      "directBufferBytes": 108056872,
+      "mapped - 'non-volatile memory'Buffers": 0,
+      "mapped - 'non-volatile memory'BufferBytes": 0,
+      "cefClients": 1,
+      "gpuAvailableKiB": 48329200
+    },
+    "releasedResources": {
+      "phase": "all-views-destroyed-idle",
+      "bridgeQueriesStarted": 665,
+      "bridgeQueriesSettled": 665,
+      "bridgeQueriesOutstanding": 0,
+      "round": 24,
+      "nanoTime": 795929850383000,
+      "heapUsed": 4654091888,
+      "heapCommitted": 8053063680,
+      "naturalGcCount": 233,
+      "nativeImagesLive": 210915,
+      "nativeImageBytesLive": 393149944,
+      "nativeImageAllocations": 213602,
+      "nativeImageCloses": 2687,
+      "cefTexturesOwned": 0,
+      "cefTexturesLive": 0,
+      "cefTextureAllocations": 2,
+      "cefTextureCloses": 2,
+      "mainColorTexture": 3,
+      "cameraWorkerThreads": 0,
+      "mappedBuffers": 0,
+      "mappedBufferBytes": 0,
+      "directBuffers": 584,
+      "directBufferBytes": 89257490,
+      "mapped - 'non-volatile memory'Buffers": 0,
+      "mapped - 'non-volatile memory'BufferBytes": 0,
+      "cefClients": 1,
+      "gpuAvailableKiB": 48388916
+    },
+    "warning": "Finite private generated world, fixed three photographs, one shader and builtin YSM; CEF child totals exclude console helpers and cannot isolate CEF browser allocations inside the JVM. Process private memory is not an allocator ownership proof."
+  },
+  "privatePhotosUploadedOrCopied": false,
+  "productionDeployed": false,
+  "limits": [
+    "Finite 24 rounds, three newly generated local photographs, one Better MC Low shader, builtin YSM default only.",
+    "No indefinite leak-freedom claim; no private/custom YSM models, other shaders, multiplayer selection or original six camera photos UI acceptance.",
+    "Old unguarded instances can still kill helpers externally. Earlier two original-package failures remain failed; their actual triggerer remains unassigned."
+  ]
+}

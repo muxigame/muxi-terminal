@@ -28,4 +28,10 @@ The peer protocol prepares two owned fresh labs with the same candidate. Start f
 
 Observe helper identity through the owned process tree using PID plus creation time. After normal Minecraft exit, check only those observed identities for a bounded ten seconds. Remaining helpers are a failed gate; there is no force-termination fallback. Complete the fixed-photo holds, content-browser destruction and all-terminal-view destruction. Return terminal-owned client/texture counts to the measured shared-engine baseline and check settled queries and screenshot image ownership. A crashed/disappeared renderer cannot count as released memory.
 
-Native dual-instance and full-pack acceptance remains pending until the coordinated window executes. Earlier failed original-package resource runs remain recorded in `docs/album/fullpack-131-20261002.md` and must not be relabeled as passes.
+Native acceptance on 131 completed: guarded A exited normally, B performed fresh real DOM/native image queries after that exit, and B completed the bounded 24-round full-pack protocol with terminal resources returning to the shared-engine baseline. Both normal Minecraft exits had no observed owned helper residue. See [actual evidence and private-memory limitations](../../docs/album/mcef-guard-131-20261002.md). Earlier failed original-package resource runs remain recorded in `docs/album/fullpack-131-20261002.md` and must not be relabeled as passes.
+
+Actual exported-class verification (read only; never starts Minecraft):
+
+```powershell
+python tests/mcef-shutdown/verify-runtime-export.py --lab '<own completed lab>' --jdk '<existing JDK21>'
+```
