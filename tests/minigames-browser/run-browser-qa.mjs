@@ -72,7 +72,7 @@ window.__fx={calls:[],actions:[],fail:false,hold:true,late:null};
     else if(o.request==='apps.list')value=[];
     else if(o.request.startsWith('resource.data:'))value='';
     else if(o.request==='icons.state')value={revision:1};
-    else if(o.request.startsWith('icons.get:'))value={revision:1,src:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a4v8AAAAASUVORK5CYII='};
+    else if(o.request.startsWith('icons.get:')){const icon=JSON.parse(o.request.slice(10));value={revision:1,src:icon.id.endsWith('/missing.png')?'':f.actualHorsePngs?.[icon.id]||'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a4v8AAAAASUVORK5CYII='};}
     else if(o.request==='tasks.snapshot')value={supported:false,loading:false,rows:[]};
     else if(o.request.startsWith('games.action:')){
       const action=JSON.parse(o.request.slice(13)),request='aaaaaaaa-aaaa-4aaa-8aaa-'+String(f.actions.length+1).padStart(12,'0');
@@ -160,8 +160,34 @@ try{
     await check('confirmation inherits server card descriptor through common icon service',`document.querySelector('#mg-confirm-text img').dataset.terminalIconId==='minecraft:enchanted_golden_apple'`);await shot('10-dialog-icon-consumer-fixture');
     await js(`document.getElementById('mg-confirm-cancel').click()`);
     await check('closing confirmation releases its shared image attachment',`document.getElementById('mg-confirm').hidden&&!document.querySelector('#mg-confirm-text img').hasAttribute('src')`);
+    await js(`(async()=>{const card=__fx.state.games[0].ui.shop.sections[0].cards[0];card.horseSku='seabiscuit';card.horsePreviewId='catalog-seabiscuit';await window.MuxiMinigamesApp.activate();})()`);
+    await check('horse metadata without a PNG descriptor has an explicit large preview fallback',`document.querySelector('.mg-card-preview')&&getComputedStyle(document.querySelector('.mg-preview-unavailable')).display!=='none'&&document.querySelector('.mg-preview-unavailable').textContent==='\u5916\u89c2\u9884\u89c8\u6682\u4e0d\u53ef\u7528'&&document.querySelector('.mg-preview-media').getBoundingClientRect().height>100`);
+    await js(`(async()=>{const card=__fx.state.games[0].ui.shop.sections[0].cards[0];card.preview={kind:'resource',id:'https://invalid.example/horse.png',label:'<img src=x onerror=alert(1)>'};await window.MuxiMinigamesApp.activate();})()`);
+    await check('preview labels are escaped and remote image URLs never reach the native icon bridge',`document.querySelector('.mg-card-preview figcaption').textContent==='<img src=x onerror=alert(1)>'&&!document.querySelector('.mg-card-preview figcaption img')&&!__fx.calls.some(c=>c.includes('invalid.example'))`);
+    await js(`(async()=>{const card=__fx.state.games[0].ui.shop.sections[0].cards[0];card.preview={kind:'resource',id:'muxi_minigames:textures/gui/horse_preview/missing.png',label:'\u901a\u7528\u9a6c\u6c60\u793a\u610f\u56fe'};await window.MuxiMinigamesApp.activate();})()`);
+    await eventually(`__fx.calls.some(c=>c.includes('/missing.png'))`);
+    await check('missing PNG retains its explicit fallback, generic description and purchase action',`document.querySelector('.mg-card-preview img').hidden&&getComputedStyle(document.querySelector('.mg-preview-unavailable')).display!=='none'&&document.querySelector('.mg-card-preview figcaption').textContent==='\u901a\u7528\u9a6c\u6c60\u793a\u610f\u56fe'&&!document.querySelector('[data-mg-action]').disabled`);
+    await shot('11-horse-preview-missing');
+    if(process.argv.includes('--horse-previews')){
+      const horseRoot=path.resolve(repo,'../muxi-minigames/src/main/resources/assets/muxi_minigames/textures/gui/horse_preview');
+      const pngs={},cards=[],assetEvidence=[];
+      for(const sku of ['seabiscuit','winx','secretariat','frankel','equinox','generic']){
+        const file=path.join(horseRoot,sku+'.png'),data=fs.readFileSync(file);
+        assert.ok(data.length<=256*1024&&data.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])),'Bounded actual PNG: '+sku);
+        const id='muxi_minigames:textures/gui/horse_preview/'+sku+'.png';pngs[id]='data:image/png;base64,'+data.toString('base64');
+        cards.push({title:sku,horseSku:sku,preview:{kind:'resource',id,label:sku==='generic'?'\u901a\u7528\u9a6c\u6c60\u793a\u610f\u56fe':'\u539f\u7248\u9a6c\u5916\u89c2\u793a\u610f\u56fe'},actions:[]});
+        assetEvidence.push({sku,file,sha256:crypto.createHash('sha256').update(data).digest('hex'),bytes:data.length,width:data.readUInt32BE(16),height:data.readUInt32BE(20)});
+      }
+      fs.writeFileSync(path.join(output,'horse-png-assets.json'),JSON.stringify(assetEvidence,null,2));
+      await js(`(async()=>{__fx.actualHorsePngs=${JSON.stringify(pngs)};__fx.state.games[0].ui.shop.sections[0].cards=${JSON.stringify(cards)};await window.MuxiMinigamesApp.activate();})()`);
+      await eventually(`document.querySelectorAll('.mg-card-preview img').length===6&&[...document.querySelectorAll('.mg-card-preview img')].every(img=>!img.hidden&&img.naturalWidth>1)`);
+      await check('six actual owner PNGs load through the shared icon API and hide the fallback',`[...document.querySelectorAll('.mg-card-preview')].every(figure=>getComputedStyle(figure.querySelector('.mg-preview-unavailable')).display==='none')&&document.querySelectorAll('.mg-card-preview figcaption')[5].textContent==='\u901a\u7528\u9a6c\u6c60\u793a\u610f\u56fe'`);
+      await shot('12-horse-previews-owner-assets');
+    }
   }
   await cdp('Emulation.setDeviceMetricsOverride',{width:640,height:360,deviceScaleFactor:1,mobile:false});
+  await check('horse preview remains within the card and viewport at small sizes',`[...document.querySelectorAll('.mg-card-preview')].every(figure=>figure.getBoundingClientRect().width<=256&&figure.getBoundingClientRect().width<=figure.parentElement.getBoundingClientRect().width)&&document.getElementById('games').scrollWidth<=document.getElementById('games').clientWidth`);
+  await shot('13-small-horse-shop');
   await js(`document.getElementById('mg-back').click()`);await shot('09-small-lobby');
   await check('small viewport does not overflow horizontally',`document.getElementById('games').scrollWidth<=document.getElementById('games').clientWidth`);
   assert.deepEqual(errors,[],'no uncaught browser exceptions');

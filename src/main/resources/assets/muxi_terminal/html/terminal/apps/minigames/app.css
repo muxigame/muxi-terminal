@@ -16,6 +16,14 @@
 .mg-lobby-heading button,.mg-room-invitations button{padding:7px 12px;cursor:pointer}
 .mg-content .guide-card .detail-actions{margin-top:9px}
 .mg-content .guide-card h4{margin:0 0 6px;font-size:var(--font-body,15px)}
+.mg-card-preview{width:100%;max-width:256px;margin:0 auto 12px}
+.mg-preview-media{position:relative;width:100%;aspect-ratio:4/3;box-sizing:border-box;border:2px solid var(--line);background:var(--line-hi)}
+.mg-preview-media .terminal-icon{display:flex;width:100%;height:100%;flex:none}
+.mg-preview-media .terminal-icon img{object-fit:contain;image-rendering:pixelated}
+.mg-preview-media .ti-fallback{display:none}
+.mg-preview-unavailable{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px;color:var(--muted);font-size:var(--font-small,12px);text-align:center}
+.mg-preview-media:has(img[data-terminal-icon-kind]:not([hidden])) .mg-preview-unavailable{display:none}
+.mg-card-preview figcaption{margin-top:6px;color:var(--muted);font-size:var(--font-small,12px);line-height:1.5;overflow-wrap:anywhere}
 .mg-fields{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0}
 .mg-field{display:grid;gap:5px;font-size:var(--font-body,15px);min-width:150px}
 .mg-field .detail-actions{margin-top:0}

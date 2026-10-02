@@ -19,6 +19,12 @@
   const setStage=value=>{context.drafts['minigames:stage']=value;};
   const busy=()=>!!(pending||unconfirmed||invitationBusy);
   const iconHtml=(icon,label='')=>icon&&typeof icon==='object'?window.TerminalIcons?.html({...icon,label:icon.label||label})||'':'';
+  function previewHtml(card){
+    if(!card.preview&&!card.horseSku&&!card.horsePreviewId&&!card.horseAppearance)return '';
+    const label=typeof card.preview?.label==='string'&&card.preview.label.trim()?card.preview.label:'\u9a6c\u5339\u5916\u89c2\u793a\u610f\u56fe';
+    const preview=card.preview?.kind==='resource'&&typeof card.preview.id==='string'&&card.preview.id.endsWith('.png')?card.preview:null;
+    return `<figure class="mg-card-preview"><div class="mg-preview-media">${iconHtml(preview,label)}<span class="mg-preview-unavailable">\u5916\u89c2\u9884\u89c8\u6682\u4e0d\u53ef\u7528</span></div><figcaption>${M.esc(label)}</figcaption></figure>`;
+  }
   function buttonHtml(id,button,owner,displayOwner=owner){
     const key=String(actions.size);actions.set(key,{game:id,button,owner,icon:button.icon||displayOwner.icon});
     return `<button data-mg-action="${key}" ${M.blocked(snapshot,id,button)||busy()?'disabled':''} class="${button.safe?'secondary':'primary'}">${iconHtml(button.icon,button.label)}${M.esc(button.label)}</button>`;
@@ -28,7 +34,7 @@
     return (owner.fields||[]).filter(filter).map(field=>`<div class="mg-field"><span>${M.esc(field.label)}</span><div class="detail-actions">${M.fieldOptions(field,selected).map(option=>`<button class="task-tab ${String(option.value)===selected[field.id]?'task-tab-active':''}" data-mg-choice="${M.esc(id+':'+field.id)}" data-mg-value="${M.esc(option.value)}" ${busy()?'disabled':''} aria-pressed="${String(option.value)===selected[field.id]}">${M.esc(option.label)}</button>`).join('')}</div></div>`).join('');
   }
   function sectionHtml(id,section){
-    return `<section class="detail-card"><div class="detail-section"><h3>${iconHtml(section.icon,section.title)}${M.esc(section.title)}</h3><p>${M.esc(section.text)}</p></div><div class="mg-fields">${fieldsHtml(id,section)}</div><div class="detail-actions">${(section.actions||[]).map(button=>buttonHtml(id,button,section)).join('')}</div><div class="guide-list">${(section.cards||[]).map(card=>`<article class="guide-card"><h4>${iconHtml(card.icon,card.title)}${M.esc(card.title)}</h4><p>${M.esc(card.text)}</p><div class="detail-actions">${(card.actions||[]).map(button=>buttonHtml(id,button,section,card)).join('')}</div></article>`).join('')}</div></section>`;
+    return `<section class="detail-card"><div class="detail-section"><h3>${iconHtml(section.icon,section.title)}${M.esc(section.title)}</h3><p>${M.esc(section.text)}</p></div><div class="mg-fields">${fieldsHtml(id,section)}</div><div class="detail-actions">${(section.actions||[]).map(button=>buttonHtml(id,button,section)).join('')}</div><div class="guide-list">${(section.cards||[]).map(card=>`<article class="guide-card">${previewHtml(card)}<h4>${iconHtml(card.icon,card.title)}${M.esc(card.title)}</h4><p>${M.esc(card.text)}</p><div class="detail-actions">${(card.actions||[]).map(button=>buttonHtml(id,button,section,card)).join('')}</div></article>`).join('')}</div></section>`;
   }
   function currencyHtml(item){return (item?.ui?.currencies||[]).map(currency=>`<article class="task-intro"><div><small>${M.esc(currency.label)} \u00b7 ${M.esc(currency.scope)}</small><strong>${M.esc(currency.value)}</strong><p>${M.esc(currency.note)}</p></div></article>`).join('');}
   function mapOptions(item){const owner=M.createSection(item),selected=M.values(item.id,owner||{},context.drafts);return M.fieldOptions(owner?.fields?.find(field=>field.id==='map')||{},selected);}
