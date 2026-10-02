@@ -1,0 +1,38 @@
+{
+  "privateOnly": true,
+  "reviewTerminalSourceSha256": "9c67d238dd3ac53817c8ed0fb7038b12ee9e0a174f330d9fca1d3bd93f03f0d3",
+  "reviewXSourceSha256": "a78589614bf0f17a7629ecd796102c77011d71de1327a334bc75cb5cd9893687",
+  "combination": "map jar with exactly TerminalScreen.class replaced from independent X review jar; source patches remain separate",
+  "files": [
+    {
+      "path": "desktop/qa_fml_config.py",
+      "sha256": "8862fc8425153c4f242eff240ca575cf05cd1e9115c528af235acc9b447af41f",
+      "size": 1274
+    },
+    {
+      "path": "desktop/run_131_qa.py",
+      "sha256": "c7fa5374b7cf26926651c152e0deb136a3b76f1a5bbaedbf65fa51df778f4f64",
+      "size": 14434
+    },
+    {
+      "path": "desktop/run_task6_native_map.ps1",
+      "sha256": "1c0cb4a60607a38c642dac7a8894c2e477c42254f430d1250d475d497f8aa250",
+      "size": 1006
+    },
+    {
+      "path": "inputs/muxi-game-core-native-map-full-review.jar",
+      "sha256": "505fab638e094d2a5f859d617f5dd5cc49c7ca2accd487f806def2cf1e1a00e8",
+      "size": 371863
+    },
+    {
+      "path": "inputs/muxi-terminal-native-map-x-qa.jar",
+      "sha256": "db4bf233e9f10c18416b466b0023f1eec8abd3f5b628259ea87a940b0ccc1753",
+      "size": 539432
+    },
+    {
+      "path": "inputs/task6-native-qa-only.jar",
+      "sha256": "b4221bc1230cc8c93079df5027e84231ed9b3ba60c7b6a2d34d2ed819181711f",
+      "size": 24956
+    }
+  ]
+}

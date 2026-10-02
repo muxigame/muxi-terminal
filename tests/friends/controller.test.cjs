@@ -1,0 +1,24 @@
+const assert=require('node:assert/strict');
+const M=require('../../src/main/resources/assets/muxi_terminal/html/terminal/friends-controller.js');
+let checks=0;const check=(condition,label)=>{checks++;assert.ok(condition,label);};
+const peer=(uid,online=true)=>({uid,displayName:'<img onerror=boom>',gameName:uid,uuid:'00000000-0000-0000-0000-000000000001',online,messageAvailable:true});
+const snapshot=()=>({version:1,selfUid:'100001',authenticated:true,identityMode:'platform-uid',presenceAvailable:true,friends:[peer('9007199254740993')],incoming:[peer('100002')],outgoing:[],blocked:[],onlinePlayers:[peer('9007199254740993'),peer('100003')]});
+const reject=fn=>{checks++;assert.throws(fn);};
+(async()=>{
+  reject(()=>M.uid(100001));reject(()=>M.uid('0100001'));reject(()=>M.uid('@a'));reject(()=>M.uid('100001\n/msg @a'));reject(()=>M.uid('1234'));reject(()=>M.uid('99999999999999999'));
+  check(M.uid('9007199254740993')==='9007199254740993','large UID stays exact string');
+  reject(()=>M.snapshot({...snapshot(),version:2}));reject(()=>M.snapshot({...snapshot(),friends:[peer('100002'),peer('100002')]}));reject(()=>M.snapshot({...snapshot(),friends:[peer('100001')]}));
+  check(M.peers(snapshot(),'online').length===2,'online tab includes nonfriends');check(M.peers(snapshot(),'friends').length===1,'friends tab intersects verified online list');check(M.peers({...snapshot(),presenceAvailable:false},'friends').length===0,'expired presence disables invitations');
+  let calls=[],current=snapshot(),fail=false,hold=null;
+  const key='11111111-1111-4111-8111-111111111111';
+  const invoke=async command=>{calls.push(command);if(command==='friends.snapshot')return structuredClone(current);if(hold)return new Promise(resolve=>hold.resolve=resolve);const action=JSON.parse(command.slice(15));if(fail)throw new Error('timeout');current.incoming=[];return {version:1,request:action.request,ok:true,status:'ok',changed:false};};
+  const c=M.create({invoke,makeKey:()=>key});await c.refresh();check(calls.length===1 && calls[0]==='friends.snapshot','opening is read only');
+  await c.mutate('accept','100002');check(c.getState().lastReceipt?.changed===false,'unchanged receipt is valid');check(calls.filter(x=>x.startsWith('friends.action:')).length===1,'one explicit action');
+  const action=JSON.parse(calls.find(x=>x.startsWith('friends.action:')).slice(15));check(Object.keys(action).sort().join(',')==='op,request,uid','no renderer actor/name/url');
+  fail=true;await assert.rejects(c.mutate('request','100003'));check(c.getState().retry.request===key && c.getState().needsRefresh,'unknown outcome retains original key and disables writes');
+  await assert.rejects(c.mutate('block','100002'));await c.refresh();fail=false;await c.retry();check(calls.filter(x=>x.startsWith('friends.action:')).map(x=>JSON.parse(x.slice(15))).every(a=>a.request===key),'explicit retry reuses same idempotency key');
+  hold={};const delayed=c.mutate('request','100003');await new Promise(r=>setTimeout(r,0));c.dispose();hold.resolve({version:1,request:key,ok:true,status:'ok',changed:true});await delayed;check(c.getState().snapshot===null && c.getState().lastReceipt===null,'old mutation result cannot restore disposed state');
+  hold=null;await c.refresh();fail=true;await assert.rejects(c.mutate('request','100003'));current={...snapshot(),selfUid:'100009'};await c.refresh();check(c.getState().retry===null,'account change discards prior-account retry');
+  const wrong=M.create({invoke:async command=>command==='friends.snapshot'?snapshot():{version:1,request:'different',ok:true,status:'ok',changed:true},makeKey:()=>key});await wrong.refresh();await assert.rejects(wrong.mutate('accept','100002'));check(!wrong.getState().lastReceipt && wrong.getState().needsRefresh,'mismatched receipt never fabricates success');
+  console.log(JSON.stringify({success:true,checks,scope:'synthetic controller only; no backend relationship mutation'}));
+})().catch(error=>{console.error(error);process.exitCode=1;});

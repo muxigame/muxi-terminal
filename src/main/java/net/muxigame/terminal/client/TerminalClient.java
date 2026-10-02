@@ -14,9 +14,10 @@ public final class TerminalClient {
 
     private TerminalClient() {}
 
-    public static void bootstrap() {
+    public static void bootstrap(net.neoforged.bus.api.IEventBus modBus) {
         if (bootstrapped) return;
         bootstrapped = true;
+        TerminalHeldScreen.register(modBus);
         NeoForge.EVENT_BUS.addListener(TerminalClient::onRenderHand);
         NeoForge.EVENT_BUS.addListener(TerminalClient::onLevelUnload);
         TerminalNativeBridge.installWhenReady();
@@ -36,6 +37,13 @@ public final class TerminalClient {
         } catch (ReflectiveOperationException | LinkageError failed) {
             throw new IllegalStateException("Cannot register minigame app launcher",failed);
         }
+    }
+
+    /** Right-click preserves the page already visible on the held pad. */
+    public static void openTerminal() {
+        Minecraft mc = Minecraft.getInstance();
+        if (!MCEF.isInitialized()) { openHome(); return; }
+        mc.setScreen(new TerminalScreen(TerminalBrowserSession.getOrCreate()));
     }
 
     public static void openHome() {

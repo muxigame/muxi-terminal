@@ -1,0 +1,30 @@
+Task6 native-map / independent X developer QA. No publication or production writes.
+
+Confirmed SSH: JBC-1@192.168.110.131, identity JBC_FCRL\JBC-1; profile C:\Users\ranzh.
+Only task14 maintains the shared MuxiDesktopQA task/action. Task6 does not change it.
+
+Fixed private interactive entry:
+C:\Users\ranzh\Documents\Codex\task6-native-map-qa-20261002\desktop\run_task6_native_map.ps1
+Parameters: -Mode all  (or -Mode ui for the X / native entry / CEF boundary checks first).
+One task6 MC process, private qa-runtime\<mode>-<UTC>-<nonce>; Xmx6G, four CPU workers, 45 FPS.
+No fixed network port: the fixture binds 127.0.0.1 port 0 and writes fixture-port.json.
+GL preflight is a 1-second separate bounded window; then one actual full-pack MC.
+Reserve foreground focus for task6 from terminal UI opening until external view sampling, approximately 120 seconds AFTER world becomes ready. Full bounded run 15 minutes maximum, normally exits through logout and Minecraft.stop().
+Task6 developer reads private logs, snapshots and actual results; task14 only coordinates/starts this entry once. Do not treat queueing or preflight as feature acceptance.
+SSH/Session 0 supports --prepare-only, and cannot start MC/preflight windows.
+
+Products under review remain separate source patches. The private QA-only Terminal jar combines the two by replacing exactly the independently compiled TerminalScreen.class (X) in the map candidate jar. Original frozen review archives are unchanged.
+The QA mod observes native renderer and packet handler receipts. It does not install a mock cefQuery router, forge native permission, replace Waystones teleport logic, or use forceTeleport. The only injected native-API delay is an explicit isolated test preparation future to break an actual gate before final cost validation.
+QA world fixture intentionally places real stones/gates and writes facility registration only under its own lab/config; no deployed server or shared world is modified.
+
+Evidence: qa-runtime/<lab>/inputs.json, boot.log, runtime-progress.json, native-map-result.json, run-summary.json, exit.json, raw PNG screenshots; task6 reviews the screenshots after run.
+Native visual density/hover/dimension-selection and permission races beyond this automation still require evidence and are not inferred from controlled unit tests.
+
+First native attempt: PID17272/session2 started 05:10:28 UTC. Minecraft CrashReport.preload stalled in OSHI Win32_Processor WMI before any game window, world or feature test. At 05:17:18 UTC the guarded fixed-PID cleanup agent requested standard Runtime.exit(2), its JVM shutdown hook ran and PID17272 exited. This is failed bootstrap cleanup, NOT Minecraft normal UI/function/exit acceptance. No OS terminate/kill; task23 PID33816 remained alive. Original first-run input hash and receipts are preserved.
+Subsequent QA kit: added task14's QA-only 2000ms WMI hardware-report deadline. Runner requests owner/PID/lab-bound normal logout and Minecraft.stop 60 seconds before deadline. At a missed deadline it records failure and a still-live private PID; it never terminates/kills a process or marks that result clean.
+The two real monitor branch behavior checks (normal completion / live own PID at deadline) are in test_normal_close_monitor.py.
+
+Second native attempt: PID34736/session2 started 05:25:26 UTC with QA kit SHA256 9e70846b9099541cefb40c26d4e3d6106b71d7313cb08d2184f28ee69a97eb69. Hardware WMI timeout was effective, the RTX4090-visible full Minecraft window and actual integrated world started. Stage0 fixture failed: WaystonesAPI.placeSharestone(..., WHITE) returned Optional.empty; NativeRuntimeQA.fixture line139 called orElseThrow. No X UI or map function checks ran. The synchronous ClientTick.Post disconnect then stalled cleanup. Original monitor timeout/run-summary/exit.json remain unchanged.
+Owner-only guarded MinecraftServer.halt(false) stopped and saved the private world; logs record saving players/chunks and Minecraft Stopping! at 05:42:21 UTC. PID34736 was then confirmed absent. This is normal failed-run cleanup, not successful full-run acceptance; exit code is unknown after the original monitor ended. No OS termination was used, no other process was stopped, and no shared task was changed.
+
+Corrected QA-only driver: optional sharestone placement records availability and explicitly does not claim native sharestone-warp coverage; actual Chinese long-name fixture uses Java Unicode escapes; wait until ReceivingLevelScreen has finished; create the private world with commands disabled; write original full error and partial result immediately; enter stage99 BEFORE queued Minecraft.tell logout. Exactly one disconnect call remains, outside the tick callback. No product patch/jar change. These fixes have compile validation; actual corrected native UI/map rerun still requires task14 to start this fixed entry once in its assigned slot. X and map acceptance must remain separate and false until their respective actual evidence exists.
