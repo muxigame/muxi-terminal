@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.muxigame.terminal.client.compat.mixin",
+  "plugin": "net.muxigame.terminal.client.compat.TerminalCompatMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "client": ["MinecraftMcefShutdownGuardMixin"],
+  "injectors": {"defaultRequire": 1}
+}

@@ -37,7 +37,8 @@ public final class AlbumRuntimeQA {
     private final JsonObject report=new JsonObject();
     private final boolean fullPack=Boolean.getBoolean("album.fullPack"),phases=Boolean.getBoolean("album.phases");
     private int backgroundClients,backgroundTextures;
-    private String phase="functional";private long sceneSince,phaseSince;
+    private String phase="functional";private long sceneSince,phaseSince,peerQueryBaseline;
+    private final Path peer=System.getProperty("album.peerCoordinator")==null?null:Path.of(System.getProperty("album.peerCoordinator"));
     private final int cycleLimit=Integer.getInteger("album.cycles",8);
     public AlbumRuntimeQA(){NeoForge.EVENT_BUS.addListener(this::tick);}
     private void check(boolean ok,String label){if(!ok)throw new AssertionError(label);checks.add(label);}
@@ -81,11 +82,12 @@ public final class AlbumRuntimeQA {
             if(!starting){
                 if(!(mc.screen instanceof TitleScreen))return;starting=true;mc.options.renderDistance().set(2);mc.options.graphicsMode().set(GraphicsStatus.FAST);
                 screenshots=mc.gameDirectory.toPath().resolve(Screenshot.SCREENSHOT_DIR);report.addProperty("gameDirectory",mc.gameDirectory.getAbsolutePath());report.addProperty("screenshotsDirectory",screenshots.toString());
+                if(Boolean.getBoolean("album.requireShutdownGuard")){String guard=System.getProperty("muxi_terminal.mcef_shutdown_guard");check("disabled:1".equals(guard),"actual installed MCEF global shutdown handler disabled by project compat transform");report.addProperty("mcefShutdownGuard",guard);}
                 mc.createWorldOpenFlows().createFreshLevel("album-private-qa",new LevelSettings("Album private QA",GameType.CREATIVE,false,Difficulty.PEACEFUL,false,new GameRules(),WorldDataConfiguration.DEFAULT),new WorldOptions(92345678L,false,false),a->a.registryOrThrow(Registries.WORLD_PRESET).getHolderOrThrow(WorldPresets.FLAT).value().createWorldDimensions(),mc.screen);return;
             }
             if(mc.player==null||mc.level==null||mc.screen instanceof ReceivingLevelScreen)return;
             if(domAt!=0&&ticks>=domAt){domAt=0;var b=TerminalBrowserSession.content();if(b!=null)b.getSource(source->{var match=java.util.regex.Pattern.compile("data-album-qa=\"([^\"]+)\"").matcher(source);if(match.find())dom=JsonParser.parseString(new String(Base64.getDecoder().decode(match.group(1)),StandardCharsets.UTF_8)).getAsJsonObject();});}
-            frames++;if(frames>(fullPack?2400:900))throw new IllegalStateException("Stage timeout "+stage+" DOM "+dom);
+            frames++;if(frames>(stage==26?10000:fullPack?2400:900))throw new IllegalStateException("Stage timeout "+stage+" DOM "+dom);
             if(stage==0){
                 if(!requested){GLFW.glfwSetWindowTitle(mc.getWindow().getWindow(),"Album Owner QA 131 - private task10");GLFW.glfwFocusWindow(mc.getWindow().getWindow());requested=true;return;}
                 if(!mc.isWindowActive())return;
@@ -138,7 +140,30 @@ public final class AlbumRuntimeQA {
             if(stage==15){if(!listed(camera)||dom.get("thumbs").getAsInt()<1)return;check(true,"camera return shows native camera output and both F2 photos in same CEF album");domSamples.add(dom.deepCopy());shot("album-native-camera-shared");openPhoto(camera);next();return;}
             if(stage==16){if(!ready()||!dom.get("image").getAsBoolean())return;check(true,"actual camera output opens in CEF album");mc.screen.onClose();next();return;}
             if(stage==17){if(!ready()||dom.get("sourceCount").getAsInt()!=0||frames<25)return;check(mc.screen==null,"native terminal exit clears retained CEF thumbnail and large-image sources");check(ImageProbe.live()==0,"native F2/camera screenshot image allocations all closed");sample();TerminalClient.openTerminal();next();return;}
-            if(stage==18){if(!listed(camera)||dom.get("thumbs").getAsInt()<1)return;check(true,"reopening retained terminal resumes album and thumbnails");cycles=0;phase=phases?"warmup":"repeat";stage=19;frames=0;requested=false;dom=null;return;}
+            if(stage==18){if(!listed(camera)||dom.get("thumbs").getAsInt()<1)return;check(true,"reopening retained terminal resumes album and thumbnails");cycles=0;
+                if(peer!=null){Files.writeString(peer.resolve("peer-b-ready.json"),"{\"ready\":true,\"pid\":"+ProcessHandle.current().pid()+"}");phase="peer-hold";stage=26;frames=0;requested=false;dom=null;return;}
+                phase=phases?"warmup":"repeat";stage=19;frames=0;requested=false;dom=null;return;}
+            if(stage==26){
+                if(!ready()||dom.get("thumbs").getAsInt()<1)return;
+                if(!Files.exists(peer.resolve("peer-a-exit.json")))return;
+                var exited=JsonParser.parseString(Files.readString(peer.resolve("peer-a-exit.json"))).getAsJsonObject();
+                check(exited.get("success").getAsBoolean()&&exited.get("cleanExit").getAsBoolean()&&exited.get("exitCode").getAsInt()==0&&exited.get("ownedHelperResidue").getAsInt()==0,"peer A completed real guarded album QA and normal shutdown without helper residue");
+                peerQueryBaseline=ResourceProbe.queriesSettled.get();stage=27;frames=0;requested=false;dom=null;return;
+            }
+            if(stage==27){
+                if(!ready()||dom.get("thumbs").getAsInt()<1||frames<40)return;
+                check(true,"B executes fresh real CEF DOM after peer A process exited");openPhoto(newF2);stage=28;frames=0;requested=false;dom=null;return;
+            }
+            if(stage==28){
+                if(!ready()||!dom.get("image").getAsBoolean()||!newF2.equals(dom.get("selected").getAsString()))return;
+                check(ResourceProbe.queriesSettled.get()>peerQueryBaseline,"B completes fresh native image query after A exits; no stale-pixel survival assertion");
+                shot("album-guard-peer-survived");report.addProperty("peerExitSurvival",true);mc.screen.onClose();stage=29;frames=0;requested=false;dom=null;return;
+            }
+            if(stage==29){
+                if(!ready()||dom.get("sourceCount").getAsInt()!=0||frames<40)return;
+                check(ImageProbe.live()==0,"B screenshot allocations released after post-peer image view");sample();
+                TerminalClient.openTerminal();phase=phases?"warmup":"repeat";stage=19;frames=0;requested=false;dom=null;return;
+            }
             if(stage==19){
                 if(!ready())return;
                 if(!requested){if(dom.get("thumbs").getAsInt()<1)return;openPhoto(newF2);requested=true;dom=null;return;}

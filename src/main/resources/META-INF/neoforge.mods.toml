@@ -38,3 +38,6 @@ config="muxi_terminal.music.mixins.json"
 
 [[mixins]]
 config="muxi_terminal.camera.mixins.json"
+
+[[mixins]]
+config="muxi_terminal.compat.mixins.json"

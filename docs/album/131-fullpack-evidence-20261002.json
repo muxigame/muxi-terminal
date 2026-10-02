@@ -5,7 +5,7 @@
   "scope": "existing complete isolated integration QA template; own generated world and three own native photos",
   "productCommit": "b4c087c38a820192e2e9412f4d46bbb6c4243d9f",
   "cameraPredecessorCommit": "f599cafdd173aca3c12befa7f23a856de0b85321",
-  "candidateJar": "C:\\Users\\ranzh\\Documents\\Codex\\2026-10-02\\task-10\\album-build\\muxi-terminal-album-dev-qa.jar",
+  "candidateJar": "C:\\Users\\ranzh\\Documents\\Codex\\2026-10-02\\task-10\\album-build\\muxi-terminal-album-pre-shutdown-guard.jar",
   "candidateSha256": "5471d8640ae11220be5b5312dea2fcfbf242fe81e3c77b0d29de3b342567a3a2",
   "candidateBuildSource": {
     "jar": "C:\\Users\\ranzh\\Documents\\Codex\\2026-10-02\\task-10\\album-build\\muxi-terminal-album-dev-qa.jar",
@@ -1881,5 +1881,6 @@
     "cacheConfiguration": "use-cache=false, Java cache_path null; native default root/user-data unknown",
     "diagnosticEvidence": "C:\\Users\\ranzh\\Documents\\Codex\\2026-10-02\\task-10\\ysm-public-probe\\cef-shutdown-findings.txt",
     "dependencyModified": false
-  }
+  },
+  "artifactPreservation": "Original failed candidate preserved before building project guard; all historical statistics/SHA unchanged"
 }
