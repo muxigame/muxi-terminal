@@ -1,0 +1,17 @@
+{
+  "owner": "task6",
+  "qaDriverCompilation": "JDK24 javac --release21, actual installed SDK, exit 0",
+  "compiledTarget": "Java 21",
+  "qaOnlyJarSha256": "b4221bc1230cc8c93079df5027e84231ed9b3ba60c7b6a2d34d2ed819181711f",
+  "nextQaKitSha256": "fa4843f56e8c13621ad4997a4247d6cfb16697c2a49e0a896e1f0bdf74f9ba6d",
+  "qaChangesOnly": true,
+  "productArchivesVerifiedUnchanged": {
+    "map": "c47ba46763388b196122c92ede4afb4d55c7adf02e663303d734c2593304a6fd",
+    "X": "3a9afc15f8e04966ef84fa91574daf69abedb02405a11887698ac25d53e26006"
+  },
+  "actualCorrectedRunExecuted": false,
+  "nativeUiAndFunctionAcceptance": false,
+  "publicationAuthorizedOrPerformed": false,
+  "newPersistentTaskCreated": false,
+  "nextStartOwner": "task14, fixed private entry once, only within assigned desktop slot"
+}

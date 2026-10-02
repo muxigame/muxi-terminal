@@ -1,0 +1,19 @@
+const assert=require('node:assert/strict'),I=require('../../src/main/resources/assets/muxi_terminal/html/terminal/friends-invites-controller.js');
+let checks=0;const check=(v)=>{assert.ok(v);checks++;};const id=n=>`${n.repeat(8)}-${n.repeat(4)}-4${n.repeat(3)}-8${n.repeat(3)}-${n.repeat(12)}`,self=id('1'),target=id('2'),room=id('3'),ticket=id('4'),request=id('5');
+const base=()=>({version:1,enabled:true,authenticated:true,selfUid:'100001',selfUuid:self,onlinePlayers:[{uid:'100002',uuid:target,gameName:'100002',displayName:'peer'}],rooms:[{game:'zombie-challenge',session:room,host:self,mine:true,socialManaged:true,inviteable:true}],invitations:[]});
+const issue={op:'issue',game:'zombie-challenge',source:'online',room,uid:'100002'},t={invitation:ticket,room,game:'zombie-challenge',host:self,target,source:'online',status:'PENDING',expiresInSeconds:300};
+async function fixture(sequence,input=issue){let s=base(),time=0,writes=0,reads=0;const c=I.create({now:()=>time,sleep:async()=>{time+=200},timeout:700,invoke:async q=>{if(q.startsWith('friends.invites.action:')){writes++;check(!JSON.parse(q.slice(23)).actor);return {ok:true,request};}if(reads++===0)return s;s=sequence.shift()||s;return s;}});await c.refresh();const result=await c.act(input).then(v=>({v}),e=>({error:e.message}));return {c,result,writes,reads};}
+(async()=>{
+check(I.peers(base(),null,'online').length===1);check(I.peers(base(),{selfUid:'100001',friends:[]},'friends').length===0);check(I.peers(base(),{selfUid:'100001',friends:[{uid:'100002',uuid:target,gameName:'100002'}]},'friends').length===1);check(I.peers(base(),{selfUid:'100009',friends:[{uid:'100002',uuid:target,gameName:'100002'}]},'friends').length===0);
+let pending={...base(),operation:{request,status:'pending'},invitations:[t]},final={...pending,operation:{request,status:'completed'}};let f=await fixture([pending,final]);check(f.result.v===true&&f.reads===3&&f.writes===1);
+f=await fixture([pending]);check(f.result.error&&f.c.state.unconfirmed&&f.writes===1);
+f=await fixture([{...final,operation:{request:id('6'),status:'completed'}}]);check(f.result.error&&f.writes===1);
+f=await fixture([{...base(),operation:{request,status:'failed',notice:'no capacity'}}]);check(f.result.error==='no capacity'&&!f.c.state.unconfirmed);
+f=await fixture([{...final,invitations:[]}]);check(f.result.error&&f.c.state.unconfirmed);
+const received={...t,host:target,target:self,status:'ACCEPTED'};let accepted={...base(),invitations:[received],rooms:[],operation:{request,status:'completed'}};
+check(!I.corroborated(accepted,{op:'accept',game:t.game,invitation:ticket}));accepted.rooms=[{game:t.game,session:room,mine:true,socialManaged:true}];check(I.corroborated(accepted,{op:'accept',game:t.game,invitation:ticket}));accepted.rooms[0].session=id('7');check(!I.corroborated(accepted,{op:'accept',game:t.game,invitation:ticket}));
+for(const op of ['decline','cancel'])check(I.corroborated({...base(),invitations:[{...t,status:op==='decline'?'DECLINED':'CANCELLED'}]},{op,game:t.game,invitation:ticket}));
+for(const mutation of [s=>s.enabled=false,s=>s.rooms[0].inviteable=false,s=>s.rooms[0].session='short',s=>s.onlinePlayers=[]]){const s=base();mutation(s);let writes=0;const c=I.create({invoke:async q=>{if(q.includes('action'))writes++;return s;}});await c.refresh();await assert.rejects(c.act(issue));check(writes===0);}
+let resolve;const c=I.create({invoke:async q=>q==='friends.invites.snapshot'?base():new Promise(r=>resolve=r)});await c.refresh();const p=c.act(issue);check(c.state.busy);await assert.rejects(c.act(issue));c.close();resolve({ok:true,request});check(await p===false&&c.state.runtime===null);
+console.log(JSON.stringify({success:true,checks,scope:'synthetic invitation controller; pending/final/membership/timeout/stale epoch; no packets or relations'}));
+})().catch(e=>{console.error(e);process.exitCode=1});

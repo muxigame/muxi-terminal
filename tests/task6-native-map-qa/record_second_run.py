@@ -1,0 +1,15 @@
+from pathlib import Path
+import json,datetime,hashlib
+root=Path(__file__).parent;work=root.parent
+p=root/'status-ledger.json';ledger=json.loads(p.read_text(encoding='utf-8'))
+ledger.update({'observedUtc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'second_native_fixture_failed_and_pid_cleared; corrected_v3_qa_kit_prepared_on_131','nativeQaComplete':False,'releaseReady':False,'closeXAcceptance':'code/compile complete; native X UI checks not executed; pending coordinated owner rerun','nativeMapAcceptance':'191 prior lightweight checks; actual native map checks not executed; pending coordinated owner rerun','productPatchesAndJarsChanged':False})
+ledger['secondRun']={'pid':34736,'session':2,'startedUtc':'2026-10-02T05:25:26Z','lastNormalStopLogUtc':'2026-10-02T05:42:21.815Z','pidCleared':True,'normalCleanupObserved':True,'exitCode':None,'monitorTimeoutPreserved':True,'minecraftNormalFullRunAccepted':False,'forceOsTermination':False,'failedStage':0,'failure':'Optional.empty from native white sharestone placement; QA fixture orElseThrow line139','secondaryFailure':'Synchronous ClientTick.Post disconnect','XChecksExecuted':False,'mapChecksExecuted':False,'nativePacketsExecuted':0,'ownerReviewedRawScreenshots':['failure-stage-0.png','logout-title.png']}
+ledger['qaFixes']+=['native optional sharestone coverage recorded without aborting unrelated checks','commands disabled in owned test world','wait for actual ReceivingLevelScreen completion','stage99 before Minecraft.tell deferred logout','immediate original full failure stack and partial result','Unicode escapes for real Chinese full-name fixture']
+for item in ledger['artifacts']:
+ path=work/item['name']
+ if path.is_file():item['sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
+ledger['artifacts'].append({'name':'task6-native-131-second-run-evidence.zip','sha256':hashlib.sha256((work/'task6-native-131-second-run-evidence.zip').read_bytes()).hexdigest()})
+p.write_text(json.dumps(ledger,indent=2),encoding='utf-8')
+validation={'owner':'task6','qaDriverCompilation':'JDK24 javac --release21, actual installed SDK, exit 0','compiledTarget':'Java 21','qaOnlyJarSha256':hashlib.sha256((root/'inputs/task6-native-qa-only.jar').read_bytes()).hexdigest(),'nextQaKitSha256':hashlib.sha256((work/'task6-native-map-131-qa-kit.zip').read_bytes()).hexdigest(),'qaChangesOnly':True,'productArchivesVerifiedUnchanged':{'map':'c47ba46763388b196122c92ede4afb4d55c7adf02e663303d734c2593304a6fd','X':'3a9afc15f8e04966ef84fa91574daf69abedb02405a11887698ac25d53e26006'},'actualCorrectedRunExecuted':False,'nativeUiAndFunctionAcceptance':False,'publicationAuthorizedOrPerformed':False,'newPersistentTaskCreated':False,'nextStartOwner':'task14, fixed private entry once, only within assigned desktop slot'}
+(root/'QA-STAGE0-FIX-VALIDATION.json').write_text(json.dumps(validation,indent=2),encoding='utf-8')
+print(json.dumps({'status':ledger['status'],'nextQaKitSha256':validation['nextQaKitSha256'],'nativeQaComplete':False}))

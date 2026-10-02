@@ -38,6 +38,7 @@ import java.util.*;
 @Mod(value="terminal_qa",dist=Dist.CLIENT)
 public final class TerminalRuntimeQA {
  private int ticks,frames;
+ private final PhoenixVisibleQA phoenix=new PhoenixVisibleQA();
  private volatile int stage;
  private boolean starting,ready,finished,requested;
  private volatile JsonObject dom;
@@ -59,7 +60,7 @@ public final class TerminalRuntimeQA {
  private static boolean inTerminal;
  private static int probeStage;
  private static final String[] names={"empty","block","main-right-two","main-right-other","off-left-other","off-left-two","main-left-two","main-left-other","off-right-other","off-right-two","dual-terminal","swing","ui-home","guide","tasks","reopen-home","reopen-tasks","repeat-guide","repeat-tasks","closed-held","shader-night","vanilla-night","vanilla-day","graphics-options","after-empty","after-block","held-guide-day","held-tasks-day","held-opening","held-closing","held-tasks-night","held-tasks-night-off","after-content-block","held-night-opening","held-night-closing","held-night-off-opening","held-night-off-closing","after-night-content-block","held-day-off-opening","held-day-off-closing","after-all-content-block"};
- public TerminalRuntimeQA(){NeoForge.EVENT_BUS.addListener(this::tick);NeoForge.EVENT_BUS.addListener(this::renderFrame);}
+ public TerminalRuntimeQA(){if(System.getProperty("qa.mode","").equals("guns")){new GunDiagnosticRuntime();return;}NeoForge.EVENT_BUS.addListener(this::tick);NeoForge.EVENT_BUS.addListener(this::renderFrame);}
  public static void before(PoseStack stack){inTerminal=true;String key=names[Math.min(probeStage,names.length-1)];probes.add(key,new JsonObject());pose=new Matrix4f(stack.last().pose());normal=new Matrix3f(stack.last().normal());depth=depth(stack);state=gl();}
  public static void after(PoseStack stack){
   inTerminal=false;String key=names[Math.min(probeStage,names.length-1)];JsonObject p=probes.has(key)?probes.getAsJsonObject(key):new JsonObject();
@@ -121,6 +122,7 @@ public final class TerminalRuntimeQA {
    }
    if(mc.player==null||mc.level==null||mc.getOverlay()!=null)return;
    if(stage==0&&frames==0){mc.setScreen(null);mc.player.setYRot(180);mc.player.setXRot(8);hands(HumanoidArm.RIGHT,ItemStack.EMPTY,ItemStack.EMPTY);time(6000);report.addProperty("graphicsMode",mc.options.graphicsMode().get().toString());report.addProperty("shader",shader());report.addProperty("modCount",ModList.get().size());report.addProperty("gpuRenderer",GL11.glGetString(GL11.GL_RENDERER));report.addProperty("windowVisible",org.lwjgl.glfw.GLFW.glfwGetWindowAttrib(mc.getWindow().getWindow(),org.lwjgl.glfw.GLFW.GLFW_VISIBLE)==org.lwjgl.glfw.GLFW.GLFW_TRUE);JsonObject versions=new JsonObject();for(var mod:ModList.get().getMods())if(Set.of("minecraft","neoforge","create","flywheel","sodium","iris","colorwheel","vanillin","firstperson","notenoughanimations","skinlayers3d","sway","yes_steve_model","mcef","webdisplays","muxi_game_core","muxi_terminal").contains(mod.getModId()))versions.addProperty(mod.getModId(),mod.getVersion().toString());report.add("renderModVersions",versions);}
+   if(stage==40&&!phoenix.tick())return;
    probeStage=stage;
    ++frames;
    if((stage==28||stage==33||stage==35||stage==38) && !heldRevealStarted){

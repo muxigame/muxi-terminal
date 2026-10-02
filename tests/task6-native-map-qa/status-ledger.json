@@ -1,0 +1,83 @@
+{
+  "observedUtc": "2026-10-02T05:46:54.187359+00:00",
+  "owner": "task6",
+  "status": "second_native_fixture_failed_and_pid_cleared; corrected_v3_qa_kit_prepared_on_131",
+  "nativeQaComplete": false,
+  "releaseReady": false,
+  "supersededMapArchiveSha256": "a27f1f064075e17e39a94827c0c82a63ddb429efe9e0a6683705d0cf1a4a6539",
+  "artifacts": [
+    {
+      "name": "task6-native-map-full-review.zip",
+      "sha256": "c47ba46763388b196122c92ede4afb4d55c7adf02e663303d734c2593304a6fd"
+    },
+    {
+      "name": "task6-native-map-131-qa-kit.zip",
+      "sha256": "fa4843f56e8c13621ad4997a4247d6cfb16697c2a49e0a896e1f0bdf74f9ba6d"
+    },
+    {
+      "name": "task6-close-x-review.zip",
+      "sha256": "3a9afc15f8e04966ef84fa91574daf69abedb02405a11887698ac25d53e26006"
+    },
+    {
+      "name": "task6-native-131-first-run-evidence.zip",
+      "sha256": "8e58c3252dcb14933e7270c1fcc7ccdc948773a58a5da7b516b2e9a0105ac494"
+    },
+    {
+      "name": "task6-native-131-second-run-evidence.zip",
+      "sha256": "8aeb9a38c740aa0a93b46666bd348da1927fc224a2f53899a064044f7db58132"
+    }
+  ],
+  "closeXIn1427": false,
+  "closeXAcceptance": "code/compile complete; native X UI checks not executed; pending coordinated owner rerun",
+  "newPersistentTaskCreated": false,
+  "firstRun": {
+    "pid": 17272,
+    "session": 2,
+    "startedUtc": "2026-10-02T05:10:28Z",
+    "closedUtc": "2026-10-02T05:17:18Z",
+    "pidCleared": true,
+    "exitCode": 2,
+    "timeout": false,
+    "ownJvmShutdownHookRan": true,
+    "forceOsTermination": false,
+    "minecraftNormalExitAccepted": false,
+    "failure": "OSHI WMI Win32_Processor; CrashReport.preload before game window"
+  },
+  "monitorBehaviorCasesPassed": 2,
+  "qaFixes": [
+    "QA-only hardware WMI timeout 2000ms",
+    "normal close before deadline bound to own PID/lab",
+    "no OS terminate/kill fallback",
+    "failed deadline cannot be marked clean",
+    "native optional sharestone coverage recorded without aborting unrelated checks",
+    "commands disabled in owned test world",
+    "wait for actual ReceivingLevelScreen completion",
+    "stage99 before Minecraft.tell deferred logout",
+    "immediate original full failure stack and partial result",
+    "Unicode escapes for real Chinese full-name fixture"
+  ],
+  "productPatchesAndJarsChanged": false,
+  "nativeMapAcceptance": "191 prior lightweight checks; actual native map checks not executed; pending coordinated owner rerun",
+  "secondRun": {
+    "pid": 34736,
+    "session": 2,
+    "startedUtc": "2026-10-02T05:25:26Z",
+    "lastNormalStopLogUtc": "2026-10-02T05:42:21.815Z",
+    "pidCleared": true,
+    "normalCleanupObserved": true,
+    "exitCode": null,
+    "monitorTimeoutPreserved": true,
+    "minecraftNormalFullRunAccepted": false,
+    "forceOsTermination": false,
+    "failedStage": 0,
+    "failure": "Optional.empty from native white sharestone placement; QA fixture orElseThrow line139",
+    "secondaryFailure": "Synchronous ClientTick.Post disconnect",
+    "XChecksExecuted": false,
+    "mapChecksExecuted": false,
+    "nativePacketsExecuted": 0,
+    "ownerReviewedRawScreenshots": [
+      "failure-stage-0.png",
+      "logout-title.png"
+    ]
+  }
+}

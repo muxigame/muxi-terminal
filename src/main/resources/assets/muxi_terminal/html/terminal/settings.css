@@ -1,0 +1,20 @@
+/* Shares the shell's MC palette, square bevels and inherited font scale. */
+.settings-icon{background:var(--panel2);display:grid;gap:5px;align-content:center;padding:9px}
+.settings-icon i{height:3px;width:26px;background:var(--line);position:relative;box-shadow:0 1px 0 var(--line-hi)}
+.settings-icon i:after{content:"";position:absolute;top:-3px;left:5px;width:7px;height:9px;background:var(--line-hi);border:2px solid var(--line)}
+.settings-icon i:nth-child(2):after{left:16px}
+.settings-panel{margin:0 auto 16px}
+.settings-panel h3{font-size:1.1em;margin-bottom:12px}.settings-panel p{font-size:.85em;color:var(--muted);line-height:1.6;margin:8px 0}
+.setting-row{display:grid;grid-template-columns:minmax(145px,1fr) minmax(160px,2fr) 80px;gap:14px;align-items:center;margin:18px 0;font-size:inherit}
+.setting-row output{text-align:right;font-variant-numeric:tabular-nums}.setting-row input[type=range]{appearance:none;width:100%;min-height:var(--control-min-height,34px);background:transparent;cursor:pointer}
+.setting-row input[type=range]::-webkit-slider-runnable-track{height:12px;border:2px solid var(--line);background:var(--slot);box-shadow:inset 2px 2px 0 var(--shadow)}
+.setting-row input[type=range]::-webkit-slider-thumb{appearance:none;width:18px;height:26px;margin-top:-9px;border:3px solid var(--line);background:var(--panel2);box-shadow:inset 2px 2px 0 var(--line-hi),inset -2px -2px 0 var(--shadow)}
+.setting-row input[type=range]:focus-visible{outline:3px solid var(--line-hi);outline-offset:2px}
+.setting-row input[type=range]:disabled{opacity:.5;cursor:default}
+.setting-row input[type=checkbox]{appearance:none;width:24px;height:24px;border:3px solid var(--line);background:var(--panel2);box-shadow:inset 2px 2px 0 var(--line-hi);position:relative;cursor:pointer}
+.setting-row input[type=checkbox]:checked{background:var(--accent)}.setting-row input[type=checkbox]:checked:after{content:"";position:absolute;width:6px;height:11px;left:5px;top:1px;border-right:3px solid var(--line-hi);border-bottom:3px solid var(--line-hi);transform:rotate(45deg)}
+.setting-row input[type=checkbox]:focus-visible{outline:3px solid var(--line-hi);outline-offset:2px}
+.settings-panel .detail-actions{flex-wrap:wrap}.settings-panel button{font-size:inherit;min-height:40px;height:auto;padding:6px 14px}.settings-panel button:disabled{opacity:.5;cursor:default}
+.settings-status{min-height:1.6em;margin:8px auto;max-width:900px;line-height:1.6;color:var(--muted)}
+.settings-status:not(:empty){color:var(--text);background:var(--panel);border:2px solid var(--line);padding:8px}
+@media(max-width:640px){.setting-row{grid-template-columns:1fr 80px;gap:8px}.setting-row label{grid-column:1/-1}.settings-panel{padding:12px}}

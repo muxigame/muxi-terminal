@@ -1,19 +1,39 @@
 """Visible bounded 131 QA. Preflight first. --prepare-only never starts a window/client."""
 from __future__ import annotations
+import re
 from pathlib import Path
 import argparse,ctypes,datetime,hashlib,json,os,shutil,subprocess,sys,time,uuid,zipfile
+from qa_fml_config import configure_file,patch_properties
 HERE=Path(__file__).resolve().parent
 REPO=HERE.parents[1]
 ROOT=Path(r"C:\Users\ranzh\workspace\dev\muxigame")
-OWN=Path(r"C:\Users\ranzh\Documents\Codex\terminal-integration-task6-20261001")
-BASE="307c651c04293dd442e6e12ddbf8e4923ca53680"
-EXPECTED="0c60283617c2084890aa74695b03187e1f1077df0a204f42d06ab448300094ec"
+OWN=Path(r"C:\Users\ranzh\Documents\Codex\release-unified-task14-20261001")
+BASE="bc415775dd50762262098d6a41f0a942df7ef157"
+EXPECTED=None
 def write(path,data):path.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding="utf-8")
 def digest(path,kind="sha256"):
     h=hashlib.new(kind)
     with path.open("rb") as stream:
         for data in iter(lambda:stream.read(1048576),b""):h.update(data)
     return h.hexdigest()
+
+def refuse_existing_qa(home):
+    kernel=ctypes.windll.kernel32
+    kernel.OpenProcess.restype=ctypes.c_void_p
+    kernel.GetExitCodeProcess.argtypes=[ctypes.c_void_p,ctypes.POINTER(ctypes.c_ulong)]
+    kernel.QueryFullProcessImageNameW.argtypes=[ctypes.c_void_p,ctypes.c_ulong,ctypes.c_wchar_p,ctypes.POINTER(ctypes.c_ulong)]
+    kernel.CloseHandle.argtypes=[ctypes.c_void_p]
+    for receipt in home.glob("active-*.json"):
+        previous=json.loads(receipt.read_text(encoding="utf-8"));pid=previous.get("pid")
+        if not pid:continue
+        handle=kernel.OpenProcess(0x1000,False,int(pid))
+        if not handle:continue
+        try:
+            code=ctypes.c_ulong();name=ctypes.create_unicode_buffer(32768);size=ctypes.c_ulong(len(name))
+            if not kernel.GetExitCodeProcess(handle,ctypes.byref(code)):raise SystemExit("Cannot verify prior QA PID "+str(pid))
+            if code.value==259 and kernel.QueryFullProcessImageNameW(handle,0,name,ctypes.byref(size)) and Path(name.value).name.lower() in ("java.exe","javaw.exe"):
+                raise SystemExit("Prior QA Java PID "+str(pid)+" is still running; normally close that QA window before retrying. No new client started.")
+        finally:kernel.CloseHandle(handle)
 def command(args):return subprocess.run(list(map(str,args)),check=True,capture_output=True,text=True,timeout=20).stdout.strip()
 def allowed(rules):
     if not rules:return True
@@ -26,13 +46,13 @@ def allowed(rules):
         result=rule.get("action")=="allow"
     return result
 def argfile(path,args):path.write_text("\n".join('"'+str(a).replace("\\","/").replace('"','\\"')+'"' for a in args),encoding="utf-8")
-def config(lab):
+def config(lab,audible=False):
     (lab/"config").mkdir(exist_ok=True)
     write(lab/"config/muxi-game-core.json",{"schema":1,"features":{"identity":{"enabled":False},"login":{"enabled":False}}})
-    (lab/"config/fml.toml").write_text('earlyWindowControl = false\nearlyWindowProvider = ""\nversionCheck = false\n',encoding="utf-8")
-    (lab/"options.txt").write_text("lang:zh_cn\nguiScale:2\nmaxFps:45\nenableVsync:false\nonboardAccessibility:false\nsoundCategory_master:0.0\nfullscreen:false\npauseOnLostFocus:false\nrenderDistance:3\nsimulationDistance:5\ngraphicsMode:0\n",encoding="utf-8")
+    configure_file(lab/"config/fml.toml")
+    (lab/"options.txt").write_text("lang:zh_cn\nguiScale:2\nmaxFps:45\nenableVsync:false\nonboardAccessibility:false\nsoundCategory_master:"+("0.25" if audible else "0.0")+"\nfullscreen:false\npauseOnLostFocus:false\nrenderDistance:3\nsimulationDistance:5\ngraphicsMode:0\n",encoding="utf-8")
     (lab/"config/mcef").mkdir(parents=True,exist_ok=True)
-    (lab/"config/mcef/mcef.properties").write_text("skip-download=true\nuse-cache=false\nuser-agent=\ndownload-mirror=\n",encoding="utf-8")
+    patch_properties(lab/"config/mcef/mcef.properties",{"skip-download":"true","use-cache":"false","user-agent":"","download-mirror":""})
 def testmod(lab,classes,mode):
     container=mode=="container"
     definitions=[{"required":True,"minVersion":"0.8","package":"net.muxigame.terminal.qa.mixin","compatibilityLevel":"JAVA_21","client":["OfflineMcefMixin"] if container else ["OfflineMcefMixin","ArmProbeMixin","PoseProbeMixin","BridgeProbeMixin"],"injectors":{"defaultRequire":1}}]
@@ -45,15 +65,16 @@ def testmod(lab,classes,mode):
         archive.writestr("META-INF/neoforge.mods.toml",toml)
         for path in classes.rglob("*.class"):archive.write(path,path.relative_to(classes).as_posix())
 def main():
+    global EXPECTED
     sys.stdout.reconfigure(encoding="utf-8",errors="replace")
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode",choices=["preflight","full","firstperson","container"])
+    parser.add_argument("mode",choices=["preflight","full","firstperson","guns"])
     parser.add_argument("--prepare-only",action="store_true")
-    parser.add_argument("--jdk",type=Path,default=OWN/"tools/jdk/jdk-21.0.12.1+1")
+    parser.add_argument("--jdk",type=Path,default=Path(r"C:\Users\ranzh\Documents\Codex\terminal-integration-task6-20261001\tools\jdk\jdk-21.0.12.1+1"))
     parser.add_argument("--game",type=Path,default=ROOT/"_client_test/game")
-    parser.add_argument("--pack",type=Path,default=ROOT/"better-mc-remake/pack/staging/files")
+    parser.add_argument("--pack",type=Path,default=OWN/"candidate-pack")
     parser.add_argument("--dependencies",type=Path,default=ROOT/"bmc5server")
-    parser.add_argument("--jar",type=Path,default=REPO/"build/libs/muxi-terminal-0.2.1.jar")
+    parser.add_argument("--jar",type=Path,default=REPO/"build/libs/muxi-terminal-0.2.2.jar")
     parser.add_argument("--core-jar",type=Path)
     parser.add_argument("--assigned-slot",default=os.environ.get("TERMINAL_QA_SLOT",""))
     parser.add_argument("--visible",action="store_true",default=os.environ.get("TERMINAL_QA_VISIBLE")=="1")
@@ -63,8 +84,12 @@ def main():
     if not ctypes.windll.kernel32.ProcessIdToSessionId(os.getpid(),ctypes.byref(session)):raise SystemExit("Session ID unavailable")
     # Non-session-0 guard preserved. Static preparation cannot invoke any render/client main.
     if not args.prepare_only and session.value==0:raise SystemExit("Session0 is preparation only; launch manually in the assigned 131 desktop")
-    if not args.prepare_only and args.assigned_slot!="task5-parent-assigned":raise SystemExit("Parent-assigned 131 slot required")
+    if not args.prepare_only and args.assigned_slot!="task14-production-assigned":raise SystemExit("Parent-assigned 131 slot required")
     if not args.prepare_only and not args.visible:raise SystemExit("Visible desktop launch required")
+    if not args.prepare_only:refuse_existing_qa(OWN/"qa-runtime")
+    lock=json.loads((OWN/"release-lock.json").read_text(encoding="utf-8"))
+    if lock["productCommits"]["muxi-terminal"]!=BASE:raise SystemExit("Final product commit differs from review")
+    EXPECTED=lock["artifacts"]["muxi-terminal"]["sha256"]
     terminal=args.jar.resolve()
     if digest(terminal)!=EXPECTED:raise SystemExit("Unified jar differs from the handed-off 131 build")
     head=command(["git","-C",REPO,"rev-parse","HEAD"])
@@ -81,7 +106,7 @@ def main():
     if missing:raise SystemExit("Missing existing client libraries: "+json.dumps(missing[:10]))
     home=OWN/"qa-runtime";home.mkdir(exist_ok=True)
     lab=home/(args.mode+"-"+datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S")+"-"+uuid.uuid4().hex[:8]);lab.mkdir()
-    write(home/("active-"+args.mode+".json"),{"lab":str(lab),"mode":args.mode,"prepareOnly":args.prepare_only})
+    write(home/(("prepared-" if args.prepare_only else "active-")+args.mode+".json"),{"lab":str(lab),"mode":args.mode,"prepareOnly":args.prepare_only})
     provenance={"sourceBase":BASE,"gitHead":head,"terminal":str(terminal),"terminalSha256":EXPECTED,"session":session.value,"computer":os.environ["COMPUTERNAME"],"mode":args.mode,"prepareOnly":args.prepare_only,"game":str(args.game),"pack":str(args.pack),"jdk":str(args.jdk),"productionServerOperations":False}
     write(lab/"inputs.json",provenance)
     natives=args.game/"versions/BatterMC5Remake/BatterMC5Remake-natives"
@@ -115,8 +140,8 @@ def main():
             provenance.update({"coreJar":str(core),"coreSha256":digest(core),"syntheticSSO":True,"productionSSO":False})
             timeout=180;result_name="client-smoke-result.json"
         else:
-            print("Checking release 1.4.25 mod hashes; preparing private full-pack copy",flush=True)
-            expected=json.loads((HERE/"expected-pack.json").read_text(encoding="utf-8"))["files"];failures=[]
+            print("Checking final candidate 1.4.26 mod hashes; preparing private full-pack copy",flush=True)
+            expected=json.loads((OWN/"expected-pack.json").read_text(encoding="utf-8"))["files"];failures=[]
             for entry in expected:
                 source=args.pack/entry["path"]
                 if not source.is_file() or digest(source,"sha1")!=entry["sha1"]:failures.append(entry["path"])
@@ -124,14 +149,20 @@ def main():
             for entry in expected:
                 if entry["policy"]=="Optional" and not entry.get("defaultOn",False) and not (args.mode=="firstperson" and "firstperson-" in entry["path"]):continue
                 source=args.pack/entry["path"];shutil.copy2(source,lab/"mods"/source.name)
-            for directory in ["config","shaderpacks","resourcepacks","defaultconfigs","kubejs"]:
+            for entry in json.loads((OWN/"release-lock.json").read_text(encoding="utf-8")).get("additionalFiles",[]):
+                source=args.pack/entry["path"]
+                if not source.is_file() or digest(source)!=entry["sha256"]:raise SystemExit("Additional release asset mismatch "+entry["path"])
+            for directory in ["config","shaderpacks","resourcepacks","defaultconfigs","kubejs","tacz"]:
                 source=args.pack/directory
                 if source.is_dir():shutil.copytree(source,lab/directory,dirs_exist_ok=True)
-            (lab/"config/iris.properties").write_text("enableShaders=true\nshaderPack=Better MC - Low\ndisableUpdateMessage=true\n",encoding="utf-8")
+            patch_properties(lab/"config/iris.properties",{"enableShaders":"true","shaderPack":"Better MC - Low","disableUpdateMessage":"true"})
             sources=list((HERE/"java").rglob("*.java"))
-            provenance.update({"referencePack":"1.4.25","optionalSelection":"released defaultOn; enable FirstPerson only in firstperson mode","fixtureTasks":False,"fixtureIcons":False,"samplerGlobalRouter":False,"samplerHydration":False})
+            provenance.update({"referencePack":"1.4.26","optionalSelection":"released defaultOn; enable FirstPerson only in firstperson mode","fixtureTasks":False,"fixtureIcons":False,"samplerGlobalRouter":False,"samplerHydration":False})
             timeout=900;result_name="runtime-result.json"
-        config(lab);shutil.copy2(terminal,lab/"mods"/terminal.name)
+        config(lab,audible=args.mode in ("full","guns"));shutil.copy2(terminal,lab/"mods"/terminal.name)
+        fps=lab/"config/sodiumextras-client.toml"
+        if fps.exists():
+            raw=fps.read_text(encoding="utf-8");fps.write_text(re.sub(r'(fpsDisplay\s*=\s*)"[^"]*"',r'\1"OFF"',raw),encoding="utf-8")
         cp=os.pathsep.join(map(str,[terminal,args.game/"libraries/net/neoforged/neoforge/21.1.250/neoforge-21.1.250-client.jar",args.game/"libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-srg.jar",*libs,*list((args.dependencies/"libraries").rglob("*.jar")),*list((lab/"mods").glob("*.jar"))]))
         print("Compiling private test mod",flush=True)
         build.compile_java(compiler,sources,classes,cp,lab/"compile.args");testmod(lab,classes,args.mode)
@@ -168,6 +199,8 @@ def main():
     if args.prepare_only:print(json.dumps({"prepared":True,"lab":str(lab),"clientStarted":False},ensure_ascii=False));return
     print(json.dumps({"phase":"launch","lab":str(lab),"visible":True,"timeoutSeconds":timeout},ensure_ascii=False),flush=True)
     own_env=dict(os.environ);own_env.pop("MUXI_TERMINAL_GAME_CREDENTIAL",None);timed_out=False
+    if args.mode != "preflight":
+        own_env["ALSOFT_LOGLEVEL"]="3";own_env["ALSOFT_LOGFILE"]=str(lab/"openal-diagnostic.log")
     try:
         with (lab/"boot.log").open("w",encoding="utf-8") as log:
             process=subprocess.Popen([str(runtime),"@"+str(lab/"launch.args")],cwd=lab,env=own_env,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT)

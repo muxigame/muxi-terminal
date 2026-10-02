@@ -110,13 +110,15 @@ function show(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('page-active'));
   page.classList.add('page-active');
   if(id==='tasks') refreshTasks(true);
+  if(id==='games')window.MuxiMinigamesApp?.activate();
+  navIndex=0;setTimeout(()=>selectNav(0,false),0);
 }
 
 function navigate(id,source){
   if(typeof window.muxiTerminalQuery==='function'){
     if(contentView && id==='home'){native('terminal.home').catch(error=>setStatus(error.message));return;}
-    if(!contentView && ['tasks','guide'].includes(id)){
-      if(window.terminalLaunch)window.terminalLaunch({kind:'builtin',id,name:id==='tasks'?'任务':'游戏指南',source}).catch(error=>setStatus(error.message));
+    if(!contentView && ['tasks','guide','games','camera','friends','album','settings','music'].includes(id)){
+      if(window.terminalLaunch)window.terminalLaunch({kind:'builtin',id,name:id==='friends'?'平台好友':id==='album'?'相册':id==='music'?'音乐':id==='settings'?'设置':id==='camera'?'相机':id==='games'?'小游戏':id==='tasks'?'任务':'游戏指南',source}).catch(error=>setStatus(error.message));
       else native('terminal.app:'+id).catch(error=>setStatus(error.message));return;
     }
   }
@@ -125,6 +127,11 @@ function navigate(id,source){
 }
 
 document.querySelectorAll('[data-open]').forEach(el=>el.addEventListener('click',()=>navigate(el.dataset.open,el)));
+const installedGrid=document.querySelector('#home .app-grid');
+if(installedGrid){
+  const update=()=>{const count=document.querySelector('#installedAppCount');if(count)count.textContent=installedGrid.querySelectorAll('.app-card').length+' 个已安装';};
+  new MutationObserver(update).observe(installedGrid,{childList:true});update();
+}
 
 const resourceCache=new Map();
 async function resourceData(id){
@@ -261,7 +268,6 @@ document.querySelectorAll('[data-task-tab]').forEach(button=>button.addEventList
   $('#dailyTasksPanel').hidden=!daily;$('#mainlineTasksPanel').hidden=daily;
 }));
 
-$('#challengeOpen').addEventListener('click',()=>native('challenge.open').catch(error=>setStatus(error.message)));
 $('#passportApp').addEventListener('click',event=>{
   const opening=window.terminalLaunch?window.terminalLaunch({kind:'account',id:'passport',name:'木夕账户',source:event.currentTarget}):native('passport.open');
   opening.catch(error=>setStatus(error.message));
@@ -275,7 +281,7 @@ let navIndex=0;
 function navItems(){
   const page=document.querySelector('.page.page-active');
   if(!page)return [];
-  return [...page.querySelectorAll('button:not(:disabled),input:not(:disabled),[tabindex]:not([tabindex="-1"])')]
+  return [...page.querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),a[href],[tabindex]:not([tabindex="-1"])')]
     .filter(el=>!el.hidden && el.offsetParent!==null);
 }
 function selectNav(index,scroll=true){
@@ -309,18 +315,24 @@ function backRoute(){
   if(route==='guideDetail')navigate('guide');
   else if(route!=='home')navigate('home');
 }
+window.addEventListener('focusin',()=>{const index=navItems().indexOf(document.activeElement);if(index>=0)navIndex=index;});
 window.addEventListener('keydown',e=>{
-  if(['INPUT','TEXTAREA'].includes(document.activeElement?.tagName))return;
+  if(e.defaultPrevented)return;
+  if(e.key==='Tab' && !e.ctrlKey && !e.altKey && !e.metaKey){
+    const items=navItems(), index=items.indexOf(document.activeElement);
+    if(items.length){selectNav(index<0?(e.shiftKey?-1:0):index+(e.shiftKey?-1:1));e.preventDefault();}return;
+  }
+  if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)||document.activeElement?.isContentEditable)return;
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){
     moveNav(e.key);e.preventDefault();return;
   }
   if(e.key==='Enter'){
-    const items=navItems(), el=items[navIndex];
+    const items=navItems(), el=items.includes(document.activeElement)?document.activeElement:items[navIndex];
     if(el && el.tagName!=='INPUT'){el.click();e.preventDefault();}
     return;
   }
   if(e.key==='Delete'){
-    navigate('home');navIndex=0;setTimeout(()=>selectNav(0,false),0);e.preventDefault();return;
+    backRoute();navIndex=0;setTimeout(()=>selectNav(0,false),0);e.preventDefault();return;
   }
   if(e.key==='Escape'||(e.key==='Backspace'&&document.activeElement?.tagName!=='INPUT')){
     backRoute();navIndex=0;setTimeout(()=>selectNav(0,false),0);e.preventDefault();
@@ -334,7 +346,7 @@ function setStatus(message){
 
 function routeFromHash(){
   const route=(location.hash||'#/home').replace(/^#\/?/,'');
-  return ['home','guide','guideDetail','tasks'].includes(route)?route:'home';
+  return ['home','guide','guideDetail','tasks','games','camera','friends','album','settings','music'].includes(route)?route:'home';
 }
 window.addEventListener('hashchange',()=>show(routeFromHash()));
 

@@ -2,6 +2,7 @@
   "item.muxi_terminal.player_terminal": "Player Terminal",
   "muxi_terminal.received": "Player Terminal received. Right-click to open it.",
   "muxi_terminal.mcef_wait": "The terminal browser is initializing. Please open it again shortly.",
-  "muxi_terminal.mcef_failed": "MCEF failed to initialize, so the terminal cannot open right now."
+  "muxi_terminal.mcef_failed": "MCEF failed to initialize, so the terminal cannot open right now.",
+  "key.muxi_terminal.held_interact": "Interact with held terminal",
+  "key.categories.muxi_terminal": "Muxi Terminal"
 }
-

@@ -1,0 +1,54 @@
+package net.muxigame.terminal.qa;
+import com.google.gson.*;
+import com.tacz.guns.api.TimelessAPI;
+import com.tacz.guns.api.entity.IGunOperator;
+import com.tacz.guns.api.entity.ShootResult;
+import com.tacz.guns.api.item.IGun;
+import com.tacz.guns.api.item.builder.GunItemBuilder;
+import com.tacz.guns.api.item.builder.AmmoItemBuilder;
+import net.minecraft.client.*;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import java.nio.file.*;
+
+/** Appended to the visible, isolated singleplayer suite. No production connection. */
+final class PhoenixVisibleQA {
+    private final String[] ids;
+    private final String prefix;
+    PhoenixVisibleQA(){this("phoenix",new String[]{"ra1k:fn57","ra1k:mp155","ra1k:nl545","ra1k:rsh12","ra1k:vssk","ra1k:vulkan"});}
+    PhoenixVisibleQA(String prefix,String[] ids){this.prefix=prefix;this.ids=ids;}
+    private int index,frame;private volatile boolean equipped;private volatile String failure="",shot="";private final JsonArray evidence=new JsonArray();
+    boolean tick() throws Exception {
+        var mc=Minecraft.getInstance();if(index==ids.length)return true;
+        if(!failure.isEmpty())throw new IllegalStateException(failure);
+        var id=ResourceLocation.parse(ids[index]);var label=id.getNamespace()+"-"+id.getPath();
+        if(frame==0){
+            if(mc.getSingleplayerServer()==null||mc.player==null)throw new IllegalStateException("Phoenix QA requires private integrated server");
+            if(TimelessAPI.getClientGunIndex(id).isEmpty())throw new IllegalStateException("Phoenix client index missing "+id);
+            mc.setScreen(null);mc.options.setCameraType(CameraType.FIRST_PERSON);equipped=false;shot="";
+            var uuid=mc.player.getUUID();mc.getSingleplayerServer().execute(()->{
+                try{var p=mc.getSingleplayerServer().getPlayerList().getPlayer(uuid);var common=TimelessAPI.getCommonGunIndex(id).orElseThrow();
+                    var stack=GunItemBuilder.create().setId(id).setAmmoCount(1).setAmmoInBarrel(true).setFireMode(common.getGunData().getFireModeSet().getFirst()).build(p.registryAccess());
+                    if(stack.isEmpty())throw new IllegalStateException("Phoenix gun build empty "+id);p.getInventory().clearContent();p.getInventory().selected=0;p.getInventory().setItem(0,stack);p.getInventory().setItem(2,AmmoItemBuilder.create().setId(common.getGunData().getAmmoId()).setCount(64).build());p.inventoryMenu.broadcastChanges();
+                    var operator=IGunOperator.fromLivingEntity(p);operator.initialData();operator.draw(p::getMainHandItem);equipped=true;
+                }catch(Throwable e){failure=e.toString();}
+            });frame++;return false;
+        }
+        if(!equipped)return false;
+        var gun=IGun.getIGunOrNull(mc.player.getMainHandItem());
+        if(gun==null||!id.equals(gun.getGunId(mc.player.getMainHandItem()))){if(frame>120)throw new IllegalStateException("Phoenix item sync failed "+id);frame++;return false;}
+        if(frame==40){var uuid=mc.player.getUUID();mc.getSingleplayerServer().execute(()->{try{var p=mc.getSingleplayerServer().getPlayerList().getPlayer(uuid);shot=IGunOperator.fromLivingEntity(p).shoot(()->p.getXRot(),()->p.getYRot()).toString();}catch(Throwable e){failure=e.toString();}});}
+        if(frame==30)capture(label+"-firstperson-idle.png");
+        if(frame==45)capture(label+"-firstperson-shot.png");
+        if(frame==60){if(!shot.equals(ShootResult.SUCCESS.toString()))throw new IllegalStateException("Phoenix native shot failed "+id+" "+shot);var uuid=mc.player.getUUID();mc.getSingleplayerServer().execute(()->{var p=mc.getSingleplayerServer().getPlayerList().getPlayer(uuid);IGunOperator.fromLivingEntity(p).bolt();IGunOperator.fromLivingEntity(p).reload();});}
+        if(frame==70)capture(label+"-firstperson-reload.png");
+        if(frame==150)mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
+        if(frame==170)capture(label+"-thirdperson.png");
+        if(frame==190){
+            var row=new JsonObject();row.addProperty("gun",id.toString());row.addProperty("nativeShoot",shot);row.addProperty("clientIndex",true);row.addProperty("firstAndThirdPersonCaptured",true);evidence.add(row);
+            Files.writeString(Path.of(prefix+"-visible-result.json"),new GsonBuilder().setPrettyPrinting().create().toJson(evidence));index++;frame=0;mc.options.setCameraType(CameraType.FIRST_PERSON);return index==ids.length;
+        }
+        frame++;return false;
+    }
+    private void capture(String name)throws Exception{var mc=Minecraft.getInstance();try(var screenshot=Screenshot.takeScreenshot(mc.getMainRenderTarget())){screenshot.writeToFile(Path.of(prefix+"-"+name));}GunDiagnosticRuntime.pose(prefix+"-"+name);}
+}
