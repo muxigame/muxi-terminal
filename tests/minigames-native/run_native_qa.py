@@ -9,6 +9,7 @@ import subprocess
 import sys
 import time
 import urllib.request
+import ssl,sqlite3
 from datetime import datetime, timezone
 
 REPO=Path(__file__).resolve().parent.parent.parent
@@ -106,13 +107,37 @@ def main():
         with urllib.request.urlopen(request,timeout=10) as response:state=json.load(response)
         rows=state['auth_requests']
         write(home/(label+'-auth-http.json'),{'actualNativeMode':state['actual_native_mode'],'requests':rows,'credentialsIncluded':False})
-        consumed=[r for r in rows if r['method']=='POST' and 'consume' in r['path'] and r['status']==200]
+        consumed=[r for r in rows if r['method']=='POST' and r['path'].startswith('/api/internal/minecraft/join/') and r['status']==200]
         if not consumed:raise AssertionError('No actual successful Auth consume HTTP response')
+        if {r['path'].rsplit('/',1)[-1] for r in consumed}!={'10000','10001'}:raise AssertionError('Actual Auth join consumption did not verify both account UID paths')
         return len(consumed)
+    def verify_actual_settlement(stage,game):
+        for attempt in range(150):
+            observed=command(observer,'observe')
+            if all(p.get('lastActualResult',{}).get('game')==game and p.get('resultPending')==0 for p in observed['players']):break
+            time.sleep(.2)
+        assert all(p.get('lastActualResult',{}).get('game')==game and p.get('resultPending')==0 for p in observed['players']),'Actual leave settlement not acknowledged'
+        database=Path(backend['ca_file']).parent/'website.db'
+        def ledger():
+            with sqlite3.connect(database.as_uri()+'?mode=ro',uri=True) as db:
+                db.row_factory=sqlite3.Row
+                return {'ledger':[dict(row) for row in db.execute('SELECT uid,game,session,event,points FROM minigame_result_ledger WHERE uid IN (10000,10001) ORDER BY uid,game,session')],'balances':[dict(row) for row in db.execute('SELECT uid,points FROM player_profiles WHERE uid IN (10000,10001) ORDER BY uid')]}
+        before=ledger();duplicates=[]
+        for player in observed['players']:
+            event=player['lastActualResult']
+            stored=next(row for row in before['ledger'] if row['uid']==event['uid'] and row['game']==event['game'] and row['session']==event['session'])
+            assert json.loads(stored['event'])==event,'Durable backend result differs from actual player result'
+            request=urllib.request.Request(backend['site_url']+'/api/internal/game/results',data=json.dumps(event).encode(),headers={'Content-Type':'application/json','x-muxi-server-key':backend['game_key']})
+            with urllib.request.urlopen(request,context=ssl.create_default_context(cafile=backend['ca_file']),timeout=10) as response:duplicate=json.load(response)
+            assert duplicate.get('ok') and duplicate.get('credited') is False,duplicate
+            duplicates.append({'actualRecordedEvent':event,'response':duplicate,'httpStatus':200})
+        after=ledger();assert before==after,'Duplicate replay changed actual balances or durable ledger'
+        write(home/(stage+'-durable-settlement-duplicate.json'),{'actualPlayers':observed,'before':before,'duplicateResponses':duplicates,'after':after,'inventedResult':False,'positiveWinRewardTested':False})
+        checks.append(stage+': actual leave/forfeit results durably acknowledged; replay of the same real events did not credit twice or change balances')
     try:
         # Reserve enough visible-client capacity for a genuine pair before loading
         # either JVM; do not occupy the fourth slot indefinitely with only a host.
-        until=time.monotonic()+360
+        until=time.monotonic()+1800
         while len(live_clients())>2:
             if (coordinator/'cancel-run.json').exists():raise RuntimeError('QA canceled: '+str(read(coordinator/'cancel-run.json')))
             if time.monotonic()>until:raise TimeoutError('Two client slots unavailable; existing PIDs '+str(live_clients()))
@@ -146,6 +171,11 @@ def main():
             assert auth_observation('initial-admission')>=2
             checks.append('Actual Auth POST consume returned 200 for both initial connections, independently of social proof')
         for role in ['host','guest']:command(role,'open')
+        if dedicated:
+            previews=command('host','js',"document.querySelector('[data-mg-page=\"shop\"]').click();await window.MuxiMinigamesApp.activate();for(let i=0;i<100;i++){await wait(200);const cards=[...document.querySelectorAll('.mg-card-preview')];const loaded=cards.map(c=>({label:c.querySelector('figcaption')?.textContent,width:c.querySelector('img')?.naturalWidth||0,height:c.querySelector('img')?.naturalHeight||0,fallback:getComputedStyle(c.querySelector('.mg-preview-unavailable')).display}));if(loaded.length>=5&&loaded.every(c=>c.width===256&&c.height===192&&c.fallback==='none'))return {actualProviderCards:true,previews:loaded};}throw Error('Actual horse preview PNGs failed to load/hide fallback');")
+            write(home/'actual-mcef-horse-preview-shop.json',previews)
+            checks.append('Actual provider horse catalog previews load in real MCEF through the shared PNG resource bridge')
+            command('host','js',"document.querySelector('[data-mg-page=\"lobby\"]').click();await window.MuxiMinigamesApp.activate();return {page:'lobby'};")
         command('host','js',"await wait(1000);return {snapshot:await q('games.snapshot'),clean:document.getElementById('mg-games').hidden&&document.getElementById('mg-room-invitations').hidden&&!document.querySelector('[data-mg-choice]')};")
         for round_index,game in enumerate(['outbreak','zombie-challenge','outbreak'],1):
             stage=f'round-{round_index}-{game}'
@@ -176,6 +206,7 @@ def main():
             restored=command(observer,'observe');write(home/(stage+'-restored-real-players.json'),restored)
             same_inventory_and_location(baseline,restored)
             checks.append(game+': confirmed Leave restored both original inventories and locations')
+            if dedicated:verify_actual_settlement(stage,game)
             if dedicated and round_index==1:
                 count=auth_observation('before-reconnect')
                 for role in ['guest','host']:

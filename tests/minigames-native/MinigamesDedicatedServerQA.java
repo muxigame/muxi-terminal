@@ -35,6 +35,8 @@ public final class MinigamesDedicatedServerQA {
                 player.addProperty("dimension",p.level().dimension().location().toString());player.addProperty("x",p.getX());player.addProperty("y",p.getY());player.addProperty("z",p.getZ());
                 player.addProperty("inventory",p.getInventory().save(new net.minecraft.nbt.ListTag()).toString());player.addProperty("returnsPending",PlayerReturns.pending(p));
                 player.addProperty("connected",p.connection.isAcceptingMessages());player.addProperty("transport",p.connection.getConnection().getRemoteAddress().toString());
+                player.addProperty("resultPending",GamePlatform.pendingCount(p));
+                String lastResult=GamePlatform.last(p);if(!lastResult.isEmpty())player.add("lastActualResult",JsonParser.parseString(lastResult));
                 try{player.addProperty("admittedUid",TrustedAccounts.uid(p));}catch(IllegalArgumentException unknown){player.addProperty("admittedUid",-1);}
                 try{player.addProperty("socialUid",TrustedAccounts.socialUid(p));}catch(IllegalArgumentException unknown){player.addProperty("socialUid",-1);}
                 player.add("games",GameRuntime.get(server).snapshot(p,""));players.add(player);
