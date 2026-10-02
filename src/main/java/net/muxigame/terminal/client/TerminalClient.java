@@ -44,6 +44,7 @@ public final class TerminalClient {
         Minecraft mc = Minecraft.getInstance();
         if (!MCEF.isInitialized()) { openHome(); return; }
         mc.setScreen(new TerminalScreen(TerminalBrowserSession.getOrCreate()));
+        TerminalPassportNavigation.resume();
     }
 
     public static void openHome() {

@@ -124,6 +124,17 @@ public final class TerminalBrowserSession {
         return open(Kind.ACCOUNT,url,"木夕账户");
     }
 
+    /** Native failure view contains no website or interactive authentication page. */
+    static synchronized void openAccountError(String message){
+        MCEFBrowser browser=open(Kind.ACCOUNT,TerminalPassportNavigation.ERROR,"账户");
+        accountError(browser,message);
+    }
+    static synchronized void accountError(CefBrowser browser,String message){
+        if(app==null || app.browser!=browser || app.kind!=Kind.ACCOUNT)return;
+        browser.stopLoad();browser.loadURL(TerminalPassportNavigation.ERROR);
+        loaded(browser,TerminalPassportNavigation.ERROR,false,message);
+    }
+
     public static synchronized boolean openExternal(String value) {
         if(!TerminalWebPolicy.account(value))return false;openAccountView(value);return true;
     }

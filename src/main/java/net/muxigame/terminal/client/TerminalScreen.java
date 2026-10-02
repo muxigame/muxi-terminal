@@ -111,6 +111,8 @@ public class TerminalScreen extends Screen {
 
     @Override
     public void removed() {
+        // A replaced screen must also disarm retained account cookies and pending proof.
+        TerminalPassportNavigation.clear();
         TerminalAlbumBridge.visibility(false);
         releaseBrowserKeys();
         net.minecraft.client.KeyMapping.releaseAll();

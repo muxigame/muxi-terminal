@@ -1,122 +1,199 @@
 package net.muxigame.terminal.client;
 
-import com.cinemamod.mcef.MCEF;
 import com.cinemamod.mcef.MCEFBrowser;
 import net.minecraft.client.Minecraft;
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
 import org.cef.handler.CefLoadHandlerAdapter;
+import org.cef.handler.CefLoadHandler.ErrorCode;
 import org.cef.network.CefPostData;
 import org.cef.network.CefPostDataElement;
 import org.cef.network.CefRequest;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-/** Submit a one-use payload natively from the expected browser's exact HTTPS main frame. */
+/** Native one-use exchange. The account child never renders an interactive login page. */
 final class TerminalPassportNavigation {
+    static final String ERROR="about:blank#muxi-terminal-account-unavailable";
     private static final String ACCOUNT="https://mc.muxigame.com/account.html";
-    private static final String EXCHANGE="https://mc.muxigame.com/api/v1/auth/terminal";
-    private static final String POST="https://mc.muxigame.com/api/v1/auth/terminal/exchange";
+    private static final String ENTRY="https://mc.muxigame.com/api/v1/auth/terminal";
+    private static final String POST=ENTRY+"/exchange";
     private static MCEFBrowser expected;
+    // Lock-free CEF-thread gate: revocation also blocks retained cookies and background requests.
+    private static volatile CefBrowser protectedView;
     private static String payload;
-    private static long expires;
-    private static long generation;
-    private static boolean opening;
+    private static long expires,generation,viewId;
+    private static boolean opening,awaitingSession;
     private static Object gameConnection;
-    private static long viewId;
+    private static int retries;
     private TerminalPassportNavigation() {}
+
     static void install(com.cinemamod.mcef.MCEFClient client){
-        // MCEF multiplexes handlers. CefClient.addLoadHandler silently ignores a second handler.
         client.addLoadHandler(new CefLoadHandlerAdapter(){
             @Override public void onLoadEnd(CefBrowser browser,CefFrame frame,int status){
-                if(frame==null || !frame.isMain()) return;
-                String loadedUrl=frame.getURL();
-                // Container lifetime and native navigation run on the game thread.
-                Minecraft.getInstance().execute(()->{
-                String value;
-                synchronized(TerminalPassportNavigation.class){
-                    if(!currentView(browser)) return;
-                    Minecraft mc=Minecraft.getInstance();
-                    if(mc.player==null || mc.getConnection()!=gameConnection || !(mc.screen instanceof TerminalScreen)){clear();return;}
-                    if(payload==null){
-                        if(EXCHANGE.equals(loadedUrl)) return; // Duplicate entry completion must not disarm the pending POST.
-                        MCEFBrowser current=expected;
-                        boolean failed=POST.equals(loadedUrl);
-                        clear();
-                        if(failed) current.loadURL(ACCOUNT);
-                        return;
-                    }
-                    if(!EXCHANGE.equals(loadedUrl) || status!=200 || System.nanoTime()>expires){
-                        clear();return;
-                    }
-                    value=payload;payload=null;
-                }
-                byte[] bytes=value.getBytes(StandardCharsets.UTF_8);
-                CefPostDataElement element=CefPostDataElement.create();
-                element.setToBytes(bytes.length,bytes);
-                CefPostData data=CefPostData.create();data.addElement(element);
-                CefRequest request=CefRequest.create();
-                request.setURL(POST);request.setMethod("POST");request.setPostData(data);
-                request.setHeaderMap(Map.of("Content-Type","application/json","Origin","https://mc.muxigame.com","X-Muxi-Terminal-Action","1"));
-                synchronized(TerminalPassportNavigation.class){
-                    Minecraft mc=Minecraft.getInstance();
-                    if(!currentView(browser)
-                        || mc.player==null || mc.getConnection()!=gameConnection || !(mc.screen instanceof TerminalScreen)
-                        || !EXCHANGE.equals(browser.getURL()) || System.nanoTime()>expires){clear();return;}
-                    browser.loadRequest(request);
-                }
-                });
+                if(frame==null || !frame.isMain() || status==-3)return; // CEF ERR_ABORTED is a cancelled navigation, not exchange failure.
+                String url=frame.getURL();
+                Minecraft.getInstance().execute(()->loaded(browser,url,status));
             }
-            @Override public void onLoadError(CefBrowser browser,CefFrame frame,org.cef.handler.CefLoadHandler.ErrorCode code,String message,String failedUrl){
-                if(code==org.cef.handler.CefLoadHandler.ErrorCode.ERR_ABORTED) return;
-                if(frame==null || !frame.isMain()) return;
+            @Override public void onLoadError(CefBrowser browser,CefFrame frame,ErrorCode code,String message,String url){
+                if(code==ErrorCode.ERR_ABORTED || frame==null || !frame.isMain())return;
                 Minecraft.getInstance().execute(()->{
-                synchronized(TerminalPassportNavigation.class){
-                    if(!currentView(browser)) return;
-                    Minecraft mc=Minecraft.getInstance();
-                    if(mc.player==null || mc.getConnection()!=gameConnection || !(mc.screen instanceof TerminalScreen)){clear();return;}
-                    MCEFBrowser current=expected;clear();current.loadURL(ACCOUNT);
-                }
+                    if(currentView(browser) && !staleAccountLoad(browser,url))fail("账户服务暂时无法连接，请返回后重试");
                 });
             }
         });
+    }
+    private static synchronized void loaded(CefBrowser browser,String url,int status){
+        if(!currentView(browser) || url.startsWith("about:blank") || staleAccountLoad(browser,url))return;
+        if(!live()){fail("客户端账户连接已结束，请在客户端恢复账户");return;}
+        if(payload==null){
+            if(POST.equals(url) && status>=400){renew(browser);return;}
+            if(accountDocument(url) && status==200){retries=0;awaitingSession=false;return;}
+            if(status>=400)fail("账户页面暂时不可用，请返回后重试");
+            return;
+        }
+        if(!ENTRY.equals(url) || !ENTRY.equals(browser.getURL()) || status!=200){
+            fail("账户会话未能建立，请返回后重试");return;
+        }
+        if(System.nanoTime()>expires){renew(browser);return;}
+        byte[] bytes=payload.getBytes(StandardCharsets.UTF_8);payload=null;
+        CefPostDataElement element=CefPostDataElement.create();element.setToBytes(bytes.length,bytes);
+        CefPostData data=CefPostData.create();data.addElement(element);
+        CefRequest request=CefRequest.create();request.setURL(POST);request.setMethod("POST");request.setPostData(data);
+        request.setHeaderMap(Map.of("Content-Type","application/json","Origin","https://mc.muxigame.com","X-Muxi-Terminal-Action","1"));
+        browser.loadRequest(request);
+    }
+    /** Called synchronously before a main-frame request can contact an interactive auth endpoint. */
+    static boolean beforeBrowse(CefBrowser browser,CefFrame frame,String target){
+        if(!interactiveAuth(target)){
+            if(!TerminalWebPolicy.account(target) || permitsResource(browser,target))return false;
+            if(frame!=null && frame.isMain())Minecraft.getInstance().execute(()->{
+                if(TerminalBrowserSession.content()==browser)resume();
+            });
+            return true;
+        }
+        if(frame==null || !frame.isMain())return true; // Frames can neither display login nor request native renewal.
+        Minecraft.getInstance().execute(()->{
+            synchronized(TerminalPassportNavigation.class){
+                if(currentView(browser))renew(browser);
+                else if(TerminalBrowserSession.content()==browser)TerminalBrowserSession.accountError(browser,"请从终端重新打开账户");
+            }
+        });
+        return true;
+    }
+    /** Reusing a child can queue its previous account completion after a fresh native payload. */
+    static synchronized boolean staleAccountLoad(CefBrowser browser,String url){
+        return currentView(browser) && payload!=null && accountDocument(url);
+    }
+    static boolean permitsResource(CefBrowser browser,String url){return !TerminalWebPolicy.account(url) || protectedView==browser;}
+    static boolean interactiveAuth(String url){
+        try{
+            URI uri=URI.create(url);String host=uri.getHost(),path=uri.getPath();
+            if("account.muxigame.com".equalsIgnoreCase(host))return true;
+            return "mc.muxigame.com".equalsIgnoreCase(host) && path!=null
+                && (path.startsWith("/api/v1/auth/") && !path.equals("/api/v1/auth/terminal") && !path.equals("/api/v1/auth/terminal/exchange")
+                    || path.equals("/login") || path.equals("/login.html"));
+        }catch(IllegalArgumentException ignored){return false;}
+    }
+    private static boolean accountDocument(String url){
+        try{URI uri=URI.create(url);return TerminalWebPolicy.account(url) && "mc.muxigame.com".equalsIgnoreCase(uri.getHost()) && "/account.html".equals(uri.getPath());}
+        catch(IllegalArgumentException ignored){return false;}
     }
     private static boolean currentView(CefBrowser browser){
         return expected!=null && browser==expected && TerminalBrowserSession.content()==expected
             && TerminalBrowserSession.state().kind()==TerminalBrowserSession.Kind.ACCOUNT
             && TerminalBrowserSession.state().viewId()==viewId;
     }
-    static synchronized void clear(){expected=null;payload=null;expires=0;opening=false;gameConnection=null;viewId=0;generation++;}
-    static void open(){
+    private static boolean live(){
         Minecraft mc=Minecraft.getInstance();
-        MCEFBrowser browser=TerminalBrowserSession.current();
-        final long requestGeneration;
-        final String sourceUrl=browser==null?"":browser.getURL();
-        final long viewGeneration=TerminalBrowserSession.generation();
-        final Object sourceConnection=mc.getConnection();
-        synchronized(TerminalPassportNavigation.class){
-            if(opening) return;
-            clear();opening=true;requestGeneration=generation;
-        }
-        try {
-            Class<?> api=Class.forName("net.muxigame.core.client.TerminalPassportApi");
-            Consumer<String> callback=value->mc.execute(()->{
+        return connected() && mc.screen instanceof TerminalScreen;
+    }
+    private static boolean connected(){Minecraft mc=Minecraft.getInstance();return mc.player!=null && mc.getConnection()==gameConnection;}
+    static synchronized void clear(){
+        protectedView=null;expected=null;payload=null;expires=0;opening=false;gameConnection=null;viewId=0;retries=0;awaitingSession=false;generation++;
+        try{Class.forName("net.muxigame.core.client.TerminalPassportApi").getMethod("cancel").invoke(null);}
+        catch(ReflectiveOperationException | LinkageError ignored){}
+    }
+    private static void fail(String message){
+        MCEFBrowser browser=expected;clear();
+        if(browser!=null)TerminalBrowserSession.accountError(browser,message);
+    }
+    private static void request(Consumer<String> callback){
+        try{Class.forName("net.muxigame.core.client.TerminalPassportApi").getMethod("request",Consumer.class).invoke(null,callback);}
+        catch(ReflectiveOperationException | LinkageError ignored){callback.accept("");}
+    }
+    static void open(){
+        Minecraft mc=Minecraft.getInstance();MCEFBrowser shell=TerminalBrowserSession.current();
+        String sourceUrl=shell==null?"":shell.getURL();long shellGeneration=TerminalBrowserSession.generation();Object connection=mc.getConnection();
+        final long epoch;
+        synchronized(TerminalPassportNavigation.class){if(opening)return;clear();opening=true;epoch=generation;}
+        request(value->mc.execute(()->{
+            synchronized(TerminalPassportNavigation.class){
+                if(generation!=epoch)return;opening=false;
+                if(mc.player==null || mc.getConnection()!=connection || !(mc.screen instanceof TerminalScreen) || shell==null
+                    || TerminalBrowserSession.current()!=shell || !sourceUrl.equals(shell.getURL()) || TerminalBrowserSession.generation()!=shellGeneration)return;
+                if(value==null || value.isEmpty()){TerminalBrowserSession.openAccountError("客户端账户暂不可用，请在客户端检查账户后重试");return;}
+                MCEFBrowser account=TerminalBrowserSession.openAccountView(ENTRY);
+                expected=account;protectedView=account;payload=value;gameConnection=connection;viewId=TerminalBrowserSession.state().viewId();
+                expires=System.nanoTime()+20_000_000_000L;awaitingSession=true;
+                scheduleValidation(account,generation);scheduleExchangeTimeout(account,generation);
+            }
+        }));
+    }
+    /** Reopening a retained view must prove the current native identity again after Esc disarmed it. */
+    static synchronized void resume(){
+        MCEFBrowser browser=TerminalBrowserSession.content();
+        if(expected!=null || opening || browser==null || TerminalBrowserSession.state().kind()!=TerminalBrowserSession.Kind.ACCOUNT)return;
+        Minecraft mc=Minecraft.getInstance();
+        expected=browser;gameConnection=mc.getConnection();viewId=TerminalBrowserSession.state().viewId();retries=0;
+        renew(browser);
+    }
+    static synchronized boolean authorized(CefBrowser browser){
+        return currentView(browser) && connected() && !opening && payload==null && accountDocument(browser.getURL());
+    }
+    private static void renew(CefBrowser browser){
+        if(!currentView(browser) || opening)return;
+        if(!live()){fail("客户端账户连接已结束，请在客户端恢复账户");return;}
+        if(++retries>1){fail("账户会话暂时无法续期，请返回后重试");return;}
+        protectedView=null;browser.stopLoad();browser.loadURL(ERROR);payload=null;opening=true;long epoch=++generation;
+        TerminalBrowserSession.loaded(browser,ACCOUNT,true,"");
+        request(value->Minecraft.getInstance().execute(()->{
+            synchronized(TerminalPassportNavigation.class){
+                if(generation!=epoch || !currentView(browser))return;
+                opening=false;
+                if(!live() || value==null || value.isEmpty()){fail("客户端账户已失效，请在客户端恢复账户");return;}
+                protectedView=browser;payload=value;expires=System.nanoTime()+20_000_000_000L;awaitingSession=true;
+                browser.loadURL(ENTRY);scheduleValidation(expected,epoch);scheduleExchangeTimeout(expected,epoch);
+            }
+        }));
+    }
+    private static void scheduleExchangeTimeout(MCEFBrowser browser,long epoch){
+        CompletableFuture.runAsync(()->Minecraft.getInstance().execute(()->{
+            synchronized(TerminalPassportNavigation.class){
+                if(epoch==generation && currentView(browser) && awaitingSession && System.nanoTime()>=expires)renew(browser);
+            }
+        }),CompletableFuture.delayedExecutor(20,TimeUnit.SECONDS));
+    }
+    private static void scheduleValidation(MCEFBrowser browser,long epoch){
+        CompletableFuture.runAsync(()->Minecraft.getInstance().execute(()->validate(browser,epoch)),CompletableFuture.delayedExecutor(30,TimeUnit.SECONDS));
+    }
+    private static synchronized void validate(MCEFBrowser browser,long epoch){
+        if(epoch!=generation || !currentView(browser))return;
+        if(!connected()){fail("客户端账户连接已结束，请在客户端恢复账户");return;}
+        if(opening || payload!=null){scheduleValidation(browser,epoch);return;}
+        try{
+            Consumer<Boolean> callback=valid->Minecraft.getInstance().execute(()->{
                 synchronized(TerminalPassportNavigation.class){
-                    if(generation!=requestGeneration) return;
-                    opening=false;
-                    if(mc.player==null || mc.getConnection()!=sourceConnection || !(mc.screen instanceof TerminalScreen) || browser==null
-                        || TerminalBrowserSession.current()!=browser || !sourceUrl.equals(browser.getURL())
-                        || TerminalBrowserSession.generation()!=viewGeneration) return;
-                }
-                if(value==null || value.isEmpty()){TerminalBrowserSession.openAccountView(ACCOUNT);return;}
-                MCEFBrowser account=TerminalBrowserSession.openAccountView(EXCHANGE);
-                synchronized(TerminalPassportNavigation.class){
-                    expected=account;payload=value;gameConnection=sourceConnection;
-                    viewId=TerminalBrowserSession.state().viewId();expires=System.nanoTime()+20_000_000_000L;
+                    if(epoch!=generation || !currentView(browser))return;
+                    if(!connected() || !Boolean.TRUE.equals(valid)){fail("客户端账户已失效，请在客户端恢复账户");return;}
+                    scheduleValidation(browser,epoch);
                 }
             });
-            api.getMethod("request",Consumer.class).invoke(null,callback);
-        }catch(ReflectiveOperationException | LinkageError ignored){clear();TerminalBrowserSession.openAccountView(ACCOUNT);}
+            Class.forName("net.muxigame.core.client.TerminalPassportApi").getMethod("validate",Consumer.class).invoke(null,callback);
+        }catch(ReflectiveOperationException | LinkageError ignored){fail("客户端账户组件需要更新，请返回后重试");}
     }
 }
