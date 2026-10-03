@@ -83,8 +83,8 @@ def main():
         source=Path(extras['stage'])/row['path']
         owner_repo={'muxi_minigames':REPO.parent/'muxi-minigames',
                     'muxi_game_core':REPO.parent/'muxi-game-core',
-                    'muxi_zombie_challenge':FROZEN/'muxi-zombie-challenge',
-                    'muxi_outbreak':FROZEN/'muxi-outbreak'}.get(row['id'])
+                    'muxi_zombie_challenge':REPO.parent/'muxi-zombie-challenge',
+                    'muxi_outbreak':REPO.parent/'muxi-outbreak'}.get(row['id'])
         if candidate:source=Path(candidate['artifacts'][row['id'].replace('_','-')]['path'])
         elif owner_repo:
             release=json.loads((owner_repo/'build/release.json').read_text(encoding='utf-8'))

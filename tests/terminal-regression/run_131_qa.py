@@ -6,7 +6,7 @@ import argparse,ctypes,datetime,hashlib,json,os,shutil,subprocess,sys,time,uuid,
 from qa_fml_config import configure_file,patch_properties
 HERE=Path(__file__).resolve().parent
 REPO=HERE.parents[1]
-ROOT=Path(r"C:\Users\ranzh\workspace\dev\muxigame")
+ROOT=REPO.parent
 OWN=Path(r"C:\Users\ranzh\Documents\Codex\release-unified-task14-20261001")
 BASE="bc415775dd50762262098d6a41f0a942df7ef157"
 EXPECTED=None

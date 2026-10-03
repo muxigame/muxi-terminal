@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 import hashlib,json,os,shutil,subprocess,sys,urllib.parse,urllib.request
 OWN=Path(r'C:\Users\ranzh\Documents\Codex\release-unified-task14-20261001')
-ROOT=Path(r'C:\Users\ranzh\workspace\dev\muxigame')
+ROOT=Path(__file__).resolve().parents[3]
 JDK=Path(r'C:\Users\ranzh\Documents\Codex\terminal-integration-task6-20261001\tools\jdk\jdk-21.0.12.1+1')
 COMMITS={'muxi-minigames': 'de711f9fe93a614efee9d3c95d6d37e6d31b9238', 'muxi-zombie-challenge': 'b39845e8f3a3209b3754e703dbba61a0d33b4e1d', 'muxi-game-core': '5c45ca34877a3ead61a71a0bba794a2491e3d937', 'muxi-outbreak': 'afbeb63afd735499e1ef9d1a039f681c84aad208', 'muxi-terminal': 'bc415775dd50762262098d6a41f0a942df7ef157'}
 PACK_COMMIT='ae8c244bff0630d7a67bf9397c5130dce86ec420'
@@ -12,13 +12,13 @@ def command(args,cwd=None):return subprocess.run(list(map(str,args)),cwd=cwd,che
 def main():
     if os.environ.get('COMPUTERNAME','').upper()!='JBC_FCRL':raise SystemExit('131 only')
     sys.stdout.reconfigure(encoding='utf-8')
-    gun=json.loads((OWN/'better-mc-remake/pack/curated-gunpacks/phoenix-nine.json').read_text(encoding='utf-8'))
+    gun=json.loads((ROOT/'better-mc-remake/pack/curated-gunpacks/phoenix-nine.json').read_text(encoding='utf-8'))
     if gun.get('releaseStatus')!='ready' or not gun.get('scriptClosureVerified') or not gun.get('defaultModelDeduplicationVerified'):
         raise SystemExit('Gunpack withdrawn or not accepted: final pack preparation blocked')
     report={'productCommits':COMMITS,'artifacts':{},'clientStarted':False,'productionChanged':False}
     previous=json.loads((OWN/'release-lock.json').read_text(encoding='utf-8')) if (OWN/'release-lock.json').exists() else {}
     for name,commit in COMMITS.items():
-        repo=OWN/name
+        repo=ROOT/name
         command(['git','-C',repo,'merge-base','--is-ancestor',commit,'HEAD'])
         difference=subprocess.check_output(['git','-C',str(repo),'diff',commit,'--','src','mod.json'],encoding='utf-8')
         dirty=subprocess.check_output(['git','-C',str(repo),'status','--porcelain','--','src','mod.json'],encoding='utf-8')
@@ -47,7 +47,7 @@ def main():
         release=json.loads((repo/'build/release.json').read_text(encoding='utf-8'))
         artifact=repo/'build/libs'/release['artifact']
         report['artifacts'][name]={'path':str(artifact),'name':artifact.name,'sha256':digest(artifact),'sha1':digest(artifact,'sha1'),'size':artifact.stat().st_size}
-    platform=OWN/'better-mc-remake'
+    platform=ROOT/'better-mc-remake'
     command(['git','-C',platform,'merge-base','--is-ancestor',PACK_COMMIT,'HEAD'])
     changed=subprocess.check_output(['git','-C',str(platform),'diff',PACK_COMMIT,'--','pack/patches/champions-companions/src','pack/packspec.json','pack/curated-gunpacks'],encoding='utf-8')
     if changed:raise SystemExit('Added release source changed')
@@ -90,8 +90,8 @@ def main():
         import re
         fps.write_text(re.sub(r'(fpsDisplay\s*=\s*)"[^"]*"',r'\1"OFF"',fps.read_text(encoding='utf-8')),encoding='utf-8')
     report['fpsSeed']='OFF; one-time launcher overlay migration, not permanent enforcement'
-    dep=json.loads((OWN/'muxi-outbreak/dependencies.json').read_text(encoding='utf-8'))['externalDownloads'][0]
-    dependency=OWN/'muxi-outbreak/build/equipment-research'/dep['file']['filename']
+    dep=json.loads((ROOT/'muxi-outbreak/dependencies.json').read_text(encoding='utf-8'))['externalDownloads'][0]
+    dependency=ROOT/'muxi-outbreak/build/equipment-research'/dep['file']['filename']
     shutil.copy2(dependency,destination/'mods'/dependency.name)
     expected.append({'path':'mods/'+dependency.name,'sha1':digest(dependency,'sha1'),'policy':'Managed'})
     report['existingProductionDependency']={'name':dependency.name,'sha256':digest(dependency),'newGunPacksAdded':False,'publicRedistributionApprovedByThisScript':False}
