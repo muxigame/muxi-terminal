@@ -51,7 +51,7 @@ h1,h2,h3,p,.app-name,.app-desc,.task-name,.task-rewards{overflow-wrap:anywhere}.
 @media(max-width:500px){.hero{flex-wrap:wrap}.cover-frame{display:none}.search-wrap{width:100%;margin-left:0}.search-wrap input{width:100%}.app-grid{grid-template-columns:repeat(auto-fit,minmax(104px,1fr))}.detail-card{padding:12px}}
 
 /* Native local wallpaper spans the shared Pad shell. */
-.shell{background-image:linear-gradient(rgba(201,194,174,.12),rgba(201,194,174,.12)),var(--terminal-wallpaper,url('./cover.png'));background-size:cover;background-position:center;background-repeat:no-repeat}
+.shell{background-image:linear-gradient(rgba(201,194,174,.90),rgba(201,194,174,.90)),var(--terminal-wallpaper,url('./cover.png'));background-size:cover;background-position:center;background-repeat:no-repeat}
 /* Keep controls readable even over a dark or busy personal wallpaper. */
 .app-card{background:rgba(222,215,194,.96)}
 .app-card:hover,.app-card.keyboard-selected{background:var(--panel)}
