@@ -4,6 +4,7 @@
   if(!root)return;
   let snapshot={loading:true,games:[]},context=M.cleanContext({}),actions=new Map(),lastRenderSignature='',stopped=false,pending=null,unconfirmed=null,invitationBusy=false,confirmAction=null,lastRead=0,readSerial=0,saveTimer;
   const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  const lobbyHint='\u4ece\u623f\u95f4\u5217\u8868\u52a0\u5165\uff0c\u6216\u521b\u5efa\u65b0\u623f\u95f4\u3002';
   const text={lobby:'\u623f\u95f4\u5927\u5385',create:'\u521b\u5efa\u623f\u95f4',mode:'\u9009\u62e9\u6a21\u5f0f',map:'\u9009\u62e9\u5730\u56fe',confirm:'\u96be\u5ea6\u4e0e\u786e\u8ba4',room:'\u6211\u7684\u623f\u95f4',cancel:'\u53d6\u6d88\u521b\u5efa',previous:'\u4e0a\u4e00\u6b65'};
   function bridge(command,onLate){
     if(typeof window.muxi?.invoke!=='function')return Promise.reject(new Error('\u7ec8\u7aef\u6865\u63a5\u8fd8\u672a\u5c31\u7eea\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5'));
@@ -11,7 +12,7 @@
     invoking.then(value=>{if(expired)onLate?.(value);},()=>{});
     return Promise.race([invoking,new Promise((_,reject)=>{timer=setTimeout(()=>{expired=true;reject(Object.assign(new Error('\u7ec8\u7aef\u54cd\u5e94\u8d85\u65f6\uff0c\u8bf7\u5237\u65b0\u6838\u5b9e\u72b6\u6001'),{unconfirmed:true}));},4000);})]).finally(()=>clearTimeout(timer));
   }
-  function notice(message){el('mg-notice').textContent=message;}
+  function notice(message){el('mg-notice').textContent=message;el('mg-notice').hidden=root.classList.contains('mg-lobby')&&message===lobbyHint;}
   function remember(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>bridge('games.context:'+JSON.stringify(context)).catch(()=>{}),120);}
   const game=()=> (snapshot.games||[]).find(item=>item.id===context.game);
   const owned=()=> (snapshot.games||[]).find(item=>M.ownRoom(item));
@@ -44,6 +45,8 @@
     const games=snapshot.games||[],selected=game(),step=stage(),room=M.ownRoom(selected);
     if(step==='room'&&!room&&!busy())setStage('lobby');
     const currentStep=stage();
+    root.classList.toggle('mg-lobby',context.page==='lobby'&&currentStep==='lobby');
+    el('mg-notice').hidden=root.classList.contains('mg-lobby')&&el('mg-notice').textContent===lobbyHint;
     const signature=JSON.stringify([snapshot.games,snapshot.activeGame,snapshot.platform,snapshot.social,snapshot.resultPending,snapshot.allowed,snapshot.actionSupported,snapshot.loading,snapshot.protocol,context,busy()]);
     if(signature===lastRenderSignature)return;lastRenderSignature=signature;
     el('mg-platform').hidden=context.page!=='shop';
@@ -62,6 +65,7 @@
     }else if(currentStep==='lobby'){
       const own=owned();
       content=`<div class="mg-lobby-heading"><h3>${text.lobby}</h3><button class="primary" data-mg-create ${busy()||own||snapshot.loading||snapshot.actionSupported===false||snapshot.allowed===false?'disabled':''}>${text.create}</button></div>`;
+      content+='<div id="mg-room-list" class="mg-room-list" role="region" aria-label="房间列表" tabindex="0">';
       if(own)content+=`<article class="task-intro"><div><strong>${M.esc(own.title)} \u00b7 ${M.esc(M.ownRoom(own).id)}</strong><span>\u4f60\u5df2\u5728\u623f\u95f4\u4e2d</span></div><button class="secondary" data-mg-open-room="${M.esc(own.id)}">\u8fd4\u56de\u623f\u95f4</button></article>`;
       const rooms=games.flatMap(entry=>M.sections(entry).filter(section=>M.role(section)==='rooms').map(section=>({entry,section})));
       const any=rooms.some(({section})=>(section.cards||[]).length);
@@ -69,7 +73,7 @@
       if(snapshot.social?.enabled&&snapshot.social?.authenticated&&!own){
         content+=(snapshot.social.invitations||[]).filter(ticket=>ticket.status==='PENDING'&&ticket.expiresInSeconds>0&&games.some(entry=>entry.id===ticket.game&&entry.state?.self===ticket.target)).map(ticket=>`<article class="task-intro"><div><strong>${M.esc(games.find(entry=>entry.id===ticket.game)?.title)} \u00b7 ${M.esc(ticket.room.slice(0,8))}</strong><span>\u6536\u5230\u623f\u95f4\u9080\u8bf7 \u00b7 ${M.esc(ticket.expiresInSeconds)} \u79d2</span></div><div class="detail-actions"><button class="primary" data-mg-invite="${M.esc(ticket.invitation)}" data-mg-invite-op="accept" ${busy()?'disabled':''}>\u63a5\u53d7\u5e76\u52a0\u5165</button><button class="secondary" data-mg-invite="${M.esc(ticket.invitation)}" data-mg-invite-op="decline" ${busy()?'disabled':''}>\u62d2\u7edd</button></div></article>`).join('');
       }
-      content+=games.map(entry=>M.sections(entry).filter(section=>['recovery','result'].includes(M.role(section))).map(section=>sectionHtml(entry.id,section)).join('')).join('');
+      content+='</div>';
     }else if(currentStep==='mode'){
       content=`<div class="guide-intro">\u5148\u9009\u62e9\u73a9\u6cd5\uff0c\u518d\u9009\u62e9\u5730\u56fe\u548c\u96be\u5ea6\u3002\u786e\u8ba4\u524d\u4e0d\u4f1a\u521b\u5efa\u623f\u95f4\u3002</div><button class="secondary" data-mg-cancel>${text.cancel}</button>`;
     }else if(selected&&currentStep==='map'){
@@ -83,7 +87,9 @@
       const social=snapshot.social?.enabled===true&&snapshot.social?.authenticated===true;
       content=`<div class="section-title">${text.room} \u00b7 ${M.esc(selected.title)}</div>`+M.sections(selected).filter(section=>['room','recovery','result'].includes(M.role(section))||(M.role(section)==='invite'&&M.waiting(room)&&!social)).map(section=>sectionHtml(selected.id,section)).join('');
     }
+    const listScroll=el('mg-room-list')?.scrollTop||0;
     window.TerminalIcons?.release(el('mg-content'));el('mg-content').innerHTML=content;
+    if(el('mg-room-list'))el('mg-room-list').scrollTop=listScroll;
     void window.TerminalIcons?.hydrate(el('mg-content'));void window.TerminalIcons?.hydrate(el('mg-currencies'));
     const inviteVisible=context.page==='lobby'&&currentStep==='room'&&M.waiting(room);
     const inviteMount=el('mg-room-invitations');if(inviteMount)inviteMount.hidden=!inviteVisible;
@@ -95,7 +101,7 @@
     if(snapshot.actionSupported===false||snapshot.protocol!==2)return '\u5ba2\u6237\u7aef\u4e0e\u670d\u52a1\u5668\u5c0f\u6e38\u620f\u7248\u672c\u4e0d\u5339\u914d\uff0c\u8bf7\u66f4\u65b0\u540e\u91cd\u8bd5\u3002';
     if(unconfirmed)return '\u672a\u6536\u5230\u6700\u7ec8\u786e\u8ba4\uff0c\u8bf7\u5237\u65b0\u6838\u5b9e\u623f\u95f4\u72b6\u6001\uff0c\u4e0d\u4f1a\u81ea\u52a8\u91cd\u8bd5\u3002';
     if(busy())return '\u6b63\u5728\u7b49\u5f85\u670d\u52a1\u5668\u6700\u7ec8\u786e\u8ba4\uff0c\u8bf7\u52ff\u91cd\u590d\u63d0\u4ea4\u3002';
-    return snapshot.notice||(snapshot.allowed?'\u4ece\u623f\u95f4\u5217\u8868\u52a0\u5165\uff0c\u6216\u521b\u5efa\u65b0\u623f\u95f4\u3002':'\u5f53\u524d\u53c2\u4e0e\u53d7\u9650\uff0c\u4ecd\u53ef\u5b89\u5168\u9000\u51fa\u6216\u6062\u590d\u3002');
+    return snapshot.notice||(snapshot.allowed?lobbyHint:'\u5f53\u524d\u53c2\u4e0e\u53d7\u9650\uff0c\u4ecd\u53ef\u5b89\u5168\u9000\u51fa\u6216\u6062\u590d\u3002');
   }
   function finishOperation(data){
     const operation=pending||unconfirmed,result=data.operation;

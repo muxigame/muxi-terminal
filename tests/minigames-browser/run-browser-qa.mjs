@@ -108,6 +108,29 @@ try{
     await js(`{const style=document.createElement('style');style.textContent=${JSON.stringify(fs.readFileSync(path.join(assets,'terminal-icons.css'),'utf8'))};document.head.appendChild(style);}`);
   }
   await check('default lobby shows room list and create, hides mode/form/invitation',`document.querySelector('[data-mg-create]')&&document.querySelector('[data-mg-action]')&&!document.querySelector('[data-mg-choice]')&&document.getElementById('mg-games').hidden&&document.getElementById('mg-room-invitations').hidden`);
+  await js(`__fx.savedRoomCards=structuredClone(__fx.rooms.cards);__fx.rooms.cards=Array.from({length:70},(_,i)=>({title:'ROOM '+(i+1),text:'Waiting · 1/4',actions:[{action:'join',label:'加入',value:'ABCD',enabled:true}]}));__fx.state.games[0].ui.lobby.sections.push({role:'recovery',title:'LOBBY_RECOVERY_FOOTER',text:'Recovery stays in room details'},{role:'result',title:'LOBBY_RESULT_FOOTER',text:'Results stay in room details'});window.MuxiMinigamesApp.activate()`);
+  await eventually(`!!document.getElementById('mg-room-list')&&document.querySelectorAll('#mg-room-list .guide-card').length===70`);
+  await check('routine lobby hint yields space to the list',`document.getElementById('mg-notice').hidden`);
+  await js(`__fx.state.notice='服务暂不可用，请刷新';window.MuxiMinigamesApp.activate()`);
+  await eventually(`document.getElementById('mg-notice').textContent==='服务暂不可用，请刷新'`);
+  await check('server notices remain visible in the lobby',`!document.getElementById('mg-notice').hidden`);
+  await js(`delete __fx.state.notice;window.MuxiMinigamesApp.activate()`);
+  await eventually(`document.getElementById('mg-notice').hidden`);
+  await check('lobby omits recovery/result footer while retaining provider data',`!document.getElementById('mg-content').textContent.includes('LOBBY_RECOVERY_FOOTER')&&!document.getElementById('mg-content').textContent.includes('LOBBY_RESULT_FOOTER')&&__fx.state.games[0].ui.lobby.sections.some(s=>s.role==='recovery')&&__fx.state.games[0].ui.lobby.sections.some(s=>s.role==='result')`);
+  for(const [width,height] of [[1920,1080],[1280,720],[640,360],[480,320]]){
+    await cdp('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});
+    await check(`room list fills remaining APP height at ${width}x${height}`,`(()=>{const page=document.getElementById('games'),list=document.getElementById('mg-room-list'),p=page.getBoundingClientRect(),r=list.getBoundingClientRect();return r.height>=110&&Math.abs(r.bottom-(p.bottom-parseFloat(getComputedStyle(page).paddingBottom)))<=1&&page.scrollHeight<=page.clientHeight&&page.scrollWidth<=page.clientWidth&&list.scrollHeight>list.clientHeight;})()`);
+    await check(`create refresh and back remain visible at ${width}x${height}`,`[document.querySelector('[data-mg-create]'),document.getElementById('mg-refresh'),document.getElementById('mg-back')].every(button=>{const r=button.getBoundingClientRect();return r.top>=0&&r.left>=0&&r.bottom<=innerHeight&&r.right<=innerWidth&&!button.disabled;})`);
+    await js(`document.getElementById('mg-room-list').scrollTop=100`);
+    await check(`rooms scroll internally at ${width}x${height}`,`document.getElementById('mg-room-list').scrollTop===100&&document.getElementById('games').scrollTop===0`);
+    await shot(`lobby-list-${width}x${height}`);
+  }
+  await js(`__fx.rooms.text='Refreshed rooms';window.MuxiMinigamesApp.activate()`);
+  await eventually(`document.getElementById('mg-room-list').textContent.includes('Refreshed rooms')`);
+  await check('snapshot refresh retains room-list scroll position',`document.getElementById('mg-room-list').scrollTop===100`);
+  await js(`__fx.rooms.cards=__fx.savedRoomCards;delete __fx.rooms.text;__fx.state.games[0].ui.lobby.sections=__fx.state.games[0].ui.lobby.sections.filter(s=>!['result','recovery'].includes(s.role));window.MuxiMinigamesApp.activate()`);
+  await cdp('Emulation.setDeviceMetricsOverride',{width:1280,height:720,deviceScaleFactor:1,mobile:false});
+  await eventually(`document.querySelectorAll('#mg-room-list .guide-card').length===1`);
   await shot('01-lobby');
   await js(`document.querySelector('[data-mg-create]').click()`);
   await check('create opens separate mode selection',`!document.getElementById('mg-games').hidden&&document.querySelectorAll('[data-mg-game]').length===2`);await shot('02-mode');
@@ -127,6 +150,9 @@ try{
   await js(`__fx.complete(false);window.MuxiMinigamesApp.activate()`);await pause(80);
   await check('completed receipt without membership cannot enter room',`document.getElementById('mg-room-invitations').hidden&&document.querySelector('[data-mg-choice="outbreak:difficulty"]')`);
   await js(`__fx.enter();window.MuxiMinigamesApp.activate()`);await eventually(`!document.getElementById('mg-room-invitations').hidden`);
+  await js(`__fx.state.games[0].ui.lobby.sections.push({role:'recovery',title:'ROOM_RECOVERY_DETAILS',text:'Recovery retained'},{role:'result',title:'ROOM_RESULT_DETAILS',text:'Results retained'});window.MuxiMinigamesApp.activate()`);
+  await eventually(`document.getElementById('mg-content').textContent.includes('ROOM_RESULT_DETAILS')`);
+  await check('room details retain recovery and result sections without the lobby-only layout',`document.getElementById('mg-content').textContent.includes('ROOM_RECOVERY_DETAILS')&&!document.getElementById('games').classList.contains('mg-lobby')&&!document.getElementById('mg-room-list')`);
   await check('final receipt plus membership opens room-scoped invitations',`document.getElementById('friendsInviteOnline')&&document.getElementById('friendsInviteFriends')&&document.querySelector('[data-mg-action]')`);await shot('05-waiting-room');
   await eventually(`document.getElementById('friendsInviteStatus').textContent.includes('\u672a\u63d0\u4f9b')`);
   await check('unavailable trusted friends service is stated honestly',`document.getElementById('friendsInviteStatus').textContent.includes('\u672a\u63d0\u4f9b')`);

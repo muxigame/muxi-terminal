@@ -13,6 +13,15 @@
 .mg-map-list .guide-card{cursor:pointer;text-align:left;color:inherit}
 .mg-lobby-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 14px}
 .mg-lobby-heading h3{margin:0}
+/* Lobby controls stay visible while the room list fills the remaining APP height. */
+.minigames-app.mg-lobby.page-active{display:flex;flex-direction:column;overflow:hidden}
+.mg-lobby>.toolbar,.mg-lobby>.task-tabs,.mg-lobby>.mg-notice{flex-shrink:0}
+.mg-lobby .mg-content{display:flex;flex-direction:column;flex:1;min-height:0}
+.mg-lobby-heading{flex-shrink:0;margin:0 0 8px}
+.mg-room-list{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;border:3px solid var(--line);background:var(--panel);padding:12px}
+.mg-room-list>.section-title:first-child{margin-top:0}
+.mg-room-list>.detail-card:last-child,.mg-room-list>.task-intro:last-child{margin-bottom:0}
+.mg-room-list>.task-empty:only-child{height:100%;display:grid;place-content:center;border:0}
 .mg-lobby-heading button,.mg-room-invitations button{padding:7px 12px;cursor:pointer}
 .mg-content .guide-card .detail-actions{margin-top:9px}
 .mg-content .guide-card h4{margin:0 0 6px;font-size:var(--font-body,15px)}
