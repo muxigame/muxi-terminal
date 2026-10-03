@@ -49,7 +49,7 @@ public final class TerminalFriendsBridge {
             IO.execute(()->{
                 try{
                     if(!valid.getAsBoolean()){callback.failure(409,"Terminal context changed");return;}String cookie=TRANSPORT.cookie();if(!valid.getAsBoolean()){callback.failure(409,"Terminal context changed");return;}
-                    // Authenticate and bind the actor again with the very same cookie before each write.
+                    // Validate the same account actor before each write; native transport rereads the current original access token.
                     var snapshot=TerminalFriendsPolicy.snapshot(TRANSPORT.read(cookie),self);if(!valid.getAsBoolean()){callback.failure(409,"Terminal context changed");return;}
                     var result=action==null?snapshot:TerminalFriendsPolicy.receipt(TRANSPORT.write(cookie,action),action);
                     if(peers){var projected=new JsonObject();for(String key:java.util.List.of("version","selfUid","presenceAvailable","friends","onlinePlayers"))projected.add(key,snapshot.get(key));result=projected;}

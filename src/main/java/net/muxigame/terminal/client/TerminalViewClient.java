@@ -41,13 +41,27 @@ final class TerminalViewClient {
                 return new CefResourceRequestHandlerAdapter(){
                     @Override public boolean onBeforeResourceLoad(CefBrowser b,CefFrame f,CefRequest r){
                         String value=r.getURL();
-                        if(kind==TerminalBrowserSession.Kind.ACCOUNT && !TerminalPassportNavigation.permitsResource(b,value))return true;
-                        if(kind==TerminalBrowserSession.Kind.ACCOUNT && r.getPostData()!=null && !TerminalWebPolicy.account(value))return true;
+                        if(kind==TerminalBrowserSession.Kind.ACCOUNT){
+                            var headers=new java.util.HashMap<String,String>();r.getHeaderMap(headers);
+                            headers.keySet().removeIf(key->key.equalsIgnoreCase("Authorization") || key.equalsIgnoreCase("Cookie"));
+                            r.setHeaderMap(headers);
+                            if(!TerminalPassportNavigation.permitsResource(b,value) || TerminalPassportNavigation.interactiveAuth(value))return true;
+                            if(r.getPostData()!=null && !TerminalPassportNavigation.credentialOrigin(value))return true;
+                            if(TerminalPassportNavigation.credentialOrigin(value)){
+                                String access=TerminalPassportNavigation.freshAccess(b);
+                                if(access.isEmpty())return true;
+                                headers.put("Authorization","Bearer "+access);r.setHeaderMap(headers);
+                            }
+                        }
                         if(kind==TerminalBrowserSession.Kind.HOME || kind==TerminalBrowserSession.Kind.BUILTIN)
                             return !value.startsWith("mod://muxi_terminal/terminal/") && !value.startsWith("data:");
                         return !TerminalWebPolicy.web(value) && !value.startsWith("data:") && !value.startsWith("blob:") && !"about:blank".equals(value);
                     }
                     @Override public CefCookieAccessFilter getCookieAccessFilter(CefBrowser b,CefFrame f,CefRequest r){
+                        if(kind==TerminalBrowserSession.Kind.ACCOUNT)return new CefCookieAccessFilter(){
+                            @Override public boolean canSendCookie(CefBrowser b,CefFrame f,CefRequest r,CefCookie c){return false;}
+                            @Override public boolean canSaveCookie(CefBrowser b,CefFrame f,CefRequest r,CefResponse response,CefCookie c){return false;}
+                        };
                         if(kind!=TerminalBrowserSession.Kind.WEB)return null;
                         return new CefCookieAccessFilter(){
                             private boolean allowed(CefRequest r,CefCookie c){

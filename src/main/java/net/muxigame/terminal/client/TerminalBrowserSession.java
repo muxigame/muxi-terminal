@@ -118,7 +118,16 @@ public final class TerminalBrowserSession {
         try{String url=TerminalWebPolicy.normalize(value);open(Kind.WEB,url,name==null?"网页应用":name);return true;}
         catch(IllegalArgumentException e){return false;}
     }
-    /** SSO keeps its one-use POST protocol; only its browser destination changes. */
+    /** External account destinations remain restricted to the supported HTTPS origins. */
+    /** Prepare the native account view without starting CEF before its account gate is armed. */
+    static synchronized MCEFBrowser openNativeAccountView(String url){
+        if(!TerminalWebPolicy.account(url))throw new IllegalArgumentException("Invalid native account origin");
+        return open(Kind.ACCOUNT,url,"木兮账户",false);
+    }
+    static synchronized void startNativeAccountView(MCEFBrowser browser){
+        if(app!=null && app.kind==Kind.ACCOUNT && app.browser==browser)app.start();
+    }
+
     public static synchronized MCEFBrowser openAccountView(String url){
         if(!TerminalWebPolicy.account(url))throw new IllegalArgumentException("账户网址不在允许的 HTTPS 账户域名中");
         return open(Kind.ACCOUNT,url,"木夕账户");
@@ -139,14 +148,15 @@ public final class TerminalBrowserSession {
         if(!TerminalWebPolicy.account(value))return false;openAccountView(value);return true;
     }
 
-    private static MCEFBrowser open(Kind kind,String url,String title){
+    private static MCEFBrowser open(Kind kind,String url,String title){return open(kind,url,title,true);}
+    private static MCEFBrowser open(Kind kind,String url,String title,boolean start){
         getOrCreate();String launchToken=pendingLaunchToken;closeContent();
         app=new TerminalViewClient(kind,url);
         contentVisible=launchToken.isEmpty();
         state=new State(generation,kind,title,url,true,"",++viewSerial,launchToken,false);
         publish();
         app.browser.resize(viewWidth,Math.max(1,viewHeight-barHeight));
-        shell.browser.setFocus(!contentVisible);app.start();app.browser.setFocus(contentVisible);
+        shell.browser.setFocus(!contentVisible);if(start)app.start();app.browser.setFocus(contentVisible);
         return app.browser;
     }
     static synchronized boolean owns(CefBrowser browser){return browser!=null &&
