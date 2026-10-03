@@ -1,0 +1,5358 @@
+{
+  "date": "2026-10-03",
+  "scope": "direct held terminal input and live MCEF rendering; selected native dependency set",
+  "sourceHead": "8954f89d5590ab59472e8f92662a6d87b6981b6a",
+  "productSourceHashes": {
+    "src/main/java/net/muxigame/terminal/client/TerminalClient.java": "98f4079228cf216c11af2a08fe846fddcb8b6844a383534a30eace869b423b2d",
+    "src/main/java/net/muxigame/terminal/client/TerminalHeldInput.java": "b50260e1c668bf043da47af3c8fbf5f384a34309ee989b003b49da1fe66c64a2",
+    "src/main/java/net/muxigame/terminal/client/input/mixin/HeldTerminalKeyboardMixin.java": "9385c2a79e1e948831d5279fdce2fde2b3cd1af7517710b465ec5ff0af1327c4",
+    "src/main/resources/muxi_terminal.input.mixins.json": "9a66b4068ea25fc3f039c35b93b6420d861c42e5fd96e35ce0dfca7120666a4a",
+    "src/main/resources/META-INF/neoforge.mods.toml": "f50cccfd4de4bb2c9f87d3ad9a5432d0526f534441e2020b43b1fe99fe307f9f"
+  },
+  "physicalOSInput": false,
+  "nativeKeyboardCallbacks": true,
+  "assistedNativeFocus": true,
+  "fullPackAcceptance": false,
+  "productionDeployment": false,
+  "dependencyJarCountIncludingQA": 16,
+  "mcef": {
+    "jar": "[嵌入式框架]mcef-neoforge-2.1.6-1.21.1.jar",
+    "sha256": "0c7696216fa5cfee659d687475873c847a9a17cc8ce3a56119a69c946eeb8772",
+    "productionJarModified": false
+  },
+  "initialAcceptance": {
+    "runId": "7bc8250c78f048cba6cfbdb1d540f27c",
+    "lab": "better-mc-remake/build/local-mc-debug/131-held-20261003-170814",
+    "candidate": "muxi-terminal/build/131-held-input-20261003-170528/source/build/libs/muxi-terminal-0.2.4-task14-social-qa.1.jar",
+    "candidateSha256": "5f930fb153c905601428550186badc5e3bb7236837e8e7a8b6c4b834df805a7f",
+    "passed": true,
+    "checks": 203,
+    "passedChecks": 203,
+    "assertions": [
+      {
+        "check": "server.1.observe",
+        "passed": true
+      },
+      {
+        "check": "native.1.focus",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.1",
+        "passed": true
+      },
+      {
+        "check": "server.3.inventory-set",
+        "passed": true
+      },
+      {
+        "check": "server.4.inventory-set",
+        "passed": true
+      },
+      {
+        "check": "native.2.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.2",
+        "passed": true
+      },
+      {
+        "check": "directHeldHasNoScreen",
+        "passed": true
+      },
+      {
+        "check": "directHeldHasRealShellTexture",
+        "passed": true
+      },
+      {
+        "check": "native.3.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.3",
+        "passed": true
+      },
+      {
+        "check": "realLocalHomeDOM",
+        "passed": true
+      },
+      {
+        "check": "mainTwoHandPoseActuallyRendered",
+        "passed": true
+      },
+      {
+        "check": "native.4.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.4",
+        "passed": true
+      },
+      {
+        "check": "heldDOMTimerActuallyAdvances",
+        "passed": true
+      },
+      {
+        "check": "heldGPUTextureActuallyChanges",
+        "passed": true
+      },
+      {
+        "check": "heldCEFActuallyPaints",
+        "passed": true
+      },
+      {
+        "check": "native.5.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.5",
+        "passed": true
+      },
+      {
+        "check": "native.6.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.6",
+        "passed": true
+      },
+      {
+        "check": "native.7.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.7",
+        "passed": true
+      },
+      {
+        "check": "directHeldCEFKey.ArrowRight",
+        "passed": true
+      },
+      {
+        "check": "directHeldFocusMoves.ArrowRight",
+        "passed": true
+      },
+      {
+        "check": "directHeldStaysScreenless.ArrowRight",
+        "passed": true
+      },
+      {
+        "check": "native.8.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.8",
+        "passed": true
+      },
+      {
+        "check": "native.9.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.9",
+        "passed": true
+      },
+      {
+        "check": "native.10.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.10",
+        "passed": true
+      },
+      {
+        "check": "directHeldCEFKey.ArrowDown",
+        "passed": true
+      },
+      {
+        "check": "directHeldFocusMoves.ArrowDown",
+        "passed": true
+      },
+      {
+        "check": "directHeldStaysScreenless.ArrowDown",
+        "passed": true
+      },
+      {
+        "check": "native.11.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.11",
+        "passed": true
+      },
+      {
+        "check": "native.12.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.12",
+        "passed": true
+      },
+      {
+        "check": "native.13.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.13",
+        "passed": true
+      },
+      {
+        "check": "directHeldCEFKey.ArrowLeft",
+        "passed": true
+      },
+      {
+        "check": "directHeldFocusMoves.ArrowLeft",
+        "passed": true
+      },
+      {
+        "check": "directHeldStaysScreenless.ArrowLeft",
+        "passed": true
+      },
+      {
+        "check": "native.14.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.14",
+        "passed": true
+      },
+      {
+        "check": "native.15.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.15",
+        "passed": true
+      },
+      {
+        "check": "native.16.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.16",
+        "passed": true
+      },
+      {
+        "check": "directHeldCEFKey.ArrowUp",
+        "passed": true
+      },
+      {
+        "check": "directHeldFocusMoves.ArrowUp",
+        "passed": true
+      },
+      {
+        "check": "directHeldStaysScreenless.ArrowUp",
+        "passed": true
+      },
+      {
+        "check": "native.17.screenshot",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.17",
+        "passed": true
+      },
+      {
+        "check": "native.18.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.18",
+        "passed": true
+      },
+      {
+        "check": "native.19.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.19",
+        "passed": true
+      },
+      {
+        "check": "native.20.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.20",
+        "passed": true
+      },
+      {
+        "check": "native.21.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.21",
+        "passed": true
+      },
+      {
+        "check": "native.22.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.22",
+        "passed": true
+      },
+      {
+        "check": "WASD_CtrlTab_ModifiedArrowNotSentToCEF",
+        "passed": true
+      },
+      {
+        "check": "native.23.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.23",
+        "passed": true
+      },
+      {
+        "check": "server.27.observe",
+        "passed": true
+      },
+      {
+        "check": "heldTabStillSwapsOffhand",
+        "passed": true
+      },
+      {
+        "check": "native.24.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.24",
+        "passed": true
+      },
+      {
+        "check": "native.25.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.25",
+        "passed": true
+      },
+      {
+        "check": "native.26.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.26",
+        "passed": true
+      },
+      {
+        "check": "offhandArrowOneCEFSend",
+        "passed": true
+      },
+      {
+        "check": "server.31.inventory-set",
+        "passed": true
+      },
+      {
+        "check": "server.32.inventory-set",
+        "passed": true
+      },
+      {
+        "check": "native.27.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.27",
+        "passed": true
+      },
+      {
+        "check": "native.28.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.28",
+        "passed": true
+      },
+      {
+        "check": "native.29.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.29",
+        "passed": true
+      },
+      {
+        "check": "singleHandWithOtherItemActuallyRendered",
+        "passed": true
+      },
+      {
+        "check": "singleHandInputOneCEFSend",
+        "passed": true
+      },
+      {
+        "check": "server.36.inventory-set",
+        "passed": true
+      },
+      {
+        "check": "server.37.inventory-set",
+        "passed": true
+      },
+      {
+        "check": "native.30.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.30",
+        "passed": true
+      },
+      {
+        "check": "native.31.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.31",
+        "passed": true
+      },
+      {
+        "check": "native.32.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.32",
+        "passed": true
+      },
+      {
+        "check": "twoTerminalsShareOneShell",
+        "passed": true
+      },
+      {
+        "check": "twoTerminalsDoNotDoubleDispatch",
+        "passed": true
+      },
+      {
+        "check": "server.41.inventory-set",
+        "passed": true
+      },
+      {
+        "check": "server.42.inventory-set",
+        "passed": true
+      },
+      {
+        "check": "native.33.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.33",
+        "passed": true
+      },
+      {
+        "check": "native.34.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.34",
+        "passed": true
+      },
+      {
+        "check": "native.35.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.35",
+        "passed": true
+      },
+      {
+        "check": "notHeldNoCEFSends",
+        "passed": true
+      },
+      {
+        "check": "notHeldFocusAndKeysReleased",
+        "passed": true
+      },
+      {
+        "check": "server.46.inventory-set",
+        "passed": true
+      },
+      {
+        "check": "server.47.inventory-set",
+        "passed": true
+      },
+      {
+        "check": "native.36.focus",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.36",
+        "passed": true
+      },
+      {
+        "check": "native.37.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.37",
+        "passed": true
+      },
+      {
+        "check": "native.38.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.38",
+        "passed": true
+      },
+      {
+        "check": "native.39.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.39",
+        "passed": true
+      },
+      {
+        "check": "inactiveWindowNoCEFSends",
+        "passed": true
+      },
+      {
+        "check": "native.40.focus",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.40",
+        "passed": true
+      },
+      {
+        "check": "native.41.screen",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.41",
+        "passed": true
+      },
+      {
+        "check": "native.42.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.42",
+        "passed": true
+      },
+      {
+        "check": "native.43.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.43",
+        "passed": true
+      },
+      {
+        "check": "native.44.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.44",
+        "passed": true
+      },
+      {
+        "check": "native.45.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.45",
+        "passed": true
+      },
+      {
+        "check": "screenOwnsArrowEnter.chat",
+        "passed": true
+      },
+      {
+        "check": "native.46.screen",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.46",
+        "passed": true
+      },
+      {
+        "check": "native.47.screen",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.47",
+        "passed": true
+      },
+      {
+        "check": "native.48.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.48",
+        "passed": true
+      },
+      {
+        "check": "native.49.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.49",
+        "passed": true
+      },
+      {
+        "check": "native.50.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.50",
+        "passed": true
+      },
+      {
+        "check": "native.51.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.51",
+        "passed": true
+      },
+      {
+        "check": "screenOwnsArrowEnter.other",
+        "passed": true
+      },
+      {
+        "check": "native.52.screen",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.52",
+        "passed": true
+      },
+      {
+        "check": "native.53.home",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.53",
+        "passed": true
+      },
+      {
+        "check": "native.54.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.54",
+        "passed": true
+      },
+      {
+        "check": "guideButtonFocusedInHeldDOM",
+        "passed": true
+      },
+      {
+        "check": "native.55.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.55",
+        "passed": true
+      },
+      {
+        "check": "native.56.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.56",
+        "passed": true
+      },
+      {
+        "check": "native.57.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.57",
+        "passed": true
+      },
+      {
+        "check": "heldEnterOpensNativeGuideWithoutScreen",
+        "passed": true
+      },
+      {
+        "check": "native.58.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.58",
+        "passed": true
+      },
+      {
+        "check": "native.59.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.59",
+        "passed": true
+      },
+      {
+        "check": "newGuideReceivesNoOldEnterRelease",
+        "passed": true
+      },
+      {
+        "check": "heldNativeGuideDOMIsLive",
+        "passed": true
+      },
+      {
+        "check": "native.60.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.60",
+        "passed": true
+      },
+      {
+        "check": "native.61.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.61",
+        "passed": true
+      },
+      {
+        "check": "heldGuideArrowArrivesInActiveContent",
+        "passed": true
+      },
+      {
+        "check": "native.62.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.62",
+        "passed": true
+      },
+      {
+        "check": "native.63.screen",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.63",
+        "passed": true
+      },
+      {
+        "check": "native.64.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.64",
+        "passed": true
+      },
+      {
+        "check": "rightClickScreenKeepsSameViews",
+        "passed": true
+      },
+      {
+        "check": "openingScreenDisarmsHeldCaptureBeforeNewFocus",
+        "passed": true
+      },
+      {
+        "check": "native.65.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.65",
+        "passed": true
+      },
+      {
+        "check": "native.66.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.66",
+        "passed": true
+      },
+      {
+        "check": "openedTerminalOriginalArrowStillWorks",
+        "passed": true
+      },
+      {
+        "check": "native.67.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.67",
+        "passed": true
+      },
+      {
+        "check": "native.68.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.68",
+        "passed": true
+      },
+      {
+        "check": "escapeReturnsToLiveHeldView",
+        "passed": true
+      },
+      {
+        "check": "native.69.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.69",
+        "passed": true
+      },
+      {
+        "check": "native.70.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.70",
+        "passed": true
+      },
+      {
+        "check": "heldArrowWorksAgainAfterScreenClose",
+        "passed": true
+      },
+      {
+        "check": "native.71.screenshot",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.71",
+        "passed": true
+      },
+      {
+        "check": "native.72.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.72",
+        "passed": true
+      },
+      {
+        "check": "native.73.logout",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.73",
+        "passed": true
+      },
+      {
+        "check": "native.74.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.74",
+        "passed": true
+      },
+      {
+        "check": "logoutNoShellContentOrHeldTarget",
+        "passed": true
+      },
+      {
+        "check": "logoutCEFTexturesAndClientsAtBaseline",
+        "passed": true
+      }
+    ],
+    "nativeObservations": [
+      {
+        "id": 1,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 1659,
+          "offDraws": 0,
+          "twoArmDraws": 3318,
+          "oneArmDraws": 0,
+          "paints": 5,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "188d422dc658c34a5e9a68ad85ec42a93719028b40436ed50d32ae0641f64ed2"
+        }
+      },
+      {
+        "id": 2,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 1689,
+          "offDraws": 0,
+          "twoArmDraws": 3378,
+          "oneArmDraws": 0,
+          "paints": 5,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "188d422dc658c34a5e9a68ad85ec42a93719028b40436ed50d32ae0641f64ed2"
+        }
+      },
+      {
+        "id": 3,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 1711,
+          "offDraws": 0,
+          "twoArmDraws": 3422,
+          "oneArmDraws": 0,
+          "paints": 8,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "f3957051035450ff251e41fb3d9ce51bb97efd1fcf05f06a12cda3c16d92999d"
+        },
+        "dom": {
+          "id": 3,
+          "hash": "",
+          "page": "home",
+          "selected": 0,
+          "label": "\n          \n          游戏指南\n          模组手册与玩法指引\n        ",
+          "events": [],
+          "pulse": 0
+        }
+      },
+      {
+        "id": 4,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 1735,
+          "offDraws": 0,
+          "twoArmDraws": 3470,
+          "oneArmDraws": 0,
+          "paints": 13,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "f6ef1400152c6d797419d019cb1f097d54135eb207013c90b81f5facdff3b71c"
+        },
+        "dom": {
+          "id": 4,
+          "hash": "",
+          "page": "home",
+          "selected": 0,
+          "label": "\n          \n          游戏指南\n          模组手册与玩法指引\n        ",
+          "events": [],
+          "pulse": 4
+        }
+      },
+      {
+        "id": 5,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 1759,
+          "offDraws": 0,
+          "twoArmDraws": 3518,
+          "oneArmDraws": 0,
+          "paints": 16,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "34960de9c9d57992cd3a0edc62e5713637ce08243e467981571eb40b4989a03b"
+        },
+        "dom": {
+          "id": 5,
+          "hash": "",
+          "page": "home",
+          "selected": 0,
+          "label": "\n          \n          游戏指南\n          模组手册与玩法指引\n        ",
+          "events": [],
+          "pulse": 9
+        }
+      },
+      {
+        "id": 6,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 1779,
+          "offDraws": 0,
+          "twoArmDraws": 3558,
+          "oneArmDraws": 0,
+          "paints": 24,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "d443d2070e38632bf55a3832be547cda84ae7e8a1ea4549fc19534268caf91ec"
+        }
+      },
+      {
+        "id": 7,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 1805,
+          "offDraws": 0,
+          "twoArmDraws": 3610,
+          "oneArmDraws": 0,
+          "paints": 29,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "75802618b74067ee161b0b3f3ccf5a5e8ad3e7ecb17098d9d27bcb17cef0ec9e"
+        },
+        "dom": {
+          "id": 7,
+          "hash": "",
+          "page": "home",
+          "selected": 1,
+          "label": "\n          \n          任务\n          每日、主线与追踪\n        ",
+          "events": [
+            "ArrowRight"
+          ],
+          "pulse": 16
+        }
+      },
+      {
+        "id": 8,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 1827,
+          "offDraws": 0,
+          "twoArmDraws": 3654,
+          "oneArmDraws": 0,
+          "paints": 33,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "5433a615077323b91613488048591d3faa4c8e925e3bfaec9446c51720dde2a5"
+        },
+        "dom": {
+          "id": 8,
+          "hash": "",
+          "page": "home",
+          "selected": 1,
+          "label": "\n          \n          任务\n          每日、主线与追踪\n        ",
+          "events": [
+            "ArrowRight"
+          ],
+          "pulse": 20
+        }
+      },
+      {
+        "id": 9,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 1850,
+          "offDraws": 0,
+          "twoArmDraws": 3700,
+          "oneArmDraws": 0,
+          "paints": 42,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "dad75d5e11b9ab34b857a733bb39ac0871f97219d0e4c272eb259cb267ce0847"
+        }
+      },
+      {
+        "id": 10,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 1874,
+          "offDraws": 0,
+          "twoArmDraws": 3748,
+          "oneArmDraws": 0,
+          "paints": 46,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "083c292598a9ee4dc4bb0347d7b3af742f32ac5e5594d01da8404ee188e37f7c"
+        },
+        "dom": {
+          "id": 10,
+          "hash": "",
+          "page": "home",
+          "selected": 4,
+          "label": "\n          \n          音乐游戏音乐 · 本地曲库\n        ",
+          "events": [
+            "ArrowRight",
+            "ArrowDown"
+          ],
+          "pulse": 29
+        }
+      },
+      {
+        "id": 11,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 1899,
+          "offDraws": 0,
+          "twoArmDraws": 3798,
+          "oneArmDraws": 0,
+          "paints": 51,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "743d219d163a22fd6290add3f247a59ee8e19614da1a5870a7fc672154e9ea6c"
+        },
+        "dom": {
+          "id": 11,
+          "hash": "",
+          "page": "home",
+          "selected": 4,
+          "label": "\n          \n          音乐游戏音乐 · 本地曲库\n        ",
+          "events": [
+            "ArrowRight",
+            "ArrowDown"
+          ],
+          "pulse": 34
+        }
+      },
+      {
+        "id": 12,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 1923,
+          "offDraws": 0,
+          "twoArmDraws": 3846,
+          "oneArmDraws": 0,
+          "paints": 58,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "f91d42707e99281d06e53cd3755a7d3e22886853f2cfdf7354b30b10e181bbc2"
+        }
+      },
+      {
+        "id": 13,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 1947,
+          "offDraws": 0,
+          "twoArmDraws": 3894,
+          "oneArmDraws": 0,
+          "paints": 63,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "1c48b8d518e0e674e0035a7fd9ff07dac6a49cb0510140e3a73392cb33788b7e"
+        },
+        "dom": {
+          "id": 13,
+          "hash": "",
+          "page": "home",
+          "selected": 3,
+          "label": "\n          \n          小游戏大厅、队伍与玩法商店\n        ",
+          "events": [
+            "ArrowRight",
+            "ArrowDown",
+            "ArrowLeft"
+          ],
+          "pulse": 43
+        }
+      },
+      {
+        "id": 14,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 1971,
+          "offDraws": 0,
+          "twoArmDraws": 3942,
+          "oneArmDraws": 0,
+          "paints": 67,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "92c657b1611531e6320a7e200c675ffab24e75202b9b8792d4e5b8d2c2f34d44"
+        },
+        "dom": {
+          "id": 14,
+          "hash": "",
+          "page": "home",
+          "selected": 3,
+          "label": "\n          \n          小游戏大厅、队伍与玩法商店\n        ",
+          "events": [
+            "ArrowRight",
+            "ArrowDown",
+            "ArrowLeft"
+          ],
+          "pulse": 47
+        }
+      },
+      {
+        "id": 15,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 1998,
+          "offDraws": 0,
+          "twoArmDraws": 3996,
+          "oneArmDraws": 0,
+          "paints": 75,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "9452491444ba322292b7bf803acc3a2fe30bd639fbc7129f9abce4c854470a3e"
+        }
+      },
+      {
+        "id": 16,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2025,
+          "offDraws": 0,
+          "twoArmDraws": 4050,
+          "oneArmDraws": 0,
+          "paints": 80,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "26ad6f1ed179f96e74cc81910661be117148d08480a0bd8fe0795febbcd917ce"
+        },
+        "dom": {
+          "id": 16,
+          "hash": "",
+          "page": "home",
+          "selected": 0,
+          "label": "\n          \n          游戏指南\n          模组手册与玩法指引\n        ",
+          "events": [
+            "ArrowRight",
+            "ArrowDown",
+            "ArrowLeft",
+            "ArrowUp"
+          ],
+          "pulse": 57
+        }
+      },
+      {
+        "id": 17,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2052,
+          "offDraws": 0,
+          "twoArmDraws": 4104,
+          "oneArmDraws": 0,
+          "paints": 85,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "20462ac84a4cdd66c557e2992708ff1133d9d04a3d16f880219a51c7f33ac3f1"
+        }
+      },
+      {
+        "id": 18,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2080,
+          "offDraws": 0,
+          "twoArmDraws": 4160,
+          "oneArmDraws": 0,
+          "paints": 90,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "8deee882f13565ba96637dbdcdac1e813140f353fcd12239abaa23d042ef70c8"
+        },
+        "dom": {
+          "id": 18,
+          "hash": "",
+          "page": "home",
+          "selected": 0,
+          "label": "\n          \n          游戏指南\n          模组手册与玩法指引\n        ",
+          "events": [
+            "ArrowRight",
+            "ArrowDown",
+            "ArrowLeft",
+            "ArrowUp"
+          ],
+          "pulse": 67
+        }
+      },
+      {
+        "id": 19,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2102,
+          "offDraws": 0,
+          "twoArmDraws": 4204,
+          "oneArmDraws": 0,
+          "paints": 94,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "6687c65b27b9171597d3526d253116c1a720e104ecd3c0d2cacb4e17cec23768"
+        }
+      },
+      {
+        "id": 20,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2127,
+          "offDraws": 0,
+          "twoArmDraws": 4254,
+          "oneArmDraws": 0,
+          "paints": 99,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "444d88e1c6775fd06b0de218f1d9d8c67b9d7df94b34c88d6f56857d4d2e7d57"
+        }
+      },
+      {
+        "id": 21,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2153,
+          "offDraws": 0,
+          "twoArmDraws": 4306,
+          "oneArmDraws": 0,
+          "paints": 104,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "f3d14cc2176f2cf3e1eac569e63efc91344b74622dd2abbb569fd4d34c859e45"
+        }
+      },
+      {
+        "id": 22,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2179,
+          "offDraws": 0,
+          "twoArmDraws": 4358,
+          "oneArmDraws": 0,
+          "paints": 108,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "d6c87a33e6bd925e5d8107cb7e4efb6a4c6722f1990add989f633a6411509850"
+        },
+        "dom": {
+          "id": 22,
+          "hash": "",
+          "page": "home",
+          "selected": 0,
+          "label": "\n          \n          游戏指南\n          模组手册与玩法指引\n        ",
+          "events": [
+            "ArrowRight",
+            "ArrowDown",
+            "ArrowLeft",
+            "ArrowUp"
+          ],
+          "pulse": 86
+        }
+      },
+      {
+        "id": 23,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2183,
+          "offDraws": 15,
+          "twoArmDraws": 4396,
+          "oneArmDraws": 0,
+          "paints": 112,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "971a25caedf962cca40d8c568bde71c3253bee3826cfcc525f95e75f2097b34f"
+        }
+      },
+      {
+        "id": 24,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2183,
+          "offDraws": 47,
+          "twoArmDraws": 4460,
+          "oneArmDraws": 0,
+          "paints": 118,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "90f5f5bcace2493a4c08a09ccd9570cada9ac1549329a8dd7f1336d45b2e1085"
+        }
+      },
+      {
+        "id": 25,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2183,
+          "offDraws": 70,
+          "twoArmDraws": 4506,
+          "oneArmDraws": 0,
+          "paints": 125,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "cb8dbc5daa518d8488c96f5e10909dd1491b27bc18003ab29cc9ccc12e8d1a0b"
+        }
+      },
+      {
+        "id": 26,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2183,
+          "offDraws": 93,
+          "twoArmDraws": 4552,
+          "oneArmDraws": 0,
+          "paints": 129,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "bb9b663a884164849205e18cbdadc4505638b5db7f0423615b83838bf61a0d52"
+        },
+        "dom": {
+          "id": 26,
+          "hash": "",
+          "page": "home",
+          "selected": 1,
+          "label": "\n          \n          任务\n          每日、主线与追踪\n        ",
+          "events": [
+            "ArrowRight",
+            "ArrowDown",
+            "ArrowLeft",
+            "ArrowUp",
+            "ArrowRight"
+          ],
+          "pulse": 103
+        }
+      },
+      {
+        "id": 27,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2183,
+          "offDraws": 131,
+          "twoArmDraws": 4574,
+          "oneArmDraws": 27,
+          "paints": 136,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "2a1a3345ad8ea1416dedd626cb320d4296d2b935c01ea3657982ca28adbcaf37"
+        }
+      },
+      {
+        "id": 28,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2183,
+          "offDraws": 160,
+          "twoArmDraws": 4574,
+          "oneArmDraws": 56,
+          "paints": 146,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "2844cabc7bbe86083de1403318c40bd7674831e16f8cfd9bfc202efe669e8f1b"
+        }
+      },
+      {
+        "id": 29,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2183,
+          "offDraws": 197,
+          "twoArmDraws": 4574,
+          "oneArmDraws": 93,
+          "paints": 150,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "4f27baedf873ccc0d5fceb16068551ec4fbbf657b2326d3406c5389a4ec4325f"
+        }
+      },
+      {
+        "id": 30,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2230,
+          "offDraws": 270,
+          "twoArmDraws": 4574,
+          "oneArmDraws": 213,
+          "paints": 161,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "5421e1a878b6432da3c70ed6aec6358a20c901b0f6a1ce682a8a6328c1654a1a"
+        }
+      },
+      {
+        "id": 31,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2252,
+          "offDraws": 292,
+          "twoArmDraws": 4574,
+          "oneArmDraws": 257,
+          "paints": 169,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "a59e1fd86034cbeab931b8d6447080042a0d961ddd8151ffdd1a7c8c2fe5a823"
+        }
+      },
+      {
+        "id": 32,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2282,
+          "offDraws": 322,
+          "twoArmDraws": 4574,
+          "oneArmDraws": 317,
+          "paints": 175,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "1ab4c4f355a2b74922379b1c93669981db69e0b8a10ba13f61924702d03d6ca4"
+        }
+      },
+      {
+        "id": 33,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2292,
+          "offDraws": 349,
+          "twoArmDraws": 4608,
+          "oneArmDraws": 337,
+          "paints": 183,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "9fb6bf80d85e534813689dee9a5673275b802ac013b5f2457bea68bd67f9452c"
+        }
+      },
+      {
+        "id": 34,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2292,
+          "offDraws": 349,
+          "twoArmDraws": 4608,
+          "oneArmDraws": 337,
+          "paints": 188,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "335138f3eb117abf2095bd8d834c40c2146efab97b0f33348349ed63712f5a59"
+        }
+      },
+      {
+        "id": 35,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2292,
+          "offDraws": 349,
+          "twoArmDraws": 4608,
+          "oneArmDraws": 337,
+          "paints": 192,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "bffcd4409dd3a241499e9e8cd4b94ad2043134518852815285118e6f5b339ef2"
+        }
+      },
+      {
+        "id": 36,
+        "sample": {
+          "screen": "",
+          "windowActive": false,
+          "connected": true,
+          "mainDraws": 2331,
+          "offDraws": 349,
+          "twoArmDraws": 4686,
+          "oneArmDraws": 337,
+          "paints": 202,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "4698a1c8b92e0fe0bc07074dc676d6b17b4cb29b6702c472a7d419f89056543f"
+        }
+      },
+      {
+        "id": 37,
+        "sample": {
+          "screen": "",
+          "windowActive": false,
+          "connected": true,
+          "mainDraws": 2356,
+          "offDraws": 349,
+          "twoArmDraws": 4736,
+          "oneArmDraws": 337,
+          "paints": 206,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "6e8ec5d57b24859eb9c2fe5a27eee4a88e0cc5dc872fb8793f78522f64b4ac77"
+        }
+      },
+      {
+        "id": 38,
+        "sample": {
+          "screen": "",
+          "windowActive": false,
+          "connected": true,
+          "mainDraws": 2380,
+          "offDraws": 349,
+          "twoArmDraws": 4784,
+          "oneArmDraws": 337,
+          "paints": 212,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "3a85a1838704a341a93d50ce9fc5d9a2c7eb90b132ef76f2792a94f1356a890b"
+        }
+      },
+      {
+        "id": 39,
+        "sample": {
+          "screen": "",
+          "windowActive": false,
+          "connected": true,
+          "mainDraws": 2403,
+          "offDraws": 349,
+          "twoArmDraws": 4830,
+          "oneArmDraws": 337,
+          "paints": 216,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "15934d8fbcf35e612a2118dc170ee32672513fe100cf4571f5f66c6fd9af15a6"
+        }
+      },
+      {
+        "id": 40,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2433,
+          "offDraws": 349,
+          "twoArmDraws": 4890,
+          "oneArmDraws": 337,
+          "paints": 222,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "c9d2f0f048351c01bac6004ecf865dca53b6f516a0156c4a990cb4e961ba6c3e"
+        }
+      },
+      {
+        "id": 41,
+        "sample": {
+          "screen": "net.minecraft.client.gui.screens.ChatScreen",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2464,
+          "offDraws": 349,
+          "twoArmDraws": 4952,
+          "oneArmDraws": 337,
+          "paints": 228,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "6898b9537584bcca1b39d05bd4ecc4339ec14882a932a773dd6e165759109c13"
+        }
+      },
+      {
+        "id": 42,
+        "sample": {
+          "screen": "net.minecraft.client.gui.screens.ChatScreen",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2487,
+          "offDraws": 349,
+          "twoArmDraws": 4998,
+          "oneArmDraws": 337,
+          "paints": 233,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "63bc238e15c151f2d3c987038894d94e6765b3787aa325f9105f7a13a89c8423"
+        }
+      },
+      {
+        "id": 43,
+        "sample": {
+          "screen": "net.minecraft.client.gui.screens.ChatScreen",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2509,
+          "offDraws": 349,
+          "twoArmDraws": 5042,
+          "oneArmDraws": 337,
+          "paints": 237,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "f9da9c04ca887649a63ee4db455c716d5fc612c046ff4489eee514673ae7a3dd"
+        }
+      },
+      {
+        "id": 44,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2529,
+          "offDraws": 349,
+          "twoArmDraws": 5082,
+          "oneArmDraws": 337,
+          "paints": 243,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "ab098d4141c8fb61072a594ea4cade9d0989f945926a78a29876a4b8699bdca4"
+        }
+      },
+      {
+        "id": 45,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2550,
+          "offDraws": 349,
+          "twoArmDraws": 5124,
+          "oneArmDraws": 337,
+          "paints": 246,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "2f57d9f30301561c91bb7bda2694ce7e1ec1974243c35b92fe5094441e2fb852"
+        }
+      },
+      {
+        "id": 46,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2584,
+          "offDraws": 349,
+          "twoArmDraws": 5192,
+          "oneArmDraws": 337,
+          "paints": 253,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "62782bd740fa88b3b706f4edbb2cdbc8adacbdc9a5e2a2784a5bba369630804e"
+        }
+      },
+      {
+        "id": 47,
+        "sample": {
+          "screen": "net.muxigame.terminal.heldqa.HeldProbe$1",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2618,
+          "offDraws": 349,
+          "twoArmDraws": 5260,
+          "oneArmDraws": 337,
+          "paints": 260,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "599270b6122acc01cb62e827387785921515cb299bcb6bc987988e1a46dda486"
+        }
+      },
+      {
+        "id": 48,
+        "sample": {
+          "screen": "net.muxigame.terminal.heldqa.HeldProbe$1",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2643,
+          "offDraws": 349,
+          "twoArmDraws": 5310,
+          "oneArmDraws": 337,
+          "paints": 265,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "8e99b6f775cc2613c3204ab6bdc279f99611b08dfda403efe1e96c350911d7b0"
+        }
+      },
+      {
+        "id": 49,
+        "sample": {
+          "screen": "net.muxigame.terminal.heldqa.HeldProbe$1",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2673,
+          "offDraws": 349,
+          "twoArmDraws": 5370,
+          "oneArmDraws": 337,
+          "paints": 269,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "d26bdcb6104fb7cb36bef8b8552071216c38dad23e4e694961a2fd60ca3f50cf"
+        }
+      },
+      {
+        "id": 50,
+        "sample": {
+          "screen": "net.muxigame.terminal.heldqa.HeldProbe$1",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2724,
+          "offDraws": 349,
+          "twoArmDraws": 5472,
+          "oneArmDraws": 337,
+          "paints": 274,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "a2d887cc83c84ac5fbe5479dad90eafa14091381d69e6ee5ef8680f02a1de4c9"
+        }
+      },
+      {
+        "id": 51,
+        "sample": {
+          "screen": "net.muxigame.terminal.heldqa.HeldProbe$1",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2771,
+          "offDraws": 349,
+          "twoArmDraws": 5566,
+          "oneArmDraws": 337,
+          "paints": 282,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "7ec88e72803ab14917e23592575847fe379d52c9d7df7b937047ec60cf2bd28b"
+        }
+      },
+      {
+        "id": 52,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2808,
+          "offDraws": 349,
+          "twoArmDraws": 5640,
+          "oneArmDraws": 337,
+          "paints": 290,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "beb1b90f2e5bae20b4c5339690cb0d8715d31620abc4fdd68bf87438bfa33256"
+        }
+      },
+      {
+        "id": 53,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2835,
+          "offDraws": 349,
+          "twoArmDraws": 5694,
+          "oneArmDraws": 337,
+          "paints": 298,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "bdcc182f60c0505e2d387b1c2b4ad52a1ea41956459e6020e1559a780323505d"
+        }
+      },
+      {
+        "id": 54,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2854,
+          "offDraws": 349,
+          "twoArmDraws": 5732,
+          "oneArmDraws": 337,
+          "paints": 302,
+          "shell": 555744208,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "219b44a795f62bb07ef2dd4a7cd40b498223d58e6cc273482e24b9882cfcf37c"
+        },
+        "dom": {
+          "id": 54,
+          "hash": "#/home",
+          "page": "home",
+          "selected": 0,
+          "label": "\n          \n          游戏指南\n          模组手册与玩法指引\n        ",
+          "events": [
+            "ArrowRight",
+            "ArrowDown",
+            "ArrowLeft",
+            "ArrowUp",
+            "ArrowRight",
+            "ArrowLeft",
+            "ArrowRight"
+          ],
+          "pulse": 270
+        }
+      },
+      {
+        "id": 55,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2879,
+          "offDraws": 349,
+          "twoArmDraws": 5782,
+          "oneArmDraws": 337,
+          "paints": 316,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": false,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 1,
+          "heldTarget": 555744208,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "d1664b169e612c063bd64cc2cbe12c55943b12cc7481efc1765f8487b5a82b0c"
+        }
+      },
+      {
+        "id": 56,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2891,
+          "offDraws": 349,
+          "twoArmDraws": 5806,
+          "oneArmDraws": 337,
+          "paints": 321,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 1,
+          "heldTarget": 194383899,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "6969189788cc795bacac042e2f78c64b5bd04e9c7080fe7a3211d63f571924d6"
+        }
+      },
+      {
+        "id": 57,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2914,
+          "offDraws": 349,
+          "twoArmDraws": 5852,
+          "oneArmDraws": 337,
+          "paints": 330,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 1,
+          "heldTarget": 194383899,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "4f1410ecf76dd74d6e9158fdcc42668e8eed2dd4a9c0ca2eefe4cf18b196299e"
+        }
+      },
+      {
+        "id": 58,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2921,
+          "offDraws": 349,
+          "twoArmDraws": 5866,
+          "oneArmDraws": 337,
+          "paints": 334,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 0,
+          "heldTarget": 194383899,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "d5c1882f1fbf19e5ad89098456fb903b1f9ff8771d5926171c926ff13f5c4005"
+        }
+      },
+      {
+        "id": 59,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2946,
+          "offDraws": 349,
+          "twoArmDraws": 5916,
+          "oneArmDraws": 337,
+          "paints": 338,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 0,
+          "heldTarget": 194383899,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "e834b321cb218887950dc0ab49cb163472e7104354bc03a8e09b381f059564c3"
+        },
+        "dom": {
+          "id": 59,
+          "hash": "#/guide",
+          "page": "guide",
+          "selected": 0,
+          "label": "‹",
+          "events": [],
+          "pulse": 0
+        }
+      },
+      {
+        "id": 60,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2970,
+          "offDraws": 349,
+          "twoArmDraws": 5964,
+          "oneArmDraws": 337,
+          "paints": 348,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 0,
+          "heldTarget": 194383899,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "43fb694794e796b04eebfa4bc1a55b5b0d2fe9cdecebe2bfba94cd7b09bf1cd4"
+        }
+      },
+      {
+        "id": 61,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 2990,
+          "offDraws": 349,
+          "twoArmDraws": 6004,
+          "oneArmDraws": 337,
+          "paints": 352,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 0,
+          "heldTarget": 194383899,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "6b82aad122f1113c29cfc62344f1b2d60363adf9e200482b3882a46b0bbc58fb"
+        },
+        "dom": {
+          "id": 61,
+          "hash": "#/guide",
+          "page": "guide",
+          "selected": 2,
+          "label": "\n      CR\n      机械动力 Create用齿轮、传动轴和机械结构，把自动化真正“搭”在世界里。工程 / 自动化入门推荐\n    ",
+          "events": [],
+          "pulse": 0
+        }
+      },
+      {
+        "id": 62,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 3014,
+          "offDraws": 349,
+          "twoArmDraws": 6052,
+          "oneArmDraws": 337,
+          "paints": 358,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 1,
+          "heldTarget": 194383899,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "7618312336a10f027a4921fa4c66169d89df2d9264fc4b03bda2b7b12cd5c0f7"
+        }
+      },
+      {
+        "id": 63,
+        "sample": {
+          "screen": "net.muxigame.terminal.client.TerminalScreen",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 3031,
+          "offDraws": 349,
+          "twoArmDraws": 6086,
+          "oneArmDraws": 337,
+          "paints": 367,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 424,
+          "textureHeight": 222,
+          "textureHash": "c3ff3c5e503530d6e1a8c1a7ddfd16ed78f3604a157662b8dd16073b0e2a5d15"
+        }
+      },
+      {
+        "id": 64,
+        "sample": {
+          "screen": "net.muxigame.terminal.client.TerminalScreen",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 3064,
+          "offDraws": 349,
+          "twoArmDraws": 6152,
+          "oneArmDraws": 337,
+          "paints": 377,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 424,
+          "textureHeight": 222,
+          "textureHash": "cf56f53f2f0f44a16f8d967a100c3adbe5a546300b0e5fca98a261ca5c9c7373"
+        }
+      },
+      {
+        "id": 65,
+        "sample": {
+          "screen": "net.muxigame.terminal.client.TerminalScreen",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 3085,
+          "offDraws": 349,
+          "twoArmDraws": 6194,
+          "oneArmDraws": 337,
+          "paints": 381,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 424,
+          "textureHeight": 222,
+          "textureHash": "6b888fabe5590e8d30f6e89f02a11731fb28f70a6fffe4d0595440158cdaf73e"
+        }
+      },
+      {
+        "id": 66,
+        "sample": {
+          "screen": "net.muxigame.terminal.client.TerminalScreen",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 3094,
+          "offDraws": 349,
+          "twoArmDraws": 6212,
+          "oneArmDraws": 337,
+          "paints": 388,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 424,
+          "textureHeight": 222,
+          "textureHash": "5e0d0bb01df6d68aa3c3fe2cb19a8003cf614b89b598729674c4c49e3c14e0d9"
+        },
+        "dom": {
+          "id": 66,
+          "hash": "#/guide",
+          "page": "guide",
+          "selected": 1,
+          "label": "",
+          "events": [],
+          "pulse": 0
+        }
+      },
+      {
+        "id": 67,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 3113,
+          "offDraws": 349,
+          "twoArmDraws": 6250,
+          "oneArmDraws": 337,
+          "paints": 399,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 0,
+          "heldTarget": 194383899,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "3da13bc9f2d65ff8329317a6c2be5b87f29fad60994f04de6a3c5af91f0f463f"
+        }
+      },
+      {
+        "id": 68,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 3136,
+          "offDraws": 349,
+          "twoArmDraws": 6296,
+          "oneArmDraws": 337,
+          "paints": 405,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 0,
+          "heldTarget": 194383899,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "f99f9116265bf484f3b1288b673b133e3f1bcea76efc1e01b834057c7ef738aa"
+        }
+      },
+      {
+        "id": 69,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 3160,
+          "offDraws": 349,
+          "twoArmDraws": 6344,
+          "oneArmDraws": 337,
+          "paints": 411,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 0,
+          "heldTarget": 194383899,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "dffaefa160187341d4163941528f240d2c508fd81e91b42a3dc5eaca4f7a6528"
+        }
+      },
+      {
+        "id": 70,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 3178,
+          "offDraws": 349,
+          "twoArmDraws": 6380,
+          "oneArmDraws": 337,
+          "paints": 415,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 0,
+          "heldTarget": 194383899,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "3a0ada95cc8f2c971c7e17478c3c24f55af0330a4db8cd09a05fc2b7711794cb"
+        },
+        "dom": {
+          "id": 70,
+          "hash": "#/guide",
+          "page": "guide",
+          "selected": 1,
+          "label": "",
+          "events": [],
+          "pulse": 0
+        }
+      },
+      {
+        "id": 71,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 3197,
+          "offDraws": 349,
+          "twoArmDraws": 6418,
+          "oneArmDraws": 337,
+          "paints": 419,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 0,
+          "heldTarget": 194383899,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "1cf25ce8a14b51f27dfc5cb05ecf1b6309a78b02d285b7b99f4f54f981369807"
+        }
+      },
+      {
+        "id": 72,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 3222,
+          "offDraws": 349,
+          "twoArmDraws": 6468,
+          "oneArmDraws": 337,
+          "paints": 424,
+          "shell": 555744208,
+          "content": 194383899,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 0,
+          "heldTarget": 194383899,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "ff5ea844674dee16617122b7eaa2dfdfe342149e639156a31c7cc72f9cc6c96b"
+        }
+      },
+      {
+        "id": 73,
+        "sample": {
+          "screen": "net.muxigame.terminal.heldqa.HeldProbe$1",
+          "windowActive": true,
+          "connected": false,
+          "mainDraws": 3250,
+          "offDraws": 349,
+          "twoArmDraws": 6524,
+          "oneArmDraws": 337,
+          "paints": 431,
+          "shell": 0,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 0,
+          "cefClients": 1,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "playerAlive": false,
+          "coreFrameCleared": true
+        }
+      },
+      {
+        "id": 74,
+        "sample": {
+          "screen": "net.muxigame.terminal.heldqa.HeldProbe$1",
+          "windowActive": true,
+          "connected": false,
+          "mainDraws": 3250,
+          "offDraws": 349,
+          "twoArmDraws": 6524,
+          "oneArmDraws": 337,
+          "paints": 431,
+          "shell": 0,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 0,
+          "cefClients": 1,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "playerAlive": false,
+          "coreFrameCleared": true
+        }
+      }
+    ],
+    "exitResourceBaseline": {
+      "screen": "net.muxigame.terminal.heldqa.HeldProbe$1",
+      "windowActive": true,
+      "connected": false,
+      "mainDraws": 3250,
+      "offDraws": 349,
+      "twoArmDraws": 6524,
+      "oneArmDraws": 337,
+      "paints": 431,
+      "shell": 0,
+      "content": 0,
+      "kind": "HOME",
+      "contentVisible": false,
+      "viewId": 0,
+      "keys": [
+        {
+          "browser": 555744208,
+          "key": 262,
+          "action": 1
+        },
+        {
+          "browser": 555744208,
+          "key": 262,
+          "action": 0
+        },
+        {
+          "browser": 555744208,
+          "key": 264,
+          "action": 1
+        },
+        {
+          "browser": 555744208,
+          "key": 264,
+          "action": 0
+        },
+        {
+          "browser": 555744208,
+          "key": 263,
+          "action": 1
+        },
+        {
+          "browser": 555744208,
+          "key": 263,
+          "action": 0
+        },
+        {
+          "browser": 555744208,
+          "key": 265,
+          "action": 1
+        },
+        {
+          "browser": 555744208,
+          "key": 265,
+          "action": 0
+        },
+        {
+          "browser": 555744208,
+          "key": 262,
+          "action": 1
+        },
+        {
+          "browser": 555744208,
+          "key": 262,
+          "action": 0
+        },
+        {
+          "browser": 555744208,
+          "key": 263,
+          "action": 1
+        },
+        {
+          "browser": 555744208,
+          "key": 263,
+          "action": 0
+        },
+        {
+          "browser": 555744208,
+          "key": 262,
+          "action": 1
+        },
+        {
+          "browser": 555744208,
+          "key": 262,
+          "action": 0
+        },
+        {
+          "browser": 555744208,
+          "key": 257,
+          "action": 1
+        },
+        {
+          "browser": 555744208,
+          "key": 257,
+          "action": 0
+        },
+        {
+          "browser": 194383899,
+          "key": 264,
+          "action": 1
+        },
+        {
+          "browser": 194383899,
+          "key": 264,
+          "action": 0
+        },
+        {
+          "browser": 194383899,
+          "key": 262,
+          "action": 1
+        },
+        {
+          "browser": 194383899,
+          "key": 262,
+          "action": 0
+        },
+        {
+          "browser": 194383899,
+          "key": 265,
+          "action": 1
+        },
+        {
+          "browser": 194383899,
+          "key": 265,
+          "action": 0
+        },
+        {
+          "browser": 194383899,
+          "key": 263,
+          "action": 1
+        },
+        {
+          "browser": 194383899,
+          "key": 263,
+          "action": 0
+        }
+      ],
+      "liveTextures": 0,
+      "cefClients": 1,
+      "heldPressed": 0,
+      "heldTarget": 0,
+      "playerAlive": false,
+      "coreFrameCleared": true
+    },
+    "normalExit": true,
+    "exitCodes": {
+      "server": 0,
+      "host": 0
+    },
+    "normalStopBlocked": [],
+    "renderer": {
+      "host": "NVIDIA GeForce RTX 4090/PCIe/SSE2"
+    },
+    "rawResult": "better-mc-remake/build/local-mc-debug/131-held-20261003-170814/held-input-result.json"
+  },
+  "finalFocusedAcceptance": {
+    "runId": "2e073b024bfd464290e54ea0a8704071",
+    "lab": "better-mc-remake/build/local-mc-debug/131-held-20261003-172429",
+    "candidate": "muxi-terminal/build/131-held-input-20261003-171801/source/build/libs/muxi-terminal-0.2.4-task14-social-qa.1.jar",
+    "candidateSha256": "47cf3d2bbadd72215ce32d77d2328525664ea29b332b2f096bb54f4f42648d0b",
+    "passed": true,
+    "checks": 112,
+    "passedChecks": 112,
+    "assertions": [
+      {
+        "check": "native.1.focus",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.1",
+        "passed": true
+      },
+      {
+        "check": "server.2.inventory-set",
+        "passed": true
+      },
+      {
+        "check": "server.3.inventory-set",
+        "passed": true
+      },
+      {
+        "check": "native.2.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.2",
+        "passed": true
+      },
+      {
+        "check": "native.3.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.3",
+        "passed": true
+      },
+      {
+        "check": "native.4.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.4",
+        "passed": true
+      },
+      {
+        "check": "native.5.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.5",
+        "passed": true
+      },
+      {
+        "check": "native.6.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.6",
+        "passed": true
+      },
+      {
+        "check": "native.7.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.7",
+        "passed": true
+      },
+      {
+        "check": "native.8.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.8",
+        "passed": true
+      },
+      {
+        "check": "native.9.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.9",
+        "passed": true
+      },
+      {
+        "check": "native.10.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.10",
+        "passed": true
+      },
+      {
+        "check": "native.11.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.11",
+        "passed": true
+      },
+      {
+        "check": "native.12.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.12",
+        "passed": true
+      },
+      {
+        "check": "heldEnterRepeatsCannotConfirmNewView",
+        "passed": true
+      },
+      {
+        "check": "native.13.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.13",
+        "passed": true
+      },
+      {
+        "check": "native.14.home",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.14",
+        "passed": true
+      },
+      {
+        "check": "native.15.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.15",
+        "passed": true
+      },
+      {
+        "check": "native.16.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.16",
+        "passed": true
+      },
+      {
+        "check": "native.17.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.17",
+        "passed": true
+      },
+      {
+        "check": "native.18.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.18",
+        "passed": true
+      },
+      {
+        "check": "native.19.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.19",
+        "passed": true
+      },
+      {
+        "check": "native.20.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.20",
+        "passed": true
+      },
+      {
+        "check": "keypadEnterConfirmsOnce",
+        "passed": true
+      },
+      {
+        "check": "native.21.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.21",
+        "passed": true
+      },
+      {
+        "check": "native.22.home",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.22",
+        "passed": true
+      },
+      {
+        "check": "native.23.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.23",
+        "passed": true
+      },
+      {
+        "check": "server.26.inventory-set",
+        "passed": true
+      },
+      {
+        "check": "server.27.inventory-set",
+        "passed": true
+      },
+      {
+        "check": "native.24.arrow-binding",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.24",
+        "passed": true
+      },
+      {
+        "check": "native.25.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.25",
+        "passed": true
+      },
+      {
+        "check": "notHeldCustomRightActuallyDown",
+        "passed": true
+      },
+      {
+        "check": "server.30.inventory-set",
+        "passed": true
+      },
+      {
+        "check": "server.31.inventory-set",
+        "passed": true
+      },
+      {
+        "check": "native.26.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.26",
+        "passed": true
+      },
+      {
+        "check": "pickupCapturedArrowReleasesGameBinding",
+        "passed": true
+      },
+      {
+        "check": "native.27.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.27",
+        "passed": true
+      },
+      {
+        "check": "heldArrowRepeatReachesRealDOM",
+        "passed": true
+      },
+      {
+        "check": "native.28.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.28",
+        "passed": true
+      },
+      {
+        "check": "capturedReleaseLeavesNoGameGhost",
+        "passed": true
+      },
+      {
+        "check": "native.29.arrow-binding",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.29",
+        "passed": true
+      },
+      {
+        "check": "native.30.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.30",
+        "passed": true
+      },
+      {
+        "check": "native.31.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.31",
+        "passed": true
+      },
+      {
+        "check": "native.32.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.32",
+        "passed": true
+      },
+      {
+        "check": "native.33.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.33",
+        "passed": true
+      },
+      {
+        "check": "native.34.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.34",
+        "passed": true
+      },
+      {
+        "check": "native.35.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.35",
+        "passed": true
+      },
+      {
+        "check": "F_B_WASD_CtrlTabKeepOriginalRoutes",
+        "passed": true
+      },
+      {
+        "check": "native.36.home",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.36",
+        "passed": true
+      },
+      {
+        "check": "native.37.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.37",
+        "passed": true
+      },
+      {
+        "check": "native.38.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.38",
+        "passed": true
+      },
+      {
+        "check": "native.39.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.39",
+        "passed": true
+      },
+      {
+        "check": "native.40.script",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.40",
+        "passed": true
+      },
+      {
+        "check": "normalHeldArrowStillMovesFocus",
+        "passed": true
+      },
+      {
+        "check": "native.41.screen",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.41",
+        "passed": true
+      },
+      {
+        "check": "native.42.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.42",
+        "passed": true
+      },
+      {
+        "check": "native.43.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.43",
+        "passed": true
+      },
+      {
+        "check": "native.44.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.44",
+        "passed": true
+      },
+      {
+        "check": "openedScreenArrowUnaffected",
+        "passed": true
+      },
+      {
+        "check": "native.45.key",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.45",
+        "passed": true
+      },
+      {
+        "check": "native.46.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.46",
+        "passed": true
+      },
+      {
+        "check": "native.47.logout",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.47",
+        "passed": true
+      },
+      {
+        "check": "native.48.sample",
+        "passed": true
+      },
+      {
+        "check": "coreFinally.48",
+        "passed": true
+      },
+      {
+        "check": "leaseExitResourceBaseline",
+        "passed": true
+      }
+    ],
+    "nativeObservations": [
+      {
+        "id": 1,
+        "sample": {
+          "screen": "net.minecraft.client.gui.screens.ReceivingLevelScreen",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 38,
+          "offDraws": 0,
+          "twoArmDraws": 76,
+          "oneArmDraws": 0,
+          "paints": 7,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "c143eaf7662c75c1d2b987406f4191825b7e3284b473be1ea34bb92c55843223"
+        }
+      },
+      {
+        "id": 2,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 71,
+          "offDraws": 0,
+          "twoArmDraws": 142,
+          "oneArmDraws": 0,
+          "paints": 7,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "c143eaf7662c75c1d2b987406f4191825b7e3284b473be1ea34bb92c55843223"
+        }
+      },
+      {
+        "id": 3,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 97,
+          "offDraws": 0,
+          "twoArmDraws": 194,
+          "oneArmDraws": 0,
+          "paints": 7,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "c143eaf7662c75c1d2b987406f4191825b7e3284b473be1ea34bb92c55843223"
+        }
+      },
+      {
+        "id": 4,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 121,
+          "offDraws": 0,
+          "twoArmDraws": 242,
+          "oneArmDraws": 0,
+          "paints": 7,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "c143eaf7662c75c1d2b987406f4191825b7e3284b473be1ea34bb92c55843223"
+        },
+        "dom": {
+          "id": 4,
+          "hash": "",
+          "page": "home",
+          "selected": 0,
+          "label": "\n          \n          游戏指南\n          模组手册与玩法指引\n        ",
+          "events": [],
+          "pulse": 0
+        }
+      },
+      {
+        "id": 5,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 148,
+          "offDraws": 0,
+          "twoArmDraws": 296,
+          "oneArmDraws": 0,
+          "paints": 14,
+          "shell": 1742006519,
+          "content": 783722367,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 1,
+          "heldTarget": 783722367,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 6,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 176,
+          "offDraws": 0,
+          "twoArmDraws": 352,
+          "oneArmDraws": 0,
+          "paints": 14,
+          "shell": 1742006519,
+          "content": 783722367,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 1,
+          "heldTarget": 783722367,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 7,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 202,
+          "offDraws": 0,
+          "twoArmDraws": 404,
+          "oneArmDraws": 0,
+          "paints": 14,
+          "shell": 1742006519,
+          "content": 783722367,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 1,
+          "heldTarget": 783722367,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 8,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 226,
+          "offDraws": 0,
+          "twoArmDraws": 452,
+          "oneArmDraws": 0,
+          "paints": 14,
+          "shell": 1742006519,
+          "content": 783722367,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 1,
+          "heldTarget": 783722367,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 9,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 250,
+          "offDraws": 0,
+          "twoArmDraws": 500,
+          "oneArmDraws": 0,
+          "paints": 14,
+          "shell": 1742006519,
+          "content": 783722367,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 1,
+          "heldTarget": 783722367,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 10,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 268,
+          "offDraws": 0,
+          "twoArmDraws": 536,
+          "oneArmDraws": 0,
+          "paints": 14,
+          "shell": 1742006519,
+          "content": 783722367,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 1,
+          "heldTarget": 783722367,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 11,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 291,
+          "offDraws": 0,
+          "twoArmDraws": 582,
+          "oneArmDraws": 0,
+          "paints": 14,
+          "shell": 1742006519,
+          "content": 783722367,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 1,
+          "heldTarget": 783722367,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 12,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 316,
+          "offDraws": 0,
+          "twoArmDraws": 632,
+          "oneArmDraws": 0,
+          "paints": 14,
+          "shell": 1742006519,
+          "content": 783722367,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 1,
+          "heldTarget": 783722367,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 13,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 337,
+          "offDraws": 0,
+          "twoArmDraws": 674,
+          "oneArmDraws": 0,
+          "paints": 14,
+          "shell": 1742006519,
+          "content": 783722367,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 1,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 0,
+          "heldTarget": 783722367,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 14,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 360,
+          "offDraws": 0,
+          "twoArmDraws": 720,
+          "oneArmDraws": 0,
+          "paints": 14,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 15,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 387,
+          "offDraws": 0,
+          "twoArmDraws": 774,
+          "oneArmDraws": 0,
+          "paints": 14,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        },
+        "dom": {
+          "id": 15,
+          "hash": "#/home",
+          "page": "home",
+          "selected": 0,
+          "label": "\n          \n          游戏指南\n          模组手册与玩法指引\n        ",
+          "events": [],
+          "pulse": 0
+        }
+      },
+      {
+        "id": 16,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 392,
+          "offDraws": 0,
+          "twoArmDraws": 784,
+          "oneArmDraws": 0,
+          "paints": 15,
+          "shell": 1742006519,
+          "content": 2063724630,
+          "kind": "BUILTIN",
+          "contentVisible": false,
+          "viewId": 2,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 1,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "9923840685644d3d068994028f1c91f6a6179ae8bb8451559910a45e0181c861"
+        }
+      },
+      {
+        "id": 17,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 403,
+          "offDraws": 0,
+          "twoArmDraws": 806,
+          "oneArmDraws": 0,
+          "paints": 22,
+          "shell": 1742006519,
+          "content": 2063724630,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 2,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 1,
+          "heldTarget": 2063724630,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 18,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 430,
+          "offDraws": 0,
+          "twoArmDraws": 860,
+          "oneArmDraws": 0,
+          "paints": 22,
+          "shell": 1742006519,
+          "content": 2063724630,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 2,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 1,
+          "heldTarget": 2063724630,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 19,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 458,
+          "offDraws": 0,
+          "twoArmDraws": 916,
+          "oneArmDraws": 0,
+          "paints": 22,
+          "shell": 1742006519,
+          "content": 2063724630,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 2,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 1,
+          "heldTarget": 2063724630,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 20,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 466,
+          "offDraws": 0,
+          "twoArmDraws": 932,
+          "oneArmDraws": 0,
+          "paints": 22,
+          "shell": 1742006519,
+          "content": 2063724630,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 2,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 1,
+          "heldTarget": 2063724630,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 21,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 486,
+          "offDraws": 0,
+          "twoArmDraws": 972,
+          "oneArmDraws": 0,
+          "paints": 22,
+          "shell": 1742006519,
+          "content": 2063724630,
+          "kind": "BUILTIN",
+          "contentVisible": true,
+          "viewId": 2,
+          "liveTextures": 2,
+          "cefClients": 3,
+          "heldPressed": 0,
+          "heldTarget": 2063724630,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 22,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 500,
+          "offDraws": 0,
+          "twoArmDraws": 1000,
+          "oneArmDraws": 0,
+          "paints": 22,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 23,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 520,
+          "offDraws": 0,
+          "twoArmDraws": 1040,
+          "oneArmDraws": 0,
+          "paints": 22,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        },
+        "dom": {
+          "id": 23,
+          "hash": "#/home",
+          "page": "home",
+          "selected": 0,
+          "label": "\n          \n          游戏指南\n          模组手册与玩法指引\n        ",
+          "events": [],
+          "pulse": 0
+        }
+      },
+      {
+        "id": 24,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 539,
+          "offDraws": 0,
+          "twoArmDraws": 1078,
+          "oneArmDraws": 0,
+          "paints": 22,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 25,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 539,
+          "offDraws": 0,
+          "twoArmDraws": 1078,
+          "oneArmDraws": 0,
+          "paints": 22,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": true,
+          "rightGameClicks": 1,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 26,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 575,
+          "offDraws": 0,
+          "twoArmDraws": 1150,
+          "oneArmDraws": 0,
+          "paints": 27,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 1,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "e391bab9f861baccaf101bdaba427cb79c6792b639893467a4136136b88266bc"
+        }
+      },
+      {
+        "id": 27,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 607,
+          "offDraws": 0,
+          "twoArmDraws": 1214,
+          "oneArmDraws": 0,
+          "paints": 27,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 1,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "e391bab9f861baccaf101bdaba427cb79c6792b639893467a4136136b88266bc"
+        },
+        "dom": {
+          "id": 27,
+          "hash": "#/home",
+          "page": "home",
+          "selected": 1,
+          "label": "\n          \n          任务\n          每日、主线与追踪\n        ",
+          "events": [
+            "ArrowRight"
+          ],
+          "pulse": 0
+        }
+      },
+      {
+        "id": 28,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 631,
+          "offDraws": 0,
+          "twoArmDraws": 1262,
+          "oneArmDraws": 0,
+          "paints": 27,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "e391bab9f861baccaf101bdaba427cb79c6792b639893467a4136136b88266bc"
+        }
+      },
+      {
+        "id": 29,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 656,
+          "offDraws": 0,
+          "twoArmDraws": 1312,
+          "oneArmDraws": 0,
+          "paints": 27,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "e391bab9f861baccaf101bdaba427cb79c6792b639893467a4136136b88266bc"
+        }
+      },
+      {
+        "id": 30,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 680,
+          "offDraws": 0,
+          "twoArmDraws": 1360,
+          "oneArmDraws": 0,
+          "paints": 27,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "e391bab9f861baccaf101bdaba427cb79c6792b639893467a4136136b88266bc"
+        }
+      },
+      {
+        "id": 31,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 703,
+          "offDraws": 0,
+          "twoArmDraws": 1406,
+          "oneArmDraws": 0,
+          "paints": 27,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "e391bab9f861baccaf101bdaba427cb79c6792b639893467a4136136b88266bc"
+        }
+      },
+      {
+        "id": 32,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 716,
+          "offDraws": 0,
+          "twoArmDraws": 1432,
+          "oneArmDraws": 0,
+          "paints": 27,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "e391bab9f861baccaf101bdaba427cb79c6792b639893467a4136136b88266bc"
+        }
+      },
+      {
+        "id": 33,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 737,
+          "offDraws": 0,
+          "twoArmDraws": 1474,
+          "oneArmDraws": 0,
+          "paints": 27,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "e391bab9f861baccaf101bdaba427cb79c6792b639893467a4136136b88266bc"
+        }
+      },
+      {
+        "id": 34,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 752,
+          "offDraws": 0,
+          "twoArmDraws": 1504,
+          "oneArmDraws": 0,
+          "paints": 27,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "e391bab9f861baccaf101bdaba427cb79c6792b639893467a4136136b88266bc"
+        }
+      },
+      {
+        "id": 35,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 776,
+          "offDraws": 0,
+          "twoArmDraws": 1552,
+          "oneArmDraws": 0,
+          "paints": 27,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "e391bab9f861baccaf101bdaba427cb79c6792b639893467a4136136b88266bc"
+        }
+      },
+      {
+        "id": 36,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 796,
+          "offDraws": 0,
+          "twoArmDraws": 1592,
+          "oneArmDraws": 0,
+          "paints": 31,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 37,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 808,
+          "offDraws": 0,
+          "twoArmDraws": 1616,
+          "oneArmDraws": 0,
+          "paints": 31,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        },
+        "dom": {
+          "id": 37,
+          "hash": "#/home",
+          "page": "home",
+          "selected": 0,
+          "label": "\n          \n          游戏指南\n          模组手册与玩法指引\n        ",
+          "events": [
+            "ArrowRight"
+          ],
+          "pulse": 0
+        }
+      },
+      {
+        "id": 38,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 820,
+          "offDraws": 0,
+          "twoArmDraws": 1640,
+          "oneArmDraws": 0,
+          "paints": 31,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        },
+        "dom": {
+          "id": 38,
+          "hash": "#/home",
+          "page": "home",
+          "selected": 0,
+          "label": "\n          \n          游戏指南\n          模组手册与玩法指引\n        ",
+          "events": [
+            "ArrowRight"
+          ],
+          "pulse": 0
+        }
+      },
+      {
+        "id": 39,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 865,
+          "offDraws": 0,
+          "twoArmDraws": 1730,
+          "oneArmDraws": 0,
+          "paints": 31,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "709c74c2be6f0b0de0e7c44fb33159615984b10e99c4d06996258edcccd7849b"
+        }
+      },
+      {
+        "id": 40,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 877,
+          "offDraws": 0,
+          "twoArmDraws": 1754,
+          "oneArmDraws": 0,
+          "paints": 35,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "e391bab9f861baccaf101bdaba427cb79c6792b639893467a4136136b88266bc"
+        },
+        "dom": {
+          "id": 40,
+          "hash": "#/home",
+          "page": "home",
+          "selected": 1,
+          "label": "\n          \n          任务\n          每日、主线与追踪\n        ",
+          "events": [
+            "ArrowRight",
+            "ArrowRight"
+          ],
+          "pulse": 0
+        }
+      },
+      {
+        "id": 41,
+        "sample": {
+          "screen": "net.muxigame.terminal.client.TerminalScreen",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 900,
+          "offDraws": 0,
+          "twoArmDraws": 1800,
+          "oneArmDraws": 0,
+          "paints": 37,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 424,
+          "textureHeight": 222,
+          "textureHash": "823964db2584c743dfd2ec6996dc1c41e12dd9771845a2e592ada4dcfea91dcb"
+        }
+      },
+      {
+        "id": 42,
+        "sample": {
+          "screen": "net.muxigame.terminal.client.TerminalScreen",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 916,
+          "offDraws": 0,
+          "twoArmDraws": 1832,
+          "oneArmDraws": 0,
+          "paints": 37,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 424,
+          "textureHeight": 222,
+          "textureHash": "823964db2584c743dfd2ec6996dc1c41e12dd9771845a2e592ada4dcfea91dcb"
+        }
+      },
+      {
+        "id": 43,
+        "sample": {
+          "screen": "net.muxigame.terminal.client.TerminalScreen",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 943,
+          "offDraws": 0,
+          "twoArmDraws": 1886,
+          "oneArmDraws": 0,
+          "paints": 40,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 424,
+          "textureHeight": 222,
+          "textureHash": "1d504f7be2875f5ab38af8164fd301d2f9214ec51bdba9981954d71892ae23cd"
+        }
+      },
+      {
+        "id": 44,
+        "sample": {
+          "screen": "net.muxigame.terminal.client.TerminalScreen",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 969,
+          "offDraws": 0,
+          "twoArmDraws": 1938,
+          "oneArmDraws": 0,
+          "paints": 40,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 424,
+          "textureHeight": 222,
+          "textureHash": "1d504f7be2875f5ab38af8164fd301d2f9214ec51bdba9981954d71892ae23cd"
+        }
+      },
+      {
+        "id": 45,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 995,
+          "offDraws": 0,
+          "twoArmDraws": 1990,
+          "oneArmDraws": 0,
+          "paints": 42,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "ccee400ef8da5beea31f6719811d4f65b876ff17940613ca4b6ebecf268d4c26"
+        }
+      },
+      {
+        "id": 46,
+        "sample": {
+          "screen": "",
+          "windowActive": true,
+          "connected": true,
+          "mainDraws": 1014,
+          "offDraws": 0,
+          "twoArmDraws": 2028,
+          "oneArmDraws": 0,
+          "paints": 42,
+          "shell": 1742006519,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 1,
+          "cefClients": 2,
+          "heldPressed": 0,
+          "heldTarget": 1742006519,
+          "dimension": "muxi_game_core:overworld",
+          "playerAlive": true,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true,
+          "textureWidth": 640,
+          "textureHeight": 400,
+          "textureHash": "ccee400ef8da5beea31f6719811d4f65b876ff17940613ca4b6ebecf268d4c26"
+        }
+      },
+      {
+        "id": 47,
+        "sample": {
+          "screen": "net.muxigame.terminal.heldqa.HeldProbe$1",
+          "windowActive": true,
+          "connected": false,
+          "mainDraws": 1022,
+          "offDraws": 0,
+          "twoArmDraws": 2044,
+          "oneArmDraws": 0,
+          "paints": 42,
+          "shell": 0,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 0,
+          "cefClients": 1,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "playerAlive": false,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true
+        }
+      },
+      {
+        "id": 48,
+        "sample": {
+          "screen": "net.muxigame.terminal.heldqa.HeldProbe$1",
+          "windowActive": true,
+          "connected": false,
+          "mainDraws": 1022,
+          "offDraws": 0,
+          "twoArmDraws": 2044,
+          "oneArmDraws": 0,
+          "paints": 42,
+          "shell": 0,
+          "content": 0,
+          "kind": "HOME",
+          "contentVisible": false,
+          "viewId": 0,
+          "liveTextures": 0,
+          "cefClients": 1,
+          "heldPressed": 0,
+          "heldTarget": 0,
+          "playerAlive": false,
+          "rightGameDown": false,
+          "rightGameClicks": 0,
+          "coreFrameCleared": true
+        }
+      }
+    ],
+    "exitResourceBaseline": {
+      "screen": "net.muxigame.terminal.heldqa.HeldProbe$1",
+      "windowActive": true,
+      "connected": false,
+      "mainDraws": 1022,
+      "offDraws": 0,
+      "twoArmDraws": 2044,
+      "oneArmDraws": 0,
+      "paints": 42,
+      "shell": 0,
+      "content": 0,
+      "kind": "HOME",
+      "contentVisible": false,
+      "viewId": 0,
+      "keys": [
+        {
+          "browser": 1742006519,
+          "key": 257,
+          "action": 1
+        },
+        {
+          "browser": 1742006519,
+          "key": 257,
+          "action": 0
+        },
+        {
+          "browser": 1742006519,
+          "key": 335,
+          "action": 1
+        },
+        {
+          "browser": 1742006519,
+          "key": 335,
+          "action": 0
+        },
+        {
+          "browser": 1742006519,
+          "key": 262,
+          "action": 1
+        },
+        {
+          "browser": 1742006519,
+          "key": 262,
+          "action": 0
+        },
+        {
+          "browser": 1742006519,
+          "key": 262,
+          "action": 1
+        },
+        {
+          "browser": 1742006519,
+          "key": 262,
+          "action": 0
+        },
+        {
+          "browser": 1742006519,
+          "key": 263,
+          "action": 1
+        },
+        {
+          "browser": 1742006519,
+          "key": 263,
+          "action": 0
+        }
+      ],
+      "liveTextures": 0,
+      "cefClients": 1,
+      "heldPressed": 0,
+      "heldTarget": 0,
+      "playerAlive": false,
+      "rightGameDown": false,
+      "rightGameClicks": 0,
+      "coreFrameCleared": true
+    },
+    "normalExit": true,
+    "exitCodes": {
+      "server": 0,
+      "host": 0
+    },
+    "normalStopBlocked": [],
+    "renderer": {
+      "host": "NVIDIA GeForce RTX 4090/PCIe/SSE2"
+    },
+    "rawResult": "better-mc-remake/build/local-mc-debug/131-held-20261003-172429/held-lease-result.json"
+  },
+  "candidateComparison": {
+    "changedEntries": [
+      "net/muxigame/terminal/client/TerminalHeldInput.class"
+    ],
+    "identicalEntries": 151
+  },
+  "intermediateAttempt": {
+    "runId": "bfce3d28527549a0b4af71ed8f42a000",
+    "lab": "better-mc-remake/build/local-mc-debug/131-held-20261003-171943",
+    "passed": false,
+    "reason": "Enter sent while ReceivingLevelScreen still active; corrected test startup wait only; same final product candidate",
+    "normalExit": true,
+    "exitCodes": {
+      "server": 0,
+      "host": 0
+    },
+    "rawResult": "better-mc-remake/build/local-mc-debug/131-held-20261003-171943/held-lease-result.json"
+  },
+  "screenshots": [
+    {
+      "file": "held-home-native.png",
+      "source": "better-mc-remake/build/local-mc-debug/131-held-20261003-170814/host/screenshots/2026-10-03_17.11.52.png",
+      "sha256": "3b634e6fd35e5a526beaa1dd03602528961bb65419a52e310ba8ca1dc1eff9ba",
+      "nativeF2": true,
+      "physicalOSInput": false
+    },
+    {
+      "file": "held-guide-native.png",
+      "source": "better-mc-remake/build/local-mc-debug/131-held-20261003-170814/host/screenshots/2026-10-03_17.12.50.png",
+      "sha256": "01ef44f557d34f0787e7651cd43f9716309b4aad504c50b5c70abb9f49321993",
+      "nativeF2": true,
+      "physicalOSInput": false
+    }
+  ]
+}

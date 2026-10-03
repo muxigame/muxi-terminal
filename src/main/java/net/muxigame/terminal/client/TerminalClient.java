@@ -18,6 +18,7 @@ public final class TerminalClient {
         if (bootstrapped) return;
         bootstrapped = true;
         TerminalHeldScreen.register(modBus);
+        TerminalHeldInput.register();
         NeoForge.EVENT_BUS.addListener(TerminalClient::onRenderHand);
         NeoForge.EVENT_BUS.addListener(TerminalClient::onLevelUnload);
         TerminalNativeBridge.installWhenReady();
@@ -105,6 +106,9 @@ public final class TerminalClient {
     }
 
     private static void onLevelUnload(LevelEvent.Unload event) {
-        if (event.getLevel().isClientSide()) TerminalBrowserSession.close();
+        if (event.getLevel().isClientSide()) {
+            TerminalHeldInput.clear();
+            TerminalBrowserSession.close();
+        }
     }
 }

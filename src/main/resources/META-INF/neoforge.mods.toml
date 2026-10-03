@@ -41,3 +41,6 @@ config="muxi_terminal.camera.mixins.json"
 
 [[mixins]]
 config="muxi_terminal.compat.mixins.json"
+
+[[mixins]]
+config="muxi_terminal.input.mixins.json"
