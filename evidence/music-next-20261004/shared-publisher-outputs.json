@@ -1,0 +1,11 @@
+{
+  "before": {
+    "C:\\Users\\ranzh\\workspace\\dev\\muxigame\\muxi-terminal\\build\\release.json": "2e96c0abbbdaf915a00535c9d0072e646fde949db093b8c900c07e02807f1bc2",
+    "C:\\Users\\ranzh\\workspace\\dev\\muxigame\\muxi-terminal\\build\\libs\\muxi-terminal-0.2.4-task14-social-qa.1.jar": "079d88949c2b843bbd82d000a4225ab5c29e417dbf38636365fef0a095b7876e"
+  },
+  "after": {
+    "C:\\Users\\ranzh\\workspace\\dev\\muxigame\\muxi-terminal\\build\\release.json": "2e96c0abbbdaf915a00535c9d0072e646fde949db093b8c900c07e02807f1bc2",
+    "C:\\Users\\ranzh\\workspace\\dev\\muxigame\\muxi-terminal\\build\\libs\\muxi-terminal-0.2.4-task14-social-qa.1.jar": "079d88949c2b843bbd82d000a4225ab5c29e417dbf38636365fef0a095b7876e"
+  },
+  "unchanged": true
+}

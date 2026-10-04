@@ -1,0 +1,23 @@
+{
+  "runId": "f9edbd9c49244759945d545ac63f8ba1",
+  "passed": true,
+  "productionMutation": false,
+  "instanceRoot": "C:\\Users\\ranzh\\workspace\\dev\\muxigame\\better-mc-remake\\build\\local-mc-debug\\music-next-20261004-142451",
+  "normalStopOnly": true,
+  "physicalOSInput": false,
+  "visualAcceptance": false,
+  "acceptance": {
+    "passed": true,
+    "scope": "connections and requested hold only",
+    "gameplayAcceptance": false
+  },
+  "exitCodes": {
+    "server": 0,
+    "host": 0
+  },
+  "normalExit": true,
+  "normalStopBlocked": [],
+  "clientRenderers": {
+    "host": "NVIDIA GeForce RTX 4090/PCIe/SSE2"
+  }
+}

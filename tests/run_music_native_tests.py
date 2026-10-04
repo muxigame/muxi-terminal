@@ -5,12 +5,14 @@ ROOT=Path(__file__).resolve().parents[1]
 parser=argparse.ArgumentParser(description='Real installed music decoders and native API signature verification')
 parser.add_argument('--workspace',type=Path,default=Path(r'C:/Users/Administrator/WorkSpace/muxigame'))
 parser.add_argument('--java-home',type=Path,default=Path(r'C:/Program Files/Java/jdk-24'))
+parser.add_argument('--candidate',type=Path,required=True)
+parser.add_argument('--output',type=Path,required=True)
 parser.add_argument('--dependencies',type=Path)
 args=parser.parse_args()
 PACK=args.workspace
-lab=ROOT/'build/native-tests';lab.mkdir(parents=True,exist_ok=True)
+lab=args.output;lab.mkdir(parents=True,exist_ok=True)
 java=args.java_home/'bin'
-jar=ROOT/'build/libs'/json.loads((ROOT/'build/release.json').read_text(encoding='utf-8'))['artifact']
+jar=args.candidate
 deps=args.dependencies or ROOT/'build/compiler-dependencies.jar'
 sources=list((ROOT/'tests/java').rglob('*.java'))
 subprocess.run([str(java/'javac.exe'),'--release','21','-encoding','UTF-8','-proc:none','-classpath',os.pathsep.join(map(str,[jar,deps])),'-d',str(lab),*map(str,sources)],check=True)

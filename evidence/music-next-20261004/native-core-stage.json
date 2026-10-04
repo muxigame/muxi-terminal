@@ -1,0 +1,1326 @@
+{
+  "scope": "Actual isolated MC/MCEF/OpenAL on 131; hidden client, assisted native callbacks; no OS file-picker/physical input acceptance",
+  "lab": "C:\\Users\\ranzh\\workspace\\dev\\muxigame\\better-mc-remake\\build\\local-mc-debug\\music-next-20261004-141608",
+  "checks": [
+    "real resource catalog contains individually selectable tracks",
+    "actual partial batches are observable before scan completion",
+    "catalog contains no duplicate opaque IDs",
+    "runtime provider label comes from official Minecraft metadata",
+    "APP detach/reopen snapshots reuse the existing catalog cache",
+    "background remains active after low-volume fade-in 0.5",
+    "background file volume and category gain are each applied once 0.5",
+    "Biome and native volume writes agree at 0.5",
+    "Biome and native volume writes agree at 0.5",
+    "background remains active after low-volume fade-in 0.31622776601683794",
+    "background file volume and category gain are each applied once 0.31622776601683794",
+    "Biome and native volume writes agree at 0.31622776601683794",
+    "Biome and native volume writes agree at 0.31622776601683794",
+    "background remains active after low-volume fade-in 0.22360679774997896",
+    "background file volume and category gain are each applied once 0.22360679774997896",
+    "Biome and native volume writes agree at 0.22360679774997896",
+    "Biome and native volume writes agree at 0.22360679774997896",
+    "real BiomeMusic legacy gain interception is applied",
+    "manager stop retains a decreasing audible OpenAL stream instead of abrupt cut",
+    "completed stop releases its per-stream envelope",
+    "selected actual game track reaches OpenAL PLAYING",
+    "game provider whole-list builds the actual native queue",
+    "next switches the actual selected stream",
+    "previous returns to the selected actual track",
+    "closing APP/terminal and switching held item retains player-owned playback",
+    "two carried terminals share one actual playback stream",
+    "remaining carried terminal retains playback",
+    "removing all terminals releases owned streams",
+    "real local copy/decode/store import yields two selectable local rows",
+    "whole-list natural EOF advances to the second decoded local file with APP closed",
+    "one-pass whole playlist stops and releases local stream after final EOF",
+    "manual stop releases local playback and queue",
+    "manual catalog refresh preserves the actual playing file and current-row marker",
+    "actual resource reload rebuilds the same owned game stream after the engine is ready",
+    "actual resource reload invalidates once and rebuilds without duplicates",
+    "portable group contains exactly its two actual native rows",
+    "real original player starts a two-track native queue without fabricated pause API",
+    "original native loop/EOF advances to the explicit next playlist index",
+    "original whole-list final EOF stops the native portable player",
+    "native play button starts the existing portable stream",
+    "removing the last terminal stops portable playback started with the play button"
+  ],
+  "samples": [
+    {
+      "label": "catalog-batch",
+      "state": {
+        "kind": "idle",
+        "title": "当前没有音乐",
+        "target": "e49f14a5-85ee-41dc-a227-0f899ca76ce3",
+        "status": "idle",
+        "reason": "",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.5,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": false,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": true,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 12
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 1,
+          "legacyGainWritesReplaced": 0,
+          "smoothBackgroundStops": 0,
+          "activeEnvelopes": 0
+        },
+        "audio": [],
+        "tick": 913,
+        "actualMusicGain": 0.25,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 12
+      }
+    },
+    {
+      "label": "catalog-batch",
+      "state": {
+        "kind": "idle",
+        "title": "当前没有音乐",
+        "target": "e49f14a5-85ee-41dc-a227-0f899ca76ce3",
+        "status": "idle",
+        "reason": "",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.5,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": false,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": true,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 24
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 1,
+          "legacyGainWritesReplaced": 0,
+          "smoothBackgroundStops": 0,
+          "activeEnvelopes": 0
+        },
+        "audio": [],
+        "tick": 916,
+        "actualMusicGain": 0.25,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 24
+      }
+    },
+    {
+      "label": "catalog-batch",
+      "state": {
+        "kind": "idle",
+        "title": "当前没有音乐",
+        "target": "e49f14a5-85ee-41dc-a227-0f899ca76ce3",
+        "status": "idle",
+        "reason": "",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.5,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": false,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": true,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 36
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 1,
+          "legacyGainWritesReplaced": 0,
+          "smoothBackgroundStops": 0,
+          "activeEnvelopes": 0
+        },
+        "audio": [],
+        "tick": 920,
+        "actualMusicGain": 0.25,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 36
+      }
+    },
+    {
+      "label": "catalog-batch",
+      "state": {
+        "kind": "idle",
+        "title": "当前没有音乐",
+        "target": "e49f14a5-85ee-41dc-a227-0f899ca76ce3",
+        "status": "idle",
+        "reason": "",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.5,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": false,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": true,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 1,
+          "legacyGainWritesReplaced": 0,
+          "smoothBackgroundStops": 0,
+          "activeEnvelopes": 0
+        },
+        "audio": [],
+        "tick": 924,
+        "actualMusicGain": 0.25,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    },
+    {
+      "label": "catalog-batch",
+      "state": {
+        "kind": "idle",
+        "title": "当前没有音乐",
+        "target": "e49f14a5-85ee-41dc-a227-0f899ca76ce3",
+        "status": "idle",
+        "reason": "",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.5,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": false,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 1,
+          "legacyGainWritesReplaced": 0,
+          "smoothBackgroundStops": 0,
+          "activeEnvelopes": 0
+        },
+        "audio": [],
+        "tick": 927,
+        "actualMusicGain": 0.25,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    },
+    {
+      "label": "background-volume-0.5",
+      "state": {
+        "kind": "background",
+        "title": "komorebi",
+        "target": "d9136cb1-ace7-4ed3-a157-2ff68d7f7852",
+        "status": "loading",
+        "reason": "曲名取自当前音频资源；背景音乐没有可用的上一首 / 下一首播放列表。",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.5,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": true,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 2,
+          "legacyGainWritesReplaced": 0,
+          "smoothBackgroundStops": 0,
+          "activeEnvelopes": 0
+        },
+        "audio": [
+          {
+            "own": false,
+            "source": "music",
+            "event": "minecraft:music.game",
+            "gain": 0.2,
+            "state": 4114,
+            "baseVolume": 0.8
+          }
+        ],
+        "tick": 984,
+        "actualMusicGain": 0.25,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    },
+    {
+      "label": "biome-write-0.5",
+      "state": {
+        "kind": "background",
+        "title": "komorebi",
+        "target": "d9136cb1-ace7-4ed3-a157-2ff68d7f7852",
+        "status": "playing",
+        "reason": "曲名取自当前音频资源；背景音乐没有可用的上一首 / 下一首播放列表。",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.5,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": true,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 2,
+          "legacyGainWritesReplaced": 1,
+          "smoothBackgroundStops": 0,
+          "activeEnvelopes": 0
+        },
+        "audio": [
+          {
+            "own": false,
+            "source": "music",
+            "event": "minecraft:music.game",
+            "gain": 0.2,
+            "state": 4114,
+            "baseVolume": 0.8
+          }
+        ],
+        "tick": 991,
+        "actualMusicGain": 0.25,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    },
+    {
+      "label": "native-write-0.5",
+      "state": {
+        "kind": "background",
+        "title": "komorebi",
+        "target": "d9136cb1-ace7-4ed3-a157-2ff68d7f7852",
+        "status": "playing",
+        "reason": "曲名取自当前音频资源；背景音乐没有可用的上一首 / 下一首播放列表。",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.5,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": true,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 2,
+          "legacyGainWritesReplaced": 1,
+          "smoothBackgroundStops": 0,
+          "activeEnvelopes": 0
+        },
+        "audio": [
+          {
+            "own": false,
+            "source": "music",
+            "event": "minecraft:music.game",
+            "gain": 0.2,
+            "state": 4114,
+            "baseVolume": 0.8
+          }
+        ],
+        "tick": 999,
+        "actualMusicGain": 0.25,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    },
+    {
+      "label": "background-volume-0.31622776601683794",
+      "state": {
+        "kind": "background",
+        "title": "danny",
+        "target": "93955ef8-8d72-4a44-9fb0-562ebd380367",
+        "status": "loading",
+        "reason": "曲名取自当前音频资源；背景音乐没有可用的上一首 / 下一首播放列表。",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.31622776601683794,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": true,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 3,
+          "legacyGainWritesReplaced": 1,
+          "smoothBackgroundStops": 1,
+          "activeEnvelopes": 0
+        },
+        "audio": [
+          {
+            "own": false,
+            "source": "music",
+            "event": "minecraft:music.overworld.meadow",
+            "gain": 0.1,
+            "state": 4114,
+            "baseVolume": 1.0
+          }
+        ],
+        "tick": 1051,
+        "actualMusicGain": 0.1,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    },
+    {
+      "label": "biome-write-0.31622776601683794",
+      "state": {
+        "kind": "background",
+        "title": "danny",
+        "target": "93955ef8-8d72-4a44-9fb0-562ebd380367",
+        "status": "playing",
+        "reason": "曲名取自当前音频资源；背景音乐没有可用的上一首 / 下一首播放列表。",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.31622776601683794,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": true,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 3,
+          "legacyGainWritesReplaced": 2,
+          "smoothBackgroundStops": 1,
+          "activeEnvelopes": 0
+        },
+        "audio": [
+          {
+            "own": false,
+            "source": "music",
+            "event": "minecraft:music.overworld.meadow",
+            "gain": 0.1,
+            "state": 4114,
+            "baseVolume": 1.0
+          }
+        ],
+        "tick": 1058,
+        "actualMusicGain": 0.1,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    },
+    {
+      "label": "native-write-0.31622776601683794",
+      "state": {
+        "kind": "background",
+        "title": "danny",
+        "target": "93955ef8-8d72-4a44-9fb0-562ebd380367",
+        "status": "playing",
+        "reason": "曲名取自当前音频资源；背景音乐没有可用的上一首 / 下一首播放列表。",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.31622776601683794,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": true,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 3,
+          "legacyGainWritesReplaced": 2,
+          "smoothBackgroundStops": 1,
+          "activeEnvelopes": 0
+        },
+        "audio": [
+          {
+            "own": false,
+            "source": "music",
+            "event": "minecraft:music.overworld.meadow",
+            "gain": 0.1,
+            "state": 4114,
+            "baseVolume": 1.0
+          }
+        ],
+        "tick": 1066,
+        "actualMusicGain": 0.1,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    },
+    {
+      "label": "background-volume-0.22360679774997896",
+      "state": {
+        "kind": "background",
+        "title": "left to bloom",
+        "target": "08b45064-3eb5-4329-be6c-71fd6babed49",
+        "status": "loading",
+        "reason": "曲名取自当前音频资源；背景音乐没有可用的上一首 / 下一首播放列表。",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.22360679774997896,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": true,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 4,
+          "legacyGainWritesReplaced": 2,
+          "smoothBackgroundStops": 2,
+          "activeEnvelopes": 0
+        },
+        "audio": [
+          {
+            "own": false,
+            "source": "music",
+            "event": "minecraft:music.game",
+            "gain": 0.02,
+            "state": 4114,
+            "baseVolume": 0.4
+          }
+        ],
+        "tick": 1120,
+        "actualMusicGain": 0.049999997,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    },
+    {
+      "label": "biome-write-0.22360679774997896",
+      "state": {
+        "kind": "background",
+        "title": "left to bloom",
+        "target": "08b45064-3eb5-4329-be6c-71fd6babed49",
+        "status": "playing",
+        "reason": "曲名取自当前音频资源；背景音乐没有可用的上一首 / 下一首播放列表。",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.22360679774997896,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": true,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 4,
+          "legacyGainWritesReplaced": 3,
+          "smoothBackgroundStops": 2,
+          "activeEnvelopes": 0
+        },
+        "audio": [
+          {
+            "own": false,
+            "source": "music",
+            "event": "minecraft:music.game",
+            "gain": 0.02,
+            "state": 4114,
+            "baseVolume": 0.4
+          }
+        ],
+        "tick": 1127,
+        "actualMusicGain": 0.049999997,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    },
+    {
+      "label": "native-write-0.22360679774997896",
+      "state": {
+        "kind": "background",
+        "title": "left to bloom",
+        "target": "08b45064-3eb5-4329-be6c-71fd6babed49",
+        "status": "playing",
+        "reason": "曲名取自当前音频资源；背景音乐没有可用的上一首 / 下一首播放列表。",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.22360679774997896,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": true,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 4,
+          "legacyGainWritesReplaced": 3,
+          "smoothBackgroundStops": 2,
+          "activeEnvelopes": 0
+        },
+        "audio": [
+          {
+            "own": false,
+            "source": "music",
+            "event": "minecraft:music.game",
+            "gain": 0.02,
+            "state": 4114,
+            "baseVolume": 0.4
+          }
+        ],
+        "tick": 1135,
+        "actualMusicGain": 0.049999997,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    },
+    {
+      "label": "compat-hooks",
+      "state": {
+        "kind": "background",
+        "title": "left to bloom",
+        "target": "08b45064-3eb5-4329-be6c-71fd6babed49",
+        "status": "playing",
+        "reason": "曲名取自当前音频资源；背景音乐没有可用的上一首 / 下一首播放列表。",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.22360679774997896,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": true,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 4,
+          "legacyGainWritesReplaced": 3,
+          "smoothBackgroundStops": 2,
+          "activeEnvelopes": 0
+        },
+        "audio": [
+          {
+            "own": false,
+            "source": "music",
+            "event": "minecraft:music.game",
+            "gain": 0.02,
+            "state": 4114,
+            "baseVolume": 0.4
+          }
+        ],
+        "tick": 1136,
+        "actualMusicGain": 0.049999997,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    },
+    {
+      "label": "before-smooth-stop",
+      "state": {
+        "kind": "background",
+        "title": "one more day",
+        "target": "feb3e1cb-94fc-4032-8eb3-49bc08fece6b",
+        "status": "loading",
+        "reason": "曲名取自当前音频资源；背景音乐没有可用的上一首 / 下一首播放列表。",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.5,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": true,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 5,
+          "legacyGainWritesReplaced": 3,
+          "smoothBackgroundStops": 3,
+          "activeEnvelopes": 0
+        },
+        "audio": [
+          {
+            "own": false,
+            "source": "music",
+            "event": "minecraft:music.overworld.meadow",
+            "gain": 0.1,
+            "state": 4114,
+            "baseVolume": 0.4
+          }
+        ],
+        "tick": 1189,
+        "actualMusicGain": 0.25,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    },
+    {
+      "label": "smooth-stop-tail",
+      "state": {
+        "kind": "idle",
+        "title": "当前没有音乐",
+        "target": "bc923d7e-2d8e-4184-843f-099ed66094b8",
+        "status": "idle",
+        "reason": "",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.5,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": false,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 5,
+          "legacyGainWritesReplaced": 3,
+          "smoothBackgroundStops": 4,
+          "activeEnvelopes": 1
+        },
+        "audio": [
+          {
+            "own": false,
+            "source": "music",
+            "event": "minecraft:music.overworld.meadow",
+            "gain": 0.0875,
+            "state": 4114,
+            "baseVolume": 0.4
+          }
+        ],
+        "tick": 1197,
+        "actualMusicGain": 0.25,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    },
+    {
+      "label": "after-smooth-stop",
+      "state": {
+        "kind": "idle",
+        "title": "当前没有音乐",
+        "target": "bc923d7e-2d8e-4184-843f-099ed66094b8",
+        "status": "idle",
+        "reason": "",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.5,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": false,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 5,
+          "legacyGainWritesReplaced": 3,
+          "smoothBackgroundStops": 4,
+          "activeEnvelopes": 0
+        },
+        "audio": [],
+        "tick": 1242,
+        "actualMusicGain": 0.25,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    },
+    {
+      "label": "game-select-playing",
+      "state": {
+        "kind": "game",
+        "title": "featherfall",
+        "target": "34bc226e-1c07-49ca-a5d7-2d94a0bc3867",
+        "status": "loading",
+        "reason": "携带终端时持续播放；移出个人背包或离开服务器时停止。",
+        "message": "播放游戏曲目；携带终端时持续播放。",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.5,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": true,
+          "play": true,
+          "stop": true,
+          "next": true,
+          "previous": true,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 5,
+          "legacyGainWritesReplaced": 3,
+          "smoothBackgroundStops": 4,
+          "activeEnvelopes": 0
+        },
+        "audio": [
+          {
+            "own": true,
+            "source": "music",
+            "event": "minecraft:music/game/featherfall",
+            "gain": 0.25,
+            "state": 4114,
+            "baseVolume": 1.0
+          }
+        ],
+        "tick": 1250,
+        "actualMusicGain": 0.25,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    },
+    {
+      "label": "two-terminals",
+      "state": {
+        "kind": "game",
+        "title": "featherfall",
+        "target": "bd187211-9d10-4d09-941d-186880a39c8f",
+        "status": "playing",
+        "reason": "携带终端时持续播放；移出个人背包或离开服务器时停止。",
+        "message": "播放游戏曲目；携带终端时持续播放。",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.5,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": true,
+          "play": true,
+          "stop": true,
+          "next": true,
+          "previous": true,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 5,
+          "legacyGainWritesReplaced": 3,
+          "smoothBackgroundStops": 4,
+          "activeEnvelopes": 0
+        },
+        "audio": [
+          {
+            "own": true,
+            "source": "music",
+            "event": "minecraft:music/game/featherfall",
+            "gain": 0.25,
+            "state": 4114,
+            "baseVolume": 1.0
+          }
+        ],
+        "tick": 1303,
+        "actualMusicGain": 0.25,
+        "selectedSlot": 1,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    },
+    {
+      "label": "one-terminal-left",
+      "state": {
+        "kind": "game",
+        "title": "featherfall",
+        "target": "bd187211-9d10-4d09-941d-186880a39c8f",
+        "status": "playing",
+        "reason": "携带终端时持续播放；移出个人背包或离开服务器时停止。",
+        "message": "播放游戏曲目；携带终端时持续播放。",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.5,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": true,
+          "play": true,
+          "stop": true,
+          "next": true,
+          "previous": true,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 2,
+        "catalogGeneration": 2,
+        "groups": [
+          {
+            "id": "84d409aa-c1ff-4457-a7ce-369d8cbd810b",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 5,
+          "legacyGainWritesReplaced": 3,
+          "smoothBackgroundStops": 4,
+          "activeEnvelopes": 0
+        },
+        "audio": [
+          {
+            "own": true,
+            "source": "music",
+            "event": "minecraft:music/game/featherfall",
+            "gain": 0.25,
+            "state": 4114,
+            "baseVolume": 1.0
+          }
+        ],
+        "tick": 1309,
+        "actualMusicGain": 0.25,
+        "selectedSlot": 1,
+        "screen": "NONE",
+        "reloading": false,
+        "trackCount": 60
+      }
+    }
+  ],
+  "productionWrites": false,
+  "forceKill": false,
+  "qaRetryReason": "NameError(\"name 'local' is not defined\")",
+  "success": false,
+  "error": "AssertionError({'kind': 'local', 'title': 'fixture-0', 'target': '93685caa-d449-480d-8ce7-d34a3301d7c4', 'status': 'loading', 'reason': '', 'message': '播放个人本地曲目；携带终端时持续播放。', 'busy': False, 'volumeSource': 'music', 'volume': 0.5, 'master': 0.2, 'muted': False, 'capabilities': {'pause': True, 'play': True, 'stop': True, 'next': True, 'previous': True, 'import': True, 'local': True, 'select': True}, 'tracks': [{'id': 'f21925c8-3fea-406e-9715-d244ec8415e7', 'title': 'featherfall', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'cd9ef854-ef0b-4ef3-b478-8af6e64ca4c2', 'title': 'infinite amethyst', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'b5107aa2-f7d0-488b-84cf-e8268bff02f0', 'title': 'wending', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'cb81c428-0c85-42be-ad1a-ebc6adefc11b', 'title': 'deeper', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '6c7235d6-133e-45e2-ba71-7dbf1ecc41f6', 'title': 'beginning 2', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '1c33b7a4-5d45-4480-aea1-ccb3de2b1afe', 'title': 'aerie', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'abc1c162-129f-4db7-a606-e183ef525b91', 'title': 'bromeliad', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'a1b5d9cd-3d8a-412b-97f3-ebaad74b6d04', 'title': 'boss', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '2e315c1d-5d26-41c7-8c5e-a8b670122680', 'title': 'dry hands', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '5435bcf9-c16f-45d5-af35-b26767582c00', 'title': 'ancestry', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '79e8c7b6-55d9-4182-a126-f46e1a0fd118', 'title': 'dreiton', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '5b4501b3-6a4b-45ce-978b-27a70e40e07e', 'title': 'moog city 2', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '658bb253-3080-439d-b8f3-2727d7f33983', 'title': 'yakusoku', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '4d552b9b-1e8c-4772-8bd5-22aba6467079', 'title': 'echo in the wind', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'a9111209-13e6-4bf4-90f3-bf333a0b0673', 'title': 'mutation', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'b8a88cc7-227e-4949-854c-10b7535b4f17', 'title': 'blind spots', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'faa22e16-631b-4d78-a32d-6d20c64131fe', 'title': 'danny', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'f608b3ca-0bdd-45a6-a624-e8b2aa50f11a', 'title': 'a familiar room', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '7187700e-1a7b-461c-81f8-931d2af41971', 'title': 'oxygene', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'ba7d5c99-b4f3-446b-a61b-737efd695135', 'title': 'stand tall', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '4a7afa41-7f8a-4dc1-9f17-e049f288d28d', 'title': 'haunt muskie', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '3d6bb32b-705e-4bcd-bb23-d6c751604e44', 'title': 'firebugs', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '6773fe2e-7e92-4a29-b653-00a2712afe73', 'title': 'alpha', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'eee9032f-3513-4d73-9540-9e0467df252c', 'title': 'dead voxel', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'f835bd2d-ba76-41c1-b979-9c5d9b59b211', 'title': 'concrete halls', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '1ca40ec3-839d-441e-841a-3f436b9250eb', 'title': 'left to bloom', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'be868d27-7703-4ae7-8912-d3ca52c8bdde', 'title': 'subwoofer lullaby', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'db504374-755b-4b91-98f4-ceddb159fd9b', 'title': 'one more day', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '92aeff51-1de0-44cd-a505-35ec0fc2a936', 'title': 'an ordinary day', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '6cbb4937-bf6b-4beb-8084-43a16de0fd73', 'title': 'dragon fish', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '1695a172-b59b-4863-9cb1-5d42b65282ee', 'title': 'chrysopoeia', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'b6e11132-dce5-4f82-adf6-04bbc751f028', 'title': 'mice on venus', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '72c7bb8d-8f0b-4e9f-a5e2-1c05358559fd', 'title': 'pokopoko', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '935c4014-1a04-494d-9da3-b2087cec88a8', 'title': 'clark', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '20d56506-e81b-43fd-994b-91f970fed7b8', 'title': 'biome fest', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'd2af56f4-4d8e-4f9d-8ebc-42e39424b091', 'title': 'floating dream', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '7ba93e57-2e60-408e-b8cb-c9fefcab65ff', 'title': 'wet hands', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '9799faa0-d59b-4da6-88b2-42770100abcc', 'title': 'labyrinthine', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'ca46d433-998c-49f7-a308-27b45e38363d', 'title': 'taswell', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '9eeb595b-9ad4-4b8d-8743-37fb94563f06', 'title': 'key', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'dfb7b16f-edca-4225-8ed9-59c5007bde50', 'title': 'puzzlebox', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '914661b6-3f62-4c78-81ed-9f1f9f936cc1', 'title': 'floating trees', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'dfc413e5-ec71-4133-be3e-4c20a9a30645', 'title': 'the end', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '96fb386f-1bb0-432a-8adb-dcb27d8419c3', 'title': 'komorebi', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '86662927-7551-43a7-95e6-df0da12f026f', 'title': 'eld unknown', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '81d45dd6-0589-4891-9028-b98f4a2af9e9', 'title': 'living mice', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '6b3a381d-0ec6-4338-9ea6-d5921d928944', 'title': 'crescent dunes', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '0e72c761-b3da-4e89-8fec-f3ac2fa56090', 'title': 'endless', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'aee6220f-db53-452d-945a-686325ce5f22', 'title': 'comforting memories', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '179e03ca-c33a-49ca-b81d-890057406d9a', 'title': 'axolotl', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '16a9015c-8961-473b-a943-53fe6590fcfc', 'title': 'rubedo', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'e4303469-465e-4bc9-8f82-166f66b7ec75', 'title': 'minecraft', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'db5b4ec8-c9bf-4677-b482-4374d0323302', 'title': 'aria math', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '7c63b875-fa1d-4930-9a4b-e83ee161aa79', 'title': 'ballad of the cats', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '5969c786-3a0d-46f2-8fcb-9a456acabdc7', 'title': 'shuniji', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '0d24b454-8590-4a47-b252-e44ffceb4cb4', 'title': 'sweden', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '15359882-2958-4d60-97bf-5a7400adeeca', 'title': 'so below', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '9b3d5383-a3ac-4c2b-8bc3-e439b0c8aa2b', 'title': 'watcher', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'c385478c-c5a5-4a66-9505-6c12618f9104', 'title': 'haggstrom', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '5c7c4733-51cb-4818-98aa-4a8ed58f5c89', 'title': 'warmth', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'b21ba4e4-f265-4c27-95b5-000d368517fc', 'title': 'Portable fixture 0', 'source': '本人便携播放器 · 槽位 3 · 第 1 首', 'group': 'ca31e4a2-96c7-4ffc-b35d-204668a45666', 'active': False}, {'id': 'a0e2b534-301f-4bdd-a9cc-108a7d8acc05', 'title': 'Portable fixture 1', 'source': '本人便携播放器 · 槽位 3 · 第 2 首', 'group': 'ca31e4a2-96c7-4ffc-b35d-204668a45666', 'active': False}], 'playlistReason': '', 'catalogLoading': False, 'catalogScans': 5, 'catalogGeneration': 5, 'groups': [{'id': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'name': 'Minecraft', 'count': 60}, {'id': 'ca31e4a2-96c7-4ffc-b35d-204668a45666', 'name': '个人便携播放器 · 槽位 3', 'count': 2}], 'queueGroup': '', 'queueIndex': -1, 'queueSize': 0, 'localTracks': [{'id': 'b88665a1-f65b-4861-a7ba-c1d6dbfb3155', 'title': 'fixture-0', 'format': 'WAV', 'active': True}, {'id': 'bfae983f-cfd4-47e5-abfd-269666e2a4d2', 'title': 'fixture-1', 'format': 'WAV', 'active': False}], 'continuity': {'biomeFadeHooks': 5, 'legacyGainWritesReplaced': 3, 'smoothBackgroundStops': 4, 'activeEnvelopes': 0}, 'audio': [], 'tick': 4282, 'actualMusicGain': 0.25, 'selectedSlot': 1, 'screen': 'NONE', 'reloading': False})",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\ranzh\\Documents\\Codex\\2026-10-02\\task-2\\verify_music_next_final_phase.py\", line 40, in <module>\n    api('music.local:'+local[0]['id']);wait(own_playing);qa('disconnect');time.sleep(1)\n                                       ^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ranzh\\Documents\\Codex\\2026-10-02\\task-2\\music_native_control.py\", line 47, in wait\n    raise AssertionError(last)\nAssertionError: {'kind': 'local', 'title': 'fixture-0', 'target': '93685caa-d449-480d-8ce7-d34a3301d7c4', 'status': 'loading', 'reason': '', 'message': '播放个人本地曲目；携带终端时持续播放。', 'busy': False, 'volumeSource': 'music', 'volume': 0.5, 'master': 0.2, 'muted': False, 'capabilities': {'pause': True, 'play': True, 'stop': True, 'next': True, 'previous': True, 'import': True, 'local': True, 'select': True}, 'tracks': [{'id': 'f21925c8-3fea-406e-9715-d244ec8415e7', 'title': 'featherfall', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'cd9ef854-ef0b-4ef3-b478-8af6e64ca4c2', 'title': 'infinite amethyst', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'b5107aa2-f7d0-488b-84cf-e8268bff02f0', 'title': 'wending', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'cb81c428-0c85-42be-ad1a-ebc6adefc11b', 'title': 'deeper', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '6c7235d6-133e-45e2-ba71-7dbf1ecc41f6', 'title': 'beginning 2', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '1c33b7a4-5d45-4480-aea1-ccb3de2b1afe', 'title': 'aerie', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'abc1c162-129f-4db7-a606-e183ef525b91', 'title': 'bromeliad', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'a1b5d9cd-3d8a-412b-97f3-ebaad74b6d04', 'title': 'boss', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '2e315c1d-5d26-41c7-8c5e-a8b670122680', 'title': 'dry hands', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '5435bcf9-c16f-45d5-af35-b26767582c00', 'title': 'ancestry', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '79e8c7b6-55d9-4182-a126-f46e1a0fd118', 'title': 'dreiton', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '5b4501b3-6a4b-45ce-978b-27a70e40e07e', 'title': 'moog city 2', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '658bb253-3080-439d-b8f3-2727d7f33983', 'title': 'yakusoku', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '4d552b9b-1e8c-4772-8bd5-22aba6467079', 'title': 'echo in the wind', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'a9111209-13e6-4bf4-90f3-bf333a0b0673', 'title': 'mutation', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'b8a88cc7-227e-4949-854c-10b7535b4f17', 'title': 'blind spots', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'faa22e16-631b-4d78-a32d-6d20c64131fe', 'title': 'danny', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'f608b3ca-0bdd-45a6-a624-e8b2aa50f11a', 'title': 'a familiar room', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '7187700e-1a7b-461c-81f8-931d2af41971', 'title': 'oxygene', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'ba7d5c99-b4f3-446b-a61b-737efd695135', 'title': 'stand tall', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '4a7afa41-7f8a-4dc1-9f17-e049f288d28d', 'title': 'haunt muskie', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '3d6bb32b-705e-4bcd-bb23-d6c751604e44', 'title': 'firebugs', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '6773fe2e-7e92-4a29-b653-00a2712afe73', 'title': 'alpha', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'eee9032f-3513-4d73-9540-9e0467df252c', 'title': 'dead voxel', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'f835bd2d-ba76-41c1-b979-9c5d9b59b211', 'title': 'concrete halls', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '1ca40ec3-839d-441e-841a-3f436b9250eb', 'title': 'left to bloom', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'be868d27-7703-4ae7-8912-d3ca52c8bdde', 'title': 'subwoofer lullaby', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'db504374-755b-4b91-98f4-ceddb159fd9b', 'title': 'one more day', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '92aeff51-1de0-44cd-a505-35ec0fc2a936', 'title': 'an ordinary day', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '6cbb4937-bf6b-4beb-8084-43a16de0fd73', 'title': 'dragon fish', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '1695a172-b59b-4863-9cb1-5d42b65282ee', 'title': 'chrysopoeia', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'b6e11132-dce5-4f82-adf6-04bbc751f028', 'title': 'mice on venus', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '72c7bb8d-8f0b-4e9f-a5e2-1c05358559fd', 'title': 'pokopoko', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '935c4014-1a04-494d-9da3-b2087cec88a8', 'title': 'clark', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '20d56506-e81b-43fd-994b-91f970fed7b8', 'title': 'biome fest', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'd2af56f4-4d8e-4f9d-8ebc-42e39424b091', 'title': 'floating dream', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '7ba93e57-2e60-408e-b8cb-c9fefcab65ff', 'title': 'wet hands', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '9799faa0-d59b-4da6-88b2-42770100abcc', 'title': 'labyrinthine', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'ca46d433-998c-49f7-a308-27b45e38363d', 'title': 'taswell', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '9eeb595b-9ad4-4b8d-8743-37fb94563f06', 'title': 'key', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'dfb7b16f-edca-4225-8ed9-59c5007bde50', 'title': 'puzzlebox', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '914661b6-3f62-4c78-81ed-9f1f9f936cc1', 'title': 'floating trees', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'dfc413e5-ec71-4133-be3e-4c20a9a30645', 'title': 'the end', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '96fb386f-1bb0-432a-8adb-dcb27d8419c3', 'title': 'komorebi', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '86662927-7551-43a7-95e6-df0da12f026f', 'title': 'eld unknown', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '81d45dd6-0589-4891-9028-b98f4a2af9e9', 'title': 'living mice', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '6b3a381d-0ec6-4338-9ea6-d5921d928944', 'title': 'crescent dunes', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '0e72c761-b3da-4e89-8fec-f3ac2fa56090', 'title': 'endless', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'aee6220f-db53-452d-945a-686325ce5f22', 'title': 'comforting memories', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '179e03ca-c33a-49ca-b81d-890057406d9a', 'title': 'axolotl', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '16a9015c-8961-473b-a943-53fe6590fcfc', 'title': 'rubedo', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'e4303469-465e-4bc9-8f82-166f66b7ec75', 'title': 'minecraft', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'db5b4ec8-c9bf-4677-b482-4374d0323302', 'title': 'aria math', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '7c63b875-fa1d-4930-9a4b-e83ee161aa79', 'title': 'ballad of the cats', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '5969c786-3a0d-46f2-8fcb-9a456acabdc7', 'title': 'shuniji', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '0d24b454-8590-4a47-b252-e44ffceb4cb4', 'title': 'sweden', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '15359882-2958-4d60-97bf-5a7400adeeca', 'title': 'so below', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '9b3d5383-a3ac-4c2b-8bc3-e439b0c8aa2b', 'title': 'watcher', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'c385478c-c5a5-4a66-9505-6c12618f9104', 'title': 'haggstrom', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': '5c7c4733-51cb-4818-98aa-4a8ed58f5c89', 'title': 'warmth', 'source': 'Minecraft', 'group': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'active': False}, {'id': 'b21ba4e4-f265-4c27-95b5-000d368517fc', 'title': 'Portable fixture 0', 'source': '本人便携播放器 · 槽位 3 · 第 1 首', 'group': 'ca31e4a2-96c7-4ffc-b35d-204668a45666', 'active': False}, {'id': 'a0e2b534-301f-4bdd-a9cc-108a7d8acc05', 'title': 'Portable fixture 1', 'source': '本人便携播放器 · 槽位 3 · 第 2 首', 'group': 'ca31e4a2-96c7-4ffc-b35d-204668a45666', 'active': False}], 'playlistReason': '', 'catalogLoading': False, 'catalogScans': 5, 'catalogGeneration': 5, 'groups': [{'id': 'd901c6bd-7d86-4649-aae4-61da84359f8f', 'name': 'Minecraft', 'count': 60}, {'id': 'ca31e4a2-96c7-4ffc-b35d-204668a45666', 'name': '个人便携播放器 · 槽位 3', 'count': 2}], 'queueGroup': '', 'queueIndex': -1, 'queueSize': 0, 'localTracks': [{'id': 'b88665a1-f65b-4861-a7ba-c1d6dbfb3155', 'title': 'fixture-0', 'format': 'WAV', 'active': True}, {'id': 'bfae983f-cfd4-47e5-abfd-269666e2a4d2', 'title': 'fixture-1', 'format': 'WAV', 'active': False}], 'continuity': {'biomeFadeHooks': 5, 'legacyGainWritesReplaced': 3, 'smoothBackgroundStops': 4, 'activeEnvelopes': 0}, 'audio': [], 'tick': 4282, 'actualMusicGain': 0.25, 'selectedSlot': 1, 'screen': 'NONE', 'reloading': False}\n",
+  "testedJarSha256": "363c59b6c1c7f1a77ea8b74101ea1c5462602fce6453c6561317839d8b5b5261",
+  "knownFailureResolution": "Portable-stop -> local transient BiomeMusic RECORDS cache blocker fixed by bounded pre-stream retries; see final-targeted.json. Earlier file-lock and phase variable problems were QA harness issues. Each of the listed 41 checks passed; this earlier aggregate did not pass."
+}

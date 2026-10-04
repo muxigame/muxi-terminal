@@ -66,3 +66,14 @@
   #music .music-volume input[type=range]{min-height:22px;height:22px}
   #music .music-library-note{display:none}
 }
+
+/* The catalog toolbar retains one 30px row and the original 32px track rows. */
+#music #musicGroup{min-width:0;flex:1;width:0;min-height:30px;height:30px;padding:2px;font:inherit;font-size:11px;color:var(--ink);background:var(--panel);border:2px solid var(--line);border-radius:0}
+#music .music-library-head button{padding:2px 4px;flex-shrink:0}
+#music #musicRefresh{width:26px;padding:0}
+@media(max-width:480px){
+  #music .music-library{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr)}
+  #music .music-library-head{grid-column:1;grid-row:1}
+  #music .music-tabs{grid-column:1;grid-row:2}
+  #music .music-list-scroll{grid-column:1;grid-row:3}
+}

@@ -1,0 +1,21 @@
+{
+  "scope": "real installed class signatures; no static MC initialization or gameplay",
+  "checks": [
+    "real portable ringer getter matches",
+    "real native inventory container access matches",
+    "real existing playlist access matches",
+    "real current playlist index getter matches",
+    "real song name metadata matches",
+    "real single CD portable source getter matches",
+    "real existing server action packet constructor matches",
+    "real packet supports play stop next select; no fabricated pause/resume",
+    "real playing source ownership and metadata access matches",
+    "real optional local decoder constructor matches",
+    "MC current music accessor field verified",
+    "MC sound engine accessor field verified",
+    "MC sound channel accessor field verified",
+    "MC actual OpenAL state invoker verified"
+  ],
+  "success": true,
+  "count": 14
+}

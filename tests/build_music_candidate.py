@@ -8,13 +8,18 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--workspace',type=Path,required=True)
     parser.add_argument('--java-home',type=Path,required=True)
+    parser.add_argument('--output',type=Path,required=True,help='Private build root; required to protect shared publisher outputs')
     parser.add_argument('--pin-output',type=Path,help='Save a music-owned copy of the exact compiled candidate')
     args=parser.parse_args()
     spec=importlib.util.spec_from_file_location('terminal_build',ROOT/'build.py')
     build=importlib.util.module_from_spec(spec);spec.loader.exec_module(build)
+    private=args.output.resolve(); private.mkdir(parents=True,exist_ok=True)
+    class SourceRoot:
+        def __truediv__(self,part): return private if part == 'build' else ROOT/part
+    build.ROOT=SourceRoot()
     compile_original=build.compile_java
     def capture_dependencies(compiler,sources,output,classpath,argfile):
-        destination=ROOT/'build/music-test-dependencies.jar'
+        destination=private/'music-test-dependencies.jar'
         destination.parent.mkdir(parents=True,exist_ok=True)
         seen=set()
         with zipfile.ZipFile(destination,'w',zipfile.ZIP_DEFLATED) as archive:

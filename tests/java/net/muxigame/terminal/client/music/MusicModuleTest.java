@@ -23,6 +23,18 @@ public final class MusicModuleTest {
         public void close() { closes.incrementAndGet(); }
     }
     public static void main(String[] args) throws Exception {
+        for (float category : new float[]{0, .05f, .1f, .5f, 1}) {
+            float last = -1; boolean monotonic = true;
+            for (int tick = 0; tick <= 40; tick++) {
+                float gain = category * MusicEnvelope.interpolate(0, 1, tick, 40);
+                monotonic &= gain >= last && gain <= category;
+                last = gain;
+            }
+            check(monotonic, "fade-in remains monotonic and bounded at category " + category);
+            check(Math.abs(last - category) < .00001f, "fade ends at exactly one category-volume application " + category);
+            check(MusicEnvelope.interpolate(1, 0, 40, 40) == 0, "fade-out ends at actual silence at category " + category);
+        }
+        check(MusicEnvelope.interpolate(0, 1, -1, 40) == 0 && MusicEnvelope.interpolate(1, 0, 100, 40) == 0, "elapsed fade boundaries clamp safely");
         String url = MusicSecurity.SHELL + "#/music";
         check(MusicSecurity.trusted(true, true, url, url), "owned built-in music main frame allowed");
         for (String rejected : List.of("https://evil.invalid/", "mod://muxi_terminal/custom/index.html#/music",

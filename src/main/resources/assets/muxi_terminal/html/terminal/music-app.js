@@ -6,7 +6,9 @@
   stylesheet.href = new URL('./music-app.css', document.currentScript?.src || location.href).href;
   document.head.append(stylesheet);
   let root, state, inflight = false, busy = false, timer, epoch = 0, listFocus;
-  let library = 'tracks';
+  let library = 'tracks', group = '';
+  let groupsSignature = '';
+  const rowHTML = new WeakMap();
   const scrollPositions = {tracks: 0, local: 0};
   const active = () => root?.classList.contains('page-active') && !document.hidden;
   const el = id => root.querySelector('#' + id);
@@ -31,7 +33,20 @@
       listFocus = {list: list.id, key, id: focused.dataset[key], selected: focused.classList.contains('keyboard-selected')};
     }
     list.dataset.signature = signature;
-    list.innerHTML = html;
+    const template = document.createElement('template'); template.innerHTML = html;
+    const keyOf = row => { const button = row.querySelector('[data-track], [data-local]'); return button?.dataset.track || button?.dataset.local; };
+    const existing = new Map([...list.children].map(row => [keyOf(row), row]));
+    const desired = [...template.content.children];
+    desired.forEach((row, index) => {
+      const old = existing.get(keyOf(row));
+      const html = row.outerHTML;
+      const keep = old && rowHTML.get(old) === html ? old : row;
+      rowHTML.set(keep, html);
+      if (old && old !== keep) old.replaceWith(keep);
+      if (list.children[index] !== keep) list.insertBefore(keep, list.children[index] || null);
+      existing.delete(keyOf(row));
+    });
+    existing.forEach(row => row.remove());
     // Busy snapshots replace disabled rows. Restore the same row after completion,
     // unless the user has moved focus to another control or library in the meantime.
     if (!busy && listFocus?.list === list.id && !list.hidden) {
@@ -60,10 +75,12 @@
       button.classList.toggle('secondary', !selected);
     });
     scroll.scrollTop = scrollPositions[next];
+    if (state) render(state);
   }
   function render(next) {
     state = next;
     const caps = next.capabilities || {};
+    root.querySelectorAll('[data-music-library]').forEach(button => button.disabled = false);
     el('musicTitle').textContent = next.title || '当前没有音乐';
     el('musicTitle').title = el('musicTitle').textContent;
     const names = {game: '游戏曲目', background: '游戏背景音乐', netmusic: '原便携播放器', local: '个人本地音乐', other: '附近播放器', idle: '游戏音乐', unavailable: '音乐不可用'};
@@ -82,8 +99,19 @@
     if (document.activeElement !== slider) slider.value = Math.round((Number(next.volume) || 0) * 100);
     el('musicVolumeValue').textContent = `${slider.value}%`;
     el('musicMute').textContent = next.muted ? '已静音 · 主音量 ' + Math.round((Number(next.master) || 0) * 100) + '%' : '主音量 ' + Math.round((Number(next.master) || 0) * 100) + '%';
-    const available = next.tracks || [], songList = el('musicTrackList');
-    el('musicTrackCount').textContent = `${available.length} 首`;
+    const groups = next.groups || [];
+    if (groups.length && !groups.some(item => item.id === group)) group = groups[0].id;
+    const newGroups = JSON.stringify(groups);
+    if (groupsSignature !== newGroups) {
+      groupsSignature = newGroups;
+      el('musicGroup').innerHTML = groups.length ? groups.map(item => `<option value="${safe(item.id)}">${safe(item.name)} (${item.count})</option>`).join('') : '<option value="">曲库加载中</option>';
+      el('musicGroup').value = group;
+    }
+    el('musicGroup').hidden = library === 'local';
+    el('musicPlaylist').disabled = busy || next.busy || next.catalogLoading || !(library === 'local' ? next.localTracks?.length : group);
+    el('musicRefresh').disabled = busy || next.catalogLoading;
+    const available = (next.tracks || []).filter(track => !group || !track.group || track.group === group), songList = el('musicTrackList');
+    el('musicTrackCount').textContent = `${available.length} 首${next.catalogLoading ? '…' : ''}`;
     el('musicPlaylistReason').textContent = next.playlistReason || '';
     el('musicPlaylistReason').title = el('musicPlaylistReason').textContent;
     const songSignature = JSON.stringify([available, caps.select, busy]);
@@ -119,14 +147,16 @@
       <div class="detail-actions music-controls"><button id="music-previous" class="secondary" disabled>上一首</button><button id="music-play" class="secondary" disabled>播放</button><button id="music-next" class="secondary" disabled>下一首</button><button id="musicPause" class="primary" disabled>暂停</button><button id="music-stop" class="secondary" disabled>停止</button></div>
       <div class="music-volume"><div class="setting-row"><label for="musicVolume" id="musicVolumeLabel">音乐音量 · Minecraft 原生选项</label><input id="musicVolume" type="range" min="0" max="100" step="1" aria-label="当前音乐来源音量"><output id="musicVolumeValue">0%</output></div><p id="musicMute"></p></div>
       <div class="music-feedback"><p class="manual-hint" id="musicReason"></p><p class="manual-hint" id="musicMessage" role="status" aria-live="polite"></p></div></article>
-      <aside class="music-library" aria-label="播放列表"><div class="music-library-head"><strong class="music-library-label">播放列表</strong><button id="musicImport" class="secondary" title="导入本机音乐，仅在本机复制保存，不上传" disabled>导入</button></div>
+      <aside class="music-library" aria-label="播放列表"><div class="music-library-head"><select id="musicGroup" aria-label="按提供模组选择播放列表" title="按提供模组选择播放列表"></select><button id="musicPlaylist" class="secondary" title="从首曲依次播放当前列表，播完停止" disabled>整单</button><button id="musicRefresh" class="secondary" title="重新扫描当前资源曲库">↻</button><button id="musicImport" class="secondary" title="导入本机音乐，仅在本机复制保存，不上传" disabled>导入</button></div>
       <div class="music-tabs" role="tablist" aria-label="曲目来源"><button id="musicTracksTab" class="primary" role="tab" aria-selected="true" aria-controls="musicTrackList" data-music-library="tracks">游戏／随身 <span id="musicTrackCount">0 首</span></button><button id="musicLocalTab" class="secondary" role="tab" aria-selected="false" aria-controls="musicLocalList" data-music-library="local">本机 <span id="musicLocalCount">0 首</span></button></div>
       <div class="music-list-scroll" id="musicListScroll"><div class="task-list" id="musicTrackList" role="tabpanel" aria-labelledby="musicTracksTab"></div><div class="task-list" id="musicLocalList" role="tabpanel" aria-labelledby="musicLocalTab" hidden></div></div>
-      <div class="music-library-note"><p class="manual-hint" id="musicPlaylistReason"></p><span title="仅在本机复制保存，不上传。支持 OGG Vorbis、PCM WAV；MP3 / FLAC / AAC 按现有解码器能力验证。退出音乐 APP 停止本机播放。">本机导入不上传 · OGG / WAV</span></div></aside></div>`;
+      <div class="music-library-note"><p class="manual-hint" id="musicPlaylistReason"></p><span title="仅在本机复制保存，不上传。支持 OGG Vorbis、PCM WAV；MP3 / FLAC / AAC 按现有解码器能力验证。携带终端时可关闭 APP 继续播放，移出个人背包或离开服务器时停止。">本机导入不上传 · OGG / WAV</span></div></aside></div>`;
     root.addEventListener('click', event => {
       const button = event.target.closest('button'); if (!button || button.disabled) return;
       if (button.dataset.open === 'home') { window.terminalReturnHome ? window.terminalReturnHome() : window.muxi?.home(); return; }
       if (button.dataset.musicLibrary) selectLibrary(button.dataset.musicLibrary);
+      else if (button.id === 'musicPlaylist') act('music.playlist:' + (library === 'local' ? 'local' : group));
+      else if (button.id === 'musicRefresh') act('music.refresh');
       else if (button.id === 'musicImport') act('music.import');
       else if (button.id === 'musicPause') control(state.status === 'paused' ? 'resume' : 'pause');
       else if (button.id.startsWith('music-')) control(button.id.slice(6));
@@ -134,10 +164,11 @@
       else if (button.dataset.local) act('music.local:' + button.dataset.local);
       else if (button.dataset.remove) act('music.remove:' + button.dataset.remove);
     });
+    el('musicGroup').addEventListener('change', () => { group = el('musicGroup').value; el('musicListScroll').scrollTop = 0; if (state) render(state); });
     el('musicVolume').addEventListener('input', () => el('musicVolumeValue').textContent = el('musicVolume').value + '%');
     el('musicVolume').addEventListener('change', () => control('volume', Number(el('musicVolume').value) / 100));
     new MutationObserver(() => { epoch++; if (active()) refresh(); }).observe(root, {attributes: true, attributeFilter: ['class']});
-    timer = setInterval(refresh, 750); refresh();
+    timer = setInterval(() => { if (state?.catalogLoading || Date.now() % 750 < 150) refresh(); }, 150); refresh();
   }
   window.MuxiMusicApp = {mount, refresh, destroy() { clearInterval(timer); epoch++; if (root) request('music.exit').catch(() => {}); }};
   window.addEventListener('pagehide', () => window.MuxiMusicApp.destroy());

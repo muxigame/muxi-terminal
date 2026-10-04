@@ -1,0 +1,2015 @@
+{
+  "scope": "Actual isolated MC/MCEF/OpenAL on 131; hidden client, assisted native callbacks; no OS file-picker/physical input acceptance",
+  "lab": "C:\\Users\\ranzh\\workspace\\dev\\muxigame\\better-mc-remake\\build\\local-mc-debug\\music-next-20261004-142451",
+  "checks": [
+    "final candidate exposes the 60 actual native resource files",
+    "final candidate preserves one application of actual low category gain",
+    "final candidate stores actual local decoded files only in the private instance",
+    "final candidate portable rows have exact group IDs",
+    "final native player has no fabricated pause API",
+    "final native whole playlist advances after EOF",
+    "final native whole playlist ends and releases its stream",
+    "local playback starts after native portable EOF without waiting for the 30-second timeout",
+    "manual native stop followed immediately by local play produces exactly one owned stream",
+    "final local session survives APP detach and held item changes",
+    "final disconnect clears owned streams and queue",
+    "final reconnect does not resume a previous playback session"
+  ],
+  "samples": [
+    {
+      "label": "final-low-volume",
+      "state": {
+        "kind": "background",
+        "title": "living mice",
+        "target": "874ae16a-b464-4783-a478-5b0a4e557a5a",
+        "status": "loading",
+        "reason": "曲名取自当前音频资源；背景音乐没有可用的上一首 / 下一首播放列表。",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.22360679774997896,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": true,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "tracks": [
+          {
+            "id": "bc8d1251-c99e-4b61-ba74-d46a65e824ee",
+            "title": "featherfall",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "71239373-cbdb-445f-a2fd-a2bbe0b70d06",
+            "title": "infinite amethyst",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "b59684ef-f3cb-4ed2-8581-6cec5e9911bd",
+            "title": "wending",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "ba20b78b-8200-4bad-b701-39ffe148978d",
+            "title": "deeper",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "7db6e0cb-4375-4ea2-a9a1-426325d8e8e8",
+            "title": "beginning 2",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "9d860578-a2ca-40d0-a1b6-f0ff1b92c568",
+            "title": "aerie",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "35546d7e-97e8-4622-bd07-61896bf44fdb",
+            "title": "bromeliad",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "db28efbb-e99a-454f-b17c-41e1673344ef",
+            "title": "boss",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "a5f4e55f-5c60-4234-a2ad-9930944f81b8",
+            "title": "dry hands",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "c64f3941-66ad-481e-aab9-724eae0434c8",
+            "title": "ancestry",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "a20bbcd4-fd99-4200-b220-531ae0a3e9da",
+            "title": "dreiton",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "38577969-effe-447b-900d-add756beba7a",
+            "title": "moog city 2",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "8bee3f3e-ee9e-4fa7-8f1b-60de0cddaad0",
+            "title": "yakusoku",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "acc9746f-245b-4778-b5d6-0d6dbd04d3c5",
+            "title": "echo in the wind",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "de4b0d3f-95ad-4e09-ba75-b8519a52d564",
+            "title": "mutation",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "8fecfdfe-42c2-4a7e-b932-32e9166696af",
+            "title": "blind spots",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "016ecb18-f5c0-4ea1-9911-f7e91c1f820c",
+            "title": "danny",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "3203c892-f28a-4c25-9ad9-8533a0a114a7",
+            "title": "a familiar room",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "d8dc154e-368b-4d1e-ba03-1617d16a3688",
+            "title": "oxygene",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "91b5dcf4-468c-41f4-a360-43391ad705d0",
+            "title": "stand tall",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "5c7c1fe6-5858-47eb-bcf1-bdbf04407060",
+            "title": "haunt muskie",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "b6fe4ec3-2d6f-4633-ac9a-eb2a8de6b257",
+            "title": "firebugs",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "39d11682-bb46-42a8-921b-a2f6bd56354c",
+            "title": "alpha",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "cb74a525-da26-4d0e-932f-56140548cc8f",
+            "title": "dead voxel",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "4c1ec829-fe83-4516-8707-8c6574b6d41f",
+            "title": "concrete halls",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "e00c6567-c3ba-48f7-9d79-e209d21fdba2",
+            "title": "left to bloom",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "f1d9144b-0906-4ba1-86a6-e1dc3db0fbe5",
+            "title": "subwoofer lullaby",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "179a107c-7fe6-4fd5-8436-69d11098223a",
+            "title": "one more day",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "122f389b-61b6-471e-b463-29862474989f",
+            "title": "an ordinary day",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "8faf067b-226e-4b84-ba1c-5a8c543a4e69",
+            "title": "dragon fish",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "e1d87e55-3c5c-4ec4-84b8-5f0c153372f9",
+            "title": "chrysopoeia",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "c80be601-d4e1-456d-971c-eefae252b029",
+            "title": "mice on venus",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "b7420680-e325-4553-bcd6-55deb7f4afc6",
+            "title": "pokopoko",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "99921873-232f-4208-83f3-3c4be3e74d58",
+            "title": "clark",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "3bc722e7-761d-4590-969d-cfb7f19d5c59",
+            "title": "biome fest",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "ea83dade-7696-4431-b944-580c13b92a41",
+            "title": "floating dream",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "6a7cebd9-b73b-4776-bb1d-850549fd4694",
+            "title": "wet hands",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "a353a9d1-ab0b-4ce6-8800-43aece9bb467",
+            "title": "labyrinthine",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "00a0973c-c178-4c20-abc9-58822462f0fd",
+            "title": "taswell",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "1f1fe778-8988-48e0-9e8a-633179337df1",
+            "title": "key",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "e82ed996-73d6-4b86-b105-29ce3c054853",
+            "title": "puzzlebox",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "f803dcf9-7b7f-438a-aef8-c073cfbc153c",
+            "title": "floating trees",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "f6398e3a-f597-4e72-8a2e-c0ad4575a4ed",
+            "title": "the end",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "968c516f-d0b7-4264-a2d6-ec368e0ee2d8",
+            "title": "komorebi",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "4834ecce-c1ff-4090-83c1-669f59463cdd",
+            "title": "eld unknown",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "607d4219-08fe-49f3-9aaa-0616f73f85b1",
+            "title": "living mice",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "91573396-b6d8-41f4-8dc7-9d01d147c4b3",
+            "title": "crescent dunes",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "70682c2c-d5ca-492d-bfc9-7ab4d679a435",
+            "title": "endless",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "fef8a615-0aff-40d9-beae-5dc66d0cafd5",
+            "title": "comforting memories",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "0eebbaaa-1f7d-4afb-a423-9deb57f58bc2",
+            "title": "axolotl",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "aa9c6e56-1cf0-45c9-9552-54a43fbc904a",
+            "title": "rubedo",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "bc7c5720-224b-496f-b46b-f1522ae36c68",
+            "title": "minecraft",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "953a8d40-94ed-4273-9f1d-8a412b6f5c48",
+            "title": "aria math",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "6f647644-6f2c-4e61-b6d8-e7570bceada5",
+            "title": "ballad of the cats",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "ade6233e-7601-4cfa-bc44-e349d62a948b",
+            "title": "shuniji",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "ca910ea3-4989-4c97-b59f-42c0ec0b00a9",
+            "title": "sweden",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "23277cb4-0af5-4264-9d38-60dd6b6c162a",
+            "title": "so below",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "33a5db84-bd48-4f9f-8a4a-a02331048b8a",
+            "title": "watcher",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "f295679c-41c6-4203-8eb0-e9d3fc6a875e",
+            "title": "haggstrom",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "236c07be-9a78-48f3-b971-bcf9b2b094f4",
+            "title": "warmth",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          }
+        ],
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 1,
+        "catalogGeneration": 1,
+        "groups": [
+          {
+            "id": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 2,
+          "legacyGainWritesReplaced": 0,
+          "smoothBackgroundStops": 0,
+          "activeEnvelopes": 0
+        },
+        "audio": [
+          {
+            "own": false,
+            "source": "music",
+            "event": "minecraft:music.overworld.meadow",
+            "gain": 0.049999997,
+            "state": 4114,
+            "baseVolume": 1.0
+          }
+        ],
+        "tick": 873,
+        "actualMusicGain": 0.049999997,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false
+      }
+    },
+    {
+      "label": "portable-eof-to-local",
+      "state": {
+        "kind": "local",
+        "title": "fixture-0",
+        "target": "102133ce-5a97-4962-96bf-6a151e507cbf",
+        "status": "loading",
+        "reason": "",
+        "message": "播放个人本地曲目；携带终端时持续播放。",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.22360679774997896,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": true,
+          "play": true,
+          "stop": true,
+          "next": true,
+          "previous": true,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "tracks": [
+          {
+            "id": "bc8d1251-c99e-4b61-ba74-d46a65e824ee",
+            "title": "featherfall",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "71239373-cbdb-445f-a2fd-a2bbe0b70d06",
+            "title": "infinite amethyst",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "b59684ef-f3cb-4ed2-8581-6cec5e9911bd",
+            "title": "wending",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "ba20b78b-8200-4bad-b701-39ffe148978d",
+            "title": "deeper",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "7db6e0cb-4375-4ea2-a9a1-426325d8e8e8",
+            "title": "beginning 2",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "9d860578-a2ca-40d0-a1b6-f0ff1b92c568",
+            "title": "aerie",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "35546d7e-97e8-4622-bd07-61896bf44fdb",
+            "title": "bromeliad",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "db28efbb-e99a-454f-b17c-41e1673344ef",
+            "title": "boss",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "a5f4e55f-5c60-4234-a2ad-9930944f81b8",
+            "title": "dry hands",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "c64f3941-66ad-481e-aab9-724eae0434c8",
+            "title": "ancestry",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "a20bbcd4-fd99-4200-b220-531ae0a3e9da",
+            "title": "dreiton",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "38577969-effe-447b-900d-add756beba7a",
+            "title": "moog city 2",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "8bee3f3e-ee9e-4fa7-8f1b-60de0cddaad0",
+            "title": "yakusoku",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "acc9746f-245b-4778-b5d6-0d6dbd04d3c5",
+            "title": "echo in the wind",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "de4b0d3f-95ad-4e09-ba75-b8519a52d564",
+            "title": "mutation",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "8fecfdfe-42c2-4a7e-b932-32e9166696af",
+            "title": "blind spots",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "016ecb18-f5c0-4ea1-9911-f7e91c1f820c",
+            "title": "danny",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "3203c892-f28a-4c25-9ad9-8533a0a114a7",
+            "title": "a familiar room",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "d8dc154e-368b-4d1e-ba03-1617d16a3688",
+            "title": "oxygene",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "91b5dcf4-468c-41f4-a360-43391ad705d0",
+            "title": "stand tall",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "5c7c1fe6-5858-47eb-bcf1-bdbf04407060",
+            "title": "haunt muskie",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "b6fe4ec3-2d6f-4633-ac9a-eb2a8de6b257",
+            "title": "firebugs",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "39d11682-bb46-42a8-921b-a2f6bd56354c",
+            "title": "alpha",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "cb74a525-da26-4d0e-932f-56140548cc8f",
+            "title": "dead voxel",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "4c1ec829-fe83-4516-8707-8c6574b6d41f",
+            "title": "concrete halls",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "e00c6567-c3ba-48f7-9d79-e209d21fdba2",
+            "title": "left to bloom",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "f1d9144b-0906-4ba1-86a6-e1dc3db0fbe5",
+            "title": "subwoofer lullaby",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "179a107c-7fe6-4fd5-8436-69d11098223a",
+            "title": "one more day",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "122f389b-61b6-471e-b463-29862474989f",
+            "title": "an ordinary day",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "8faf067b-226e-4b84-ba1c-5a8c543a4e69",
+            "title": "dragon fish",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "e1d87e55-3c5c-4ec4-84b8-5f0c153372f9",
+            "title": "chrysopoeia",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "c80be601-d4e1-456d-971c-eefae252b029",
+            "title": "mice on venus",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "b7420680-e325-4553-bcd6-55deb7f4afc6",
+            "title": "pokopoko",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "99921873-232f-4208-83f3-3c4be3e74d58",
+            "title": "clark",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "3bc722e7-761d-4590-969d-cfb7f19d5c59",
+            "title": "biome fest",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "ea83dade-7696-4431-b944-580c13b92a41",
+            "title": "floating dream",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "6a7cebd9-b73b-4776-bb1d-850549fd4694",
+            "title": "wet hands",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "a353a9d1-ab0b-4ce6-8800-43aece9bb467",
+            "title": "labyrinthine",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "00a0973c-c178-4c20-abc9-58822462f0fd",
+            "title": "taswell",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "1f1fe778-8988-48e0-9e8a-633179337df1",
+            "title": "key",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "e82ed996-73d6-4b86-b105-29ce3c054853",
+            "title": "puzzlebox",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "f803dcf9-7b7f-438a-aef8-c073cfbc153c",
+            "title": "floating trees",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "f6398e3a-f597-4e72-8a2e-c0ad4575a4ed",
+            "title": "the end",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "968c516f-d0b7-4264-a2d6-ec368e0ee2d8",
+            "title": "komorebi",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "4834ecce-c1ff-4090-83c1-669f59463cdd",
+            "title": "eld unknown",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "607d4219-08fe-49f3-9aaa-0616f73f85b1",
+            "title": "living mice",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "91573396-b6d8-41f4-8dc7-9d01d147c4b3",
+            "title": "crescent dunes",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "70682c2c-d5ca-492d-bfc9-7ab4d679a435",
+            "title": "endless",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "fef8a615-0aff-40d9-beae-5dc66d0cafd5",
+            "title": "comforting memories",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "0eebbaaa-1f7d-4afb-a423-9deb57f58bc2",
+            "title": "axolotl",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "aa9c6e56-1cf0-45c9-9552-54a43fbc904a",
+            "title": "rubedo",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "bc7c5720-224b-496f-b46b-f1522ae36c68",
+            "title": "minecraft",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "953a8d40-94ed-4273-9f1d-8a412b6f5c48",
+            "title": "aria math",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "6f647644-6f2c-4e61-b6d8-e7570bceada5",
+            "title": "ballad of the cats",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "ade6233e-7601-4cfa-bc44-e349d62a948b",
+            "title": "shuniji",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "ca910ea3-4989-4c97-b59f-42c0ec0b00a9",
+            "title": "sweden",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "23277cb4-0af5-4264-9d38-60dd6b6c162a",
+            "title": "so below",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "33a5db84-bd48-4f9f-8a4a-a02331048b8a",
+            "title": "watcher",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "f295679c-41c6-4203-8eb0-e9d3fc6a875e",
+            "title": "haggstrom",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "236c07be-9a78-48f3-b971-bcf9b2b094f4",
+            "title": "warmth",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "9048d6e5-2278-4ada-b09b-8a13bf1968be",
+            "title": "Portable fixture 0",
+            "source": "本人便携播放器 · 槽位 3 · 第 1 首",
+            "group": "e0dc4b7e-608d-46ed-92b9-a8263df87c12",
+            "active": false
+          },
+          {
+            "id": "371e5ce5-1760-4739-b43d-519e76f10033",
+            "title": "Portable fixture 1",
+            "source": "本人便携播放器 · 槽位 3 · 第 2 首",
+            "group": "e0dc4b7e-608d-46ed-92b9-a8263df87c12",
+            "active": false
+          }
+        ],
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 1,
+        "catalogGeneration": 1,
+        "groups": [
+          {
+            "id": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "name": "Minecraft",
+            "count": 60
+          },
+          {
+            "id": "e0dc4b7e-608d-46ed-92b9-a8263df87c12",
+            "name": "个人便携播放器 · 槽位 3",
+            "count": 2
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [
+          {
+            "id": "bf1aa647-01af-49ca-9316-44273d533dd7",
+            "title": "fixture-0",
+            "format": "WAV",
+            "active": true
+          },
+          {
+            "id": "e298f223-9d75-49c8-bcf6-316d28b159bc",
+            "title": "fixture-1",
+            "format": "WAV",
+            "active": false
+          }
+        ],
+        "continuity": {
+          "biomeFadeHooks": 2,
+          "legacyGainWritesReplaced": 0,
+          "smoothBackgroundStops": 1,
+          "activeEnvelopes": 0
+        },
+        "audio": [
+          {
+            "own": true,
+            "source": "music",
+            "event": "minecraft:music.menu",
+            "gain": 0.049999997,
+            "state": 4114,
+            "baseVolume": 1.0
+          }
+        ],
+        "tick": 1077,
+        "actualMusicGain": 0.049999997,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false
+      }
+    },
+    {
+      "label": "portable-stop-to-local",
+      "state": {
+        "kind": "local",
+        "title": "fixture-0",
+        "target": "47056080-8300-4b35-9df8-6f0cf434bd39",
+        "status": "loading",
+        "reason": "",
+        "message": "播放个人本地曲目；携带终端时持续播放。",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.22360679774997896,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": true,
+          "play": true,
+          "stop": true,
+          "next": true,
+          "previous": true,
+          "import": true,
+          "local": true,
+          "select": true
+        },
+        "tracks": [
+          {
+            "id": "bc8d1251-c99e-4b61-ba74-d46a65e824ee",
+            "title": "featherfall",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "71239373-cbdb-445f-a2fd-a2bbe0b70d06",
+            "title": "infinite amethyst",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "b59684ef-f3cb-4ed2-8581-6cec5e9911bd",
+            "title": "wending",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "ba20b78b-8200-4bad-b701-39ffe148978d",
+            "title": "deeper",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "7db6e0cb-4375-4ea2-a9a1-426325d8e8e8",
+            "title": "beginning 2",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "9d860578-a2ca-40d0-a1b6-f0ff1b92c568",
+            "title": "aerie",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "35546d7e-97e8-4622-bd07-61896bf44fdb",
+            "title": "bromeliad",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "db28efbb-e99a-454f-b17c-41e1673344ef",
+            "title": "boss",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "a5f4e55f-5c60-4234-a2ad-9930944f81b8",
+            "title": "dry hands",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "c64f3941-66ad-481e-aab9-724eae0434c8",
+            "title": "ancestry",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "a20bbcd4-fd99-4200-b220-531ae0a3e9da",
+            "title": "dreiton",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "38577969-effe-447b-900d-add756beba7a",
+            "title": "moog city 2",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "8bee3f3e-ee9e-4fa7-8f1b-60de0cddaad0",
+            "title": "yakusoku",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "acc9746f-245b-4778-b5d6-0d6dbd04d3c5",
+            "title": "echo in the wind",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "de4b0d3f-95ad-4e09-ba75-b8519a52d564",
+            "title": "mutation",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "8fecfdfe-42c2-4a7e-b932-32e9166696af",
+            "title": "blind spots",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "016ecb18-f5c0-4ea1-9911-f7e91c1f820c",
+            "title": "danny",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "3203c892-f28a-4c25-9ad9-8533a0a114a7",
+            "title": "a familiar room",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "d8dc154e-368b-4d1e-ba03-1617d16a3688",
+            "title": "oxygene",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "91b5dcf4-468c-41f4-a360-43391ad705d0",
+            "title": "stand tall",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "5c7c1fe6-5858-47eb-bcf1-bdbf04407060",
+            "title": "haunt muskie",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "b6fe4ec3-2d6f-4633-ac9a-eb2a8de6b257",
+            "title": "firebugs",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "39d11682-bb46-42a8-921b-a2f6bd56354c",
+            "title": "alpha",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "cb74a525-da26-4d0e-932f-56140548cc8f",
+            "title": "dead voxel",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "4c1ec829-fe83-4516-8707-8c6574b6d41f",
+            "title": "concrete halls",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "e00c6567-c3ba-48f7-9d79-e209d21fdba2",
+            "title": "left to bloom",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "f1d9144b-0906-4ba1-86a6-e1dc3db0fbe5",
+            "title": "subwoofer lullaby",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "179a107c-7fe6-4fd5-8436-69d11098223a",
+            "title": "one more day",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "122f389b-61b6-471e-b463-29862474989f",
+            "title": "an ordinary day",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "8faf067b-226e-4b84-ba1c-5a8c543a4e69",
+            "title": "dragon fish",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "e1d87e55-3c5c-4ec4-84b8-5f0c153372f9",
+            "title": "chrysopoeia",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "c80be601-d4e1-456d-971c-eefae252b029",
+            "title": "mice on venus",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "b7420680-e325-4553-bcd6-55deb7f4afc6",
+            "title": "pokopoko",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "99921873-232f-4208-83f3-3c4be3e74d58",
+            "title": "clark",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "3bc722e7-761d-4590-969d-cfb7f19d5c59",
+            "title": "biome fest",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "ea83dade-7696-4431-b944-580c13b92a41",
+            "title": "floating dream",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "6a7cebd9-b73b-4776-bb1d-850549fd4694",
+            "title": "wet hands",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "a353a9d1-ab0b-4ce6-8800-43aece9bb467",
+            "title": "labyrinthine",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "00a0973c-c178-4c20-abc9-58822462f0fd",
+            "title": "taswell",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "1f1fe778-8988-48e0-9e8a-633179337df1",
+            "title": "key",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "e82ed996-73d6-4b86-b105-29ce3c054853",
+            "title": "puzzlebox",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "f803dcf9-7b7f-438a-aef8-c073cfbc153c",
+            "title": "floating trees",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "f6398e3a-f597-4e72-8a2e-c0ad4575a4ed",
+            "title": "the end",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "968c516f-d0b7-4264-a2d6-ec368e0ee2d8",
+            "title": "komorebi",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "4834ecce-c1ff-4090-83c1-669f59463cdd",
+            "title": "eld unknown",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "607d4219-08fe-49f3-9aaa-0616f73f85b1",
+            "title": "living mice",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "91573396-b6d8-41f4-8dc7-9d01d147c4b3",
+            "title": "crescent dunes",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "70682c2c-d5ca-492d-bfc9-7ab4d679a435",
+            "title": "endless",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "fef8a615-0aff-40d9-beae-5dc66d0cafd5",
+            "title": "comforting memories",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "0eebbaaa-1f7d-4afb-a423-9deb57f58bc2",
+            "title": "axolotl",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "aa9c6e56-1cf0-45c9-9552-54a43fbc904a",
+            "title": "rubedo",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "bc7c5720-224b-496f-b46b-f1522ae36c68",
+            "title": "minecraft",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "953a8d40-94ed-4273-9f1d-8a412b6f5c48",
+            "title": "aria math",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "6f647644-6f2c-4e61-b6d8-e7570bceada5",
+            "title": "ballad of the cats",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "ade6233e-7601-4cfa-bc44-e349d62a948b",
+            "title": "shuniji",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "ca910ea3-4989-4c97-b59f-42c0ec0b00a9",
+            "title": "sweden",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "23277cb4-0af5-4264-9d38-60dd6b6c162a",
+            "title": "so below",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "33a5db84-bd48-4f9f-8a4a-a02331048b8a",
+            "title": "watcher",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "f295679c-41c6-4203-8eb0-e9d3fc6a875e",
+            "title": "haggstrom",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "236c07be-9a78-48f3-b971-bcf9b2b094f4",
+            "title": "warmth",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "9048d6e5-2278-4ada-b09b-8a13bf1968be",
+            "title": "Portable fixture 0",
+            "source": "本人便携播放器 · 槽位 3 · 第 1 首",
+            "group": "e0dc4b7e-608d-46ed-92b9-a8263df87c12",
+            "active": false
+          },
+          {
+            "id": "371e5ce5-1760-4739-b43d-519e76f10033",
+            "title": "Portable fixture 1",
+            "source": "本人便携播放器 · 槽位 3 · 第 2 首",
+            "group": "e0dc4b7e-608d-46ed-92b9-a8263df87c12",
+            "active": false
+          }
+        ],
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 1,
+        "catalogGeneration": 1,
+        "groups": [
+          {
+            "id": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "name": "Minecraft",
+            "count": 60
+          },
+          {
+            "id": "e0dc4b7e-608d-46ed-92b9-a8263df87c12",
+            "name": "个人便携播放器 · 槽位 3",
+            "count": 2
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [
+          {
+            "id": "bf1aa647-01af-49ca-9316-44273d533dd7",
+            "title": "fixture-0",
+            "format": "WAV",
+            "active": true
+          },
+          {
+            "id": "e298f223-9d75-49c8-bcf6-316d28b159bc",
+            "title": "fixture-1",
+            "format": "WAV",
+            "active": false
+          }
+        ],
+        "continuity": {
+          "biomeFadeHooks": 2,
+          "legacyGainWritesReplaced": 0,
+          "smoothBackgroundStops": 1,
+          "activeEnvelopes": 0
+        },
+        "audio": [
+          {
+            "own": true,
+            "source": "music",
+            "event": "minecraft:music.menu",
+            "gain": 0.049999997,
+            "state": 4114,
+            "baseVolume": 1.0
+          }
+        ],
+        "tick": 1136,
+        "actualMusicGain": 0.049999997,
+        "selectedSlot": 0,
+        "screen": "NONE",
+        "reloading": false
+      }
+    },
+    {
+      "label": "final-disconnected",
+      "state": {
+        "kind": "idle",
+        "title": "当前没有音乐",
+        "target": "3453b043-1f01-4e17-a853-a173bf348998",
+        "status": "idle",
+        "reason": "",
+        "message": "",
+        "busy": false,
+        "volumeSource": "music",
+        "volume": 0.22360679774997896,
+        "master": 0.2,
+        "muted": false,
+        "capabilities": {
+          "pause": false,
+          "play": true,
+          "stop": false,
+          "next": false,
+          "previous": false,
+          "import": false,
+          "local": false,
+          "select": true
+        },
+        "tracks": [
+          {
+            "id": "bc8d1251-c99e-4b61-ba74-d46a65e824ee",
+            "title": "featherfall",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "71239373-cbdb-445f-a2fd-a2bbe0b70d06",
+            "title": "infinite amethyst",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "b59684ef-f3cb-4ed2-8581-6cec5e9911bd",
+            "title": "wending",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "ba20b78b-8200-4bad-b701-39ffe148978d",
+            "title": "deeper",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "7db6e0cb-4375-4ea2-a9a1-426325d8e8e8",
+            "title": "beginning 2",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "9d860578-a2ca-40d0-a1b6-f0ff1b92c568",
+            "title": "aerie",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "35546d7e-97e8-4622-bd07-61896bf44fdb",
+            "title": "bromeliad",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "db28efbb-e99a-454f-b17c-41e1673344ef",
+            "title": "boss",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "a5f4e55f-5c60-4234-a2ad-9930944f81b8",
+            "title": "dry hands",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "c64f3941-66ad-481e-aab9-724eae0434c8",
+            "title": "ancestry",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "a20bbcd4-fd99-4200-b220-531ae0a3e9da",
+            "title": "dreiton",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "38577969-effe-447b-900d-add756beba7a",
+            "title": "moog city 2",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "8bee3f3e-ee9e-4fa7-8f1b-60de0cddaad0",
+            "title": "yakusoku",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "acc9746f-245b-4778-b5d6-0d6dbd04d3c5",
+            "title": "echo in the wind",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "de4b0d3f-95ad-4e09-ba75-b8519a52d564",
+            "title": "mutation",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "8fecfdfe-42c2-4a7e-b932-32e9166696af",
+            "title": "blind spots",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "016ecb18-f5c0-4ea1-9911-f7e91c1f820c",
+            "title": "danny",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "3203c892-f28a-4c25-9ad9-8533a0a114a7",
+            "title": "a familiar room",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "d8dc154e-368b-4d1e-ba03-1617d16a3688",
+            "title": "oxygene",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "91b5dcf4-468c-41f4-a360-43391ad705d0",
+            "title": "stand tall",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "5c7c1fe6-5858-47eb-bcf1-bdbf04407060",
+            "title": "haunt muskie",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "b6fe4ec3-2d6f-4633-ac9a-eb2a8de6b257",
+            "title": "firebugs",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "39d11682-bb46-42a8-921b-a2f6bd56354c",
+            "title": "alpha",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "cb74a525-da26-4d0e-932f-56140548cc8f",
+            "title": "dead voxel",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "4c1ec829-fe83-4516-8707-8c6574b6d41f",
+            "title": "concrete halls",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "e00c6567-c3ba-48f7-9d79-e209d21fdba2",
+            "title": "left to bloom",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "f1d9144b-0906-4ba1-86a6-e1dc3db0fbe5",
+            "title": "subwoofer lullaby",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "179a107c-7fe6-4fd5-8436-69d11098223a",
+            "title": "one more day",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "122f389b-61b6-471e-b463-29862474989f",
+            "title": "an ordinary day",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "8faf067b-226e-4b84-ba1c-5a8c543a4e69",
+            "title": "dragon fish",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "e1d87e55-3c5c-4ec4-84b8-5f0c153372f9",
+            "title": "chrysopoeia",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "c80be601-d4e1-456d-971c-eefae252b029",
+            "title": "mice on venus",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "b7420680-e325-4553-bcd6-55deb7f4afc6",
+            "title": "pokopoko",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "99921873-232f-4208-83f3-3c4be3e74d58",
+            "title": "clark",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "3bc722e7-761d-4590-969d-cfb7f19d5c59",
+            "title": "biome fest",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "ea83dade-7696-4431-b944-580c13b92a41",
+            "title": "floating dream",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "6a7cebd9-b73b-4776-bb1d-850549fd4694",
+            "title": "wet hands",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "a353a9d1-ab0b-4ce6-8800-43aece9bb467",
+            "title": "labyrinthine",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "00a0973c-c178-4c20-abc9-58822462f0fd",
+            "title": "taswell",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "1f1fe778-8988-48e0-9e8a-633179337df1",
+            "title": "key",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "e82ed996-73d6-4b86-b105-29ce3c054853",
+            "title": "puzzlebox",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "f803dcf9-7b7f-438a-aef8-c073cfbc153c",
+            "title": "floating trees",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "f6398e3a-f597-4e72-8a2e-c0ad4575a4ed",
+            "title": "the end",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "968c516f-d0b7-4264-a2d6-ec368e0ee2d8",
+            "title": "komorebi",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "4834ecce-c1ff-4090-83c1-669f59463cdd",
+            "title": "eld unknown",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "607d4219-08fe-49f3-9aaa-0616f73f85b1",
+            "title": "living mice",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "91573396-b6d8-41f4-8dc7-9d01d147c4b3",
+            "title": "crescent dunes",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "70682c2c-d5ca-492d-bfc9-7ab4d679a435",
+            "title": "endless",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "fef8a615-0aff-40d9-beae-5dc66d0cafd5",
+            "title": "comforting memories",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "0eebbaaa-1f7d-4afb-a423-9deb57f58bc2",
+            "title": "axolotl",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "aa9c6e56-1cf0-45c9-9552-54a43fbc904a",
+            "title": "rubedo",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "bc7c5720-224b-496f-b46b-f1522ae36c68",
+            "title": "minecraft",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "953a8d40-94ed-4273-9f1d-8a412b6f5c48",
+            "title": "aria math",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "6f647644-6f2c-4e61-b6d8-e7570bceada5",
+            "title": "ballad of the cats",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "ade6233e-7601-4cfa-bc44-e349d62a948b",
+            "title": "shuniji",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "ca910ea3-4989-4c97-b59f-42c0ec0b00a9",
+            "title": "sweden",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "23277cb4-0af5-4264-9d38-60dd6b6c162a",
+            "title": "so below",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "33a5db84-bd48-4f9f-8a4a-a02331048b8a",
+            "title": "watcher",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "f295679c-41c6-4203-8eb0-e9d3fc6a875e",
+            "title": "haggstrom",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          },
+          {
+            "id": "236c07be-9a78-48f3-b971-bcf9b2b094f4",
+            "title": "warmth",
+            "source": "Minecraft",
+            "group": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "active": false
+          }
+        ],
+        "playlistReason": "",
+        "catalogLoading": false,
+        "catalogScans": 1,
+        "catalogGeneration": 1,
+        "groups": [
+          {
+            "id": "ea15ecf7-7091-41f5-b995-6704a55f79e2",
+            "name": "Minecraft",
+            "count": 60
+          }
+        ],
+        "queueGroup": "",
+        "queueIndex": -1,
+        "queueSize": 0,
+        "localTracks": [],
+        "continuity": {
+          "biomeFadeHooks": 2,
+          "legacyGainWritesReplaced": 0,
+          "smoothBackgroundStops": 1,
+          "activeEnvelopes": 0
+        },
+        "audio": [],
+        "tick": 1158,
+        "actualMusicGain": 0.049999997,
+        "selectedSlot": -1,
+        "screen": "TitleScreen",
+        "reloading": false
+      }
+    }
+  ],
+  "productionWrites": false,
+  "forceKill": false,
+  "success": true,
+  "testedJarSha256": "6f7590d26ab77700f2d44720f128e71388c882ee49fcd559d01d76a3ab66c7c1"
+}

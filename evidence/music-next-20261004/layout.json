@@ -1,0 +1,711 @@
+{
+  "success": true,
+  "phase": "after",
+  "count": 41,
+  "checks": [
+    "580x276: body, outer shell and music page cannot scroll",
+    "580x276: player, all playback controls and import stay visible",
+    "580x276: long playlist has its own scroll container",
+    "576x276: body, outer shell and music page cannot scroll",
+    "576x276: player, all playback controls and import stay visible",
+    "576x276: long playlist has its own scroll container",
+    "640x360: body, outer shell and music page cannot scroll",
+    "640x360: player, all playback controls and import stay visible",
+    "640x360: long playlist has its own scroll container",
+    "1024x576: body, outer shell and music page cannot scroll",
+    "1024x576: player, all playback controls and import stay visible",
+    "1024x576: long playlist has its own scroll container",
+    "420x276: body, outer shell and music page cannot scroll",
+    "420x276: player, all playback controls and import stay visible",
+    "420x276: long playlist has its own scroll container",
+    "360x360: body, outer shell and music page cannot scroll",
+    "360x360: player, all playback controls and import stay visible",
+    "360x360: long playlist has its own scroll container",
+    "320x276: body, outer shell and music page cannot scroll",
+    "320x276: player, all playback controls and import stay visible",
+    "320x276: long playlist has its own scroll container",
+    "actual terminal height fits at least four complete tracks in the unchanged sidebar",
+    "scrolling a long playlist leaves player and outer page fixed",
+    "mouse wheel scrolls only the playlist",
+    "arrow keys move through long list and scroll only the list",
+    "keyboard-selected row is visible within the playlist",
+    "unchanged polling preserves distant row focus",
+    "Enter plays the focused track and changed snapshots restore row focus without outer scrolling",
+    "long titles use ellipsis and expose full title on hover",
+    "playlist uses low single-line rows at most 34px high",
+    "local library shares the independent playlist pane",
+    "switching libraries restores native-list scroll position without moving the page",
+    "each library keeps its own list scroll position",
+    "distant local row actively plays while player stays fixed",
+    "next control still switches local playback",
+    "stop remains functional",
+    "local import action and cancelled-selection feedback preserve library and fixed page",
+    "local remove remains available in compact rows",
+    "long player titles and feedback cannot expand the outer page",
+    "portable sources still expose no fabricated pause API",
+    "Tab navigation keeps focus in the active app without outer scrolling"
+  ],
+  "measurements": [
+    {
+      "viewport": [
+        580,
+        276
+      ],
+      "music": {
+        "x": 0,
+        "y": 0,
+        "width": 580,
+        "height": 276,
+        "scrollTop": 0,
+        "scrollHeight": 276,
+        "clientHeight": 276,
+        "scrollWidth": 580,
+        "clientWidth": 580
+      },
+      "app-content": {
+        "x": 0,
+        "y": 0,
+        "width": 580,
+        "height": 276,
+        "scrollTop": 0,
+        "scrollHeight": 276,
+        "clientHeight": 276,
+        "scrollWidth": 580,
+        "clientWidth": 580
+      },
+      "musicTitle": {
+        "x": 15,
+        "y": 75,
+        "width": 268.828125,
+        "height": 20,
+        "scrollTop": 0,
+        "scrollHeight": 20,
+        "clientHeight": 20,
+        "scrollWidth": 288,
+        "clientWidth": 269
+      },
+      "music-stop": {
+        "x": 196.875,
+        "y": 135,
+        "width": 86.953125,
+        "height": 30,
+        "scrollTop": 0,
+        "scrollHeight": 24,
+        "clientHeight": 24,
+        "scrollWidth": 81,
+        "clientWidth": 81
+      },
+      "music-next": {
+        "x": 196.875,
+        "y": 101,
+        "width": 86.953125,
+        "height": 30,
+        "scrollTop": 0,
+        "scrollHeight": 24,
+        "clientHeight": 24,
+        "scrollWidth": 81,
+        "clientWidth": 81
+      },
+      "musicImport": {
+        "x": 527,
+        "y": 53,
+        "width": 38,
+        "height": 30,
+        "scrollTop": 0,
+        "scrollHeight": 24,
+        "clientHeight": 24,
+        "scrollWidth": 32,
+        "clientWidth": 32
+      },
+      "musicListScroll": {
+        "x": 309.828125,
+        "y": 121,
+        "width": 255.171875,
+        "height": 140,
+        "scrollTop": 0,
+        "scrollHeight": 2042,
+        "clientHeight": 140,
+        "scrollWidth": 240,
+        "clientWidth": 240
+      },
+      "playlistRows": {
+        "heights": [
+          32,
+          32,
+          32,
+          32,
+          32
+        ],
+        "fullyVisible": 4,
+        "width": 255.171875
+      }
+    },
+    {
+      "viewport": [
+        576,
+        276
+      ],
+      "music": {
+        "x": 0,
+        "y": 0,
+        "width": 576,
+        "height": 276,
+        "scrollTop": 0,
+        "scrollHeight": 276,
+        "clientHeight": 276,
+        "scrollWidth": 576,
+        "clientWidth": 576
+      },
+      "app-content": {
+        "x": 0,
+        "y": 0,
+        "width": 576,
+        "height": 276,
+        "scrollTop": 0,
+        "scrollHeight": 276,
+        "clientHeight": 276,
+        "scrollWidth": 576,
+        "clientWidth": 576
+      },
+      "musicTitle": {
+        "x": 15,
+        "y": 75,
+        "width": 266.765625,
+        "height": 20,
+        "scrollTop": 0,
+        "scrollHeight": 20,
+        "clientHeight": 20,
+        "scrollWidth": 288,
+        "clientWidth": 267
+      },
+      "music-stop": {
+        "x": 195.5,
+        "y": 135,
+        "width": 86.265625,
+        "height": 30,
+        "scrollTop": 0,
+        "scrollHeight": 24,
+        "clientHeight": 24,
+        "scrollWidth": 80,
+        "clientWidth": 80
+      },
+      "music-next": {
+        "x": 195.5,
+        "y": 101,
+        "width": 86.265625,
+        "height": 30,
+        "scrollTop": 0,
+        "scrollHeight": 24,
+        "clientHeight": 24,
+        "scrollWidth": 80,
+        "clientWidth": 80
+      },
+      "musicImport": {
+        "x": 523,
+        "y": 53,
+        "width": 38,
+        "height": 30,
+        "scrollTop": 0,
+        "scrollHeight": 24,
+        "clientHeight": 24,
+        "scrollWidth": 32,
+        "clientWidth": 32
+      },
+      "musicListScroll": {
+        "x": 307.765625,
+        "y": 121,
+        "width": 253.234375,
+        "height": 140,
+        "scrollTop": 0,
+        "scrollHeight": 2042,
+        "clientHeight": 140,
+        "scrollWidth": 238,
+        "clientWidth": 238
+      },
+      "playlistRows": {
+        "heights": [
+          32,
+          32,
+          32,
+          32,
+          32
+        ],
+        "fullyVisible": 4,
+        "width": 253.234375
+      }
+    },
+    {
+      "viewport": [
+        640,
+        360
+      ],
+      "music": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 360,
+        "scrollTop": 0,
+        "scrollHeight": 360,
+        "clientHeight": 360,
+        "scrollWidth": 640,
+        "clientWidth": 640
+      },
+      "app-content": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 360,
+        "scrollTop": 0,
+        "scrollHeight": 360,
+        "clientHeight": 360,
+        "scrollWidth": 640,
+        "clientWidth": 640
+      },
+      "musicTitle": {
+        "x": 19,
+        "y": 79,
+        "width": 293.5,
+        "height": 22,
+        "scrollTop": 0,
+        "scrollHeight": 23,
+        "clientHeight": 22,
+        "scrollWidth": 324,
+        "clientWidth": 294
+      },
+      "music-stop": {
+        "x": 217.328125,
+        "y": 143,
+        "width": 95.15625,
+        "height": 32,
+        "scrollTop": 0,
+        "scrollHeight": 26,
+        "clientHeight": 26,
+        "scrollWidth": 89,
+        "clientWidth": 89
+      },
+      "music-next": {
+        "x": 217.328125,
+        "y": 107,
+        "width": 95.15625,
+        "height": 32,
+        "scrollTop": 0,
+        "scrollHeight": 26,
+        "clientHeight": 26,
+        "scrollWidth": 89,
+        "clientWidth": 89
+      },
+      "musicImport": {
+        "x": 585,
+        "y": 55,
+        "width": 38,
+        "height": 30,
+        "scrollTop": 0,
+        "scrollHeight": 24,
+        "clientHeight": 24,
+        "scrollWidth": 32,
+        "clientWidth": 32
+      },
+      "musicListScroll": {
+        "x": 340.5,
+        "y": 123,
+        "width": 282.5,
+        "height": 204,
+        "scrollTop": 0,
+        "scrollHeight": 2042,
+        "clientHeight": 204,
+        "scrollWidth": 268,
+        "clientWidth": 268
+      },
+      "playlistRows": {
+        "heights": [
+          32,
+          32,
+          32,
+          32,
+          32
+        ],
+        "fullyVisible": 6,
+        "width": 282.5
+      }
+    },
+    {
+      "viewport": [
+        1024,
+        576
+      ],
+      "music": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 576,
+        "scrollTop": 0,
+        "scrollHeight": 576,
+        "clientHeight": 576,
+        "scrollWidth": 1024,
+        "clientWidth": 1024
+      },
+      "app-content": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 576,
+        "scrollTop": 0,
+        "scrollHeight": 576,
+        "clientHeight": 576,
+        "scrollWidth": 1024,
+        "clientWidth": 1024
+      },
+      "musicTitle": {
+        "x": 19,
+        "y": 79,
+        "width": 490.1875,
+        "height": 22,
+        "scrollTop": 0,
+        "scrollHeight": 23,
+        "clientHeight": 22,
+        "scrollWidth": 490,
+        "clientWidth": 490
+      },
+      "music-stop": {
+        "x": 348.453125,
+        "y": 143,
+        "width": 160.734375,
+        "height": 32,
+        "scrollTop": 0,
+        "scrollHeight": 26,
+        "clientHeight": 26,
+        "scrollWidth": 155,
+        "clientWidth": 155
+      },
+      "music-next": {
+        "x": 348.453125,
+        "y": 107,
+        "width": 160.734375,
+        "height": 32,
+        "scrollTop": 0,
+        "scrollHeight": 26,
+        "clientHeight": 26,
+        "scrollWidth": 155,
+        "clientWidth": 155
+      },
+      "musicImport": {
+        "x": 969,
+        "y": 55,
+        "width": 38,
+        "height": 30,
+        "scrollTop": 0,
+        "scrollHeight": 24,
+        "clientHeight": 24,
+        "scrollWidth": 32,
+        "clientWidth": 32
+      },
+      "musicListScroll": {
+        "x": 537.1875,
+        "y": 123,
+        "width": 469.8125,
+        "height": 420,
+        "scrollTop": 0,
+        "scrollHeight": 2042,
+        "clientHeight": 420,
+        "scrollWidth": 455,
+        "clientWidth": 455
+      },
+      "playlistRows": {
+        "heights": [
+          32,
+          32,
+          32,
+          32,
+          32
+        ],
+        "fullyVisible": 12,
+        "width": 469.8125
+      }
+    },
+    {
+      "viewport": [
+        420,
+        276
+      ],
+      "music": {
+        "x": 0,
+        "y": 0,
+        "width": 420,
+        "height": 276,
+        "scrollTop": 0,
+        "scrollHeight": 276,
+        "clientHeight": 276,
+        "scrollWidth": 420,
+        "clientWidth": 420
+      },
+      "app-content": {
+        "x": 0,
+        "y": 0,
+        "width": 420,
+        "height": 276,
+        "scrollTop": 0,
+        "scrollHeight": 276,
+        "clientHeight": 276,
+        "scrollWidth": 420,
+        "clientWidth": 420
+      },
+      "musicTitle": {
+        "x": 15,
+        "y": 75,
+        "width": 191,
+        "height": 20,
+        "scrollTop": 0,
+        "scrollHeight": 20,
+        "clientHeight": 20,
+        "scrollWidth": 288,
+        "clientWidth": 191
+      },
+      "music-stop": {
+        "x": 344,
+        "y": 105,
+        "width": 61,
+        "height": 30,
+        "scrollTop": 0,
+        "scrollHeight": 24,
+        "clientHeight": 24,
+        "scrollWidth": 55,
+        "clientWidth": 55
+      },
+      "music-next": {
+        "x": 344,
+        "y": 71,
+        "width": 61,
+        "height": 30,
+        "scrollTop": 0,
+        "scrollHeight": 24,
+        "clientHeight": 24,
+        "scrollWidth": 55,
+        "clientWidth": 55
+      },
+      "musicImport": {
+        "x": 369,
+        "y": 177,
+        "width": 38,
+        "height": 30,
+        "scrollTop": 0,
+        "scrollHeight": 24,
+        "clientHeight": 24,
+        "scrollWidth": 32,
+        "clientWidth": 32
+      },
+      "musicListScroll": {
+        "x": 13,
+        "y": 245,
+        "width": 394,
+        "height": 18,
+        "scrollTop": 0,
+        "scrollHeight": 2042,
+        "clientHeight": 18,
+        "scrollWidth": 379,
+        "clientWidth": 379
+      },
+      "playlistRows": {
+        "heights": [
+          32,
+          32,
+          32,
+          32,
+          32
+        ],
+        "fullyVisible": 0,
+        "width": 394
+      }
+    },
+    {
+      "viewport": [
+        360,
+        360
+      ],
+      "music": {
+        "x": 0,
+        "y": 0,
+        "width": 360,
+        "height": 360,
+        "scrollTop": 0,
+        "scrollHeight": 360,
+        "clientHeight": 360,
+        "scrollWidth": 360,
+        "clientWidth": 360
+      },
+      "app-content": {
+        "x": 0,
+        "y": 0,
+        "width": 360,
+        "height": 360,
+        "scrollTop": 0,
+        "scrollHeight": 360,
+        "clientHeight": 360,
+        "scrollWidth": 360,
+        "clientWidth": 360
+      },
+      "musicTitle": {
+        "x": 17,
+        "y": 77,
+        "width": 159,
+        "height": 22,
+        "scrollTop": 0,
+        "scrollHeight": 23,
+        "clientHeight": 22,
+        "scrollWidth": 324,
+        "clientWidth": 159
+      },
+      "music-stop": {
+        "x": 292.65625,
+        "y": 108,
+        "width": 50.328125,
+        "height": 32,
+        "scrollTop": 0,
+        "scrollHeight": 26,
+        "clientHeight": 26,
+        "scrollWidth": 44,
+        "clientWidth": 44
+      },
+      "music-next": {
+        "x": 292.65625,
+        "y": 72,
+        "width": 50.328125,
+        "height": 32,
+        "scrollTop": 0,
+        "scrollHeight": 26,
+        "clientHeight": 26,
+        "scrollWidth": 44,
+        "clientWidth": 44
+      },
+      "musicImport": {
+        "x": 307,
+        "y": 181,
+        "width": 38,
+        "height": 30,
+        "scrollTop": 0,
+        "scrollHeight": 24,
+        "clientHeight": 24,
+        "scrollWidth": 32,
+        "clientWidth": 32
+      },
+      "musicListScroll": {
+        "x": 15,
+        "y": 249,
+        "width": 330,
+        "height": 96,
+        "scrollTop": 0,
+        "scrollHeight": 2042,
+        "clientHeight": 96,
+        "scrollWidth": 315,
+        "clientWidth": 315
+      },
+      "playlistRows": {
+        "heights": [
+          32,
+          32,
+          32,
+          32,
+          32
+        ],
+        "fullyVisible": 2,
+        "width": 330
+      }
+    },
+    {
+      "viewport": [
+        320,
+        276
+      ],
+      "music": {
+        "x": 0,
+        "y": 0,
+        "width": 320,
+        "height": 276,
+        "scrollTop": 0,
+        "scrollHeight": 276,
+        "clientHeight": 276,
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "app-content": {
+        "x": 0,
+        "y": 0,
+        "width": 320,
+        "height": 276,
+        "scrollTop": 0,
+        "scrollHeight": 276,
+        "clientHeight": 276,
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "musicTitle": {
+        "x": 15,
+        "y": 75,
+        "width": 141,
+        "height": 20,
+        "scrollTop": 0,
+        "scrollHeight": 20,
+        "clientHeight": 20,
+        "scrollWidth": 288,
+        "clientWidth": 141
+      },
+      "music-stop": {
+        "x": 260.65625,
+        "y": 105,
+        "width": 44.328125,
+        "height": 30,
+        "scrollTop": 0,
+        "scrollHeight": 24,
+        "clientHeight": 24,
+        "scrollWidth": 38,
+        "clientWidth": 38
+      },
+      "music-next": {
+        "x": 260.65625,
+        "y": 71,
+        "width": 44.328125,
+        "height": 30,
+        "scrollTop": 0,
+        "scrollHeight": 24,
+        "clientHeight": 24,
+        "scrollWidth": 38,
+        "clientWidth": 38
+      },
+      "musicImport": {
+        "x": 269,
+        "y": 177,
+        "width": 38,
+        "height": 30,
+        "scrollTop": 0,
+        "scrollHeight": 24,
+        "clientHeight": 24,
+        "scrollWidth": 32,
+        "clientWidth": 32
+      },
+      "musicListScroll": {
+        "x": 13,
+        "y": 245,
+        "width": 294,
+        "height": 18,
+        "scrollTop": 0,
+        "scrollHeight": 2042,
+        "clientHeight": 18,
+        "scrollWidth": 279,
+        "clientWidth": 279
+      },
+      "playlistRows": {
+        "heights": [
+          32,
+          32,
+          32,
+          32,
+          32
+        ],
+        "fullyVisible": 0,
+        "width": 294
+      }
+    }
+  ],
+  "runtimeExceptions": [],
+  "scope": "Actual Chrome DOM, rendering, wheel and keyboard inputs; native fixtures only; no Minecraft gameplay claim",
+  "sourceSha256": "0f903ef11fb034c795b07702ea5601b51d76fc2374f379517a072a975f87fe00"
+}

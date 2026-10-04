@@ -13,6 +13,7 @@ final class LocalMusicSound extends AbstractTickableSoundInstance {
     private volatile AudioStream opened;
     private volatile boolean closed;
     volatile boolean failed;
+    volatile boolean requested;
     volatile boolean ready;
     LocalMusicSound(Path file) {
         super(SoundEvents.MUSIC_MENU.value(),
@@ -21,9 +22,15 @@ final class LocalMusicSound extends AbstractTickableSoundInstance {
         volume = 1; pitch = 1; relative = true; attenuation = Attenuation.NONE;
     }
     public void tick() {}
+    public WeighedSoundEvents resolve(SoundManager manager) {
+        sound = new Sound(location, net.minecraft.util.valueproviders.ConstantFloat.of(1),
+            net.minecraft.util.valueproviders.ConstantFloat.of(1), 1, Sound.Type.FILE, true, false, 16);
+        var event = new WeighedSoundEvents(location, null); event.addSound(sound); return event;
+    }
     public boolean canPlaySound() { return !closed; }
     public boolean canStartSilent() { return true; }
     public CompletableFuture<AudioStream> getStream(SoundBufferLibrary buffers, Sound sound, boolean loop) {
+        requested = true;
         return CompletableFuture.supplyAsync(() -> {
             try {
                 AudioStream next = new OwnedAudioStream(LocalDecoder.open(file), () -> failed = !closed);

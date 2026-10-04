@@ -1,0 +1,12 @@
+{
+  "artifact": "C:\\Users\\ranzh\\workspace\\dev\\muxigame\\muxi-terminal\\build\\music-next-final-20261004\\libs\\muxi-terminal-0.2.4-task14-social-qa.1.jar",
+  "sha256": "af3591b1af4ce39a030209dddbbe79315189dd75354d792df394b2d38e4c7cd7",
+  "size": 609854,
+  "nativeTestJarSha256": "6f7590d26ab77700f2d44720f128e71388c882ee49fcd559d01d76a3ab66c7c1",
+  "sameCompiledClasses": true,
+  "changedAfterNativeTest": [
+    "assets/muxi_terminal/html/terminal/music-app.js"
+  ],
+  "changeDescription": "Only the import tooltip text now states carried-terminal playback lifetime. Final Chromium UI33 rerun passed.",
+  "privateBuildOnly": true
+}

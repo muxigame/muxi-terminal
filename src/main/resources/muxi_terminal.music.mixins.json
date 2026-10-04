@@ -3,6 +3,15 @@
   "minVersion": "0.8",
   "package": "net.muxigame.terminal.client.music.mixin",
   "compatibilityLevel": "JAVA_21",
-  "client": ["MusicManagerAccessor", "SoundManagerAccessor", "SoundEngineAccessor", "ChannelStateAccessor"],
-  "injectors": { "defaultRequire": 1 }
+  "client": [
+    "MusicManagerAccessor",
+    "SoundManagerAccessor",
+    "SoundEngineAccessor",
+    "ChannelStateAccessor",
+    "MusicManagerContinuityMixin",
+    "MusicVolumeMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }
