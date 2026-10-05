@@ -45,49 +45,47 @@ async function shot(name){const {data}=await cdp('Page.captureScreenshot',{forma
 async function eventually(expression){for(let i=0;i<100;i++){if(await js(expression))return;await pause(50);}throw Error('Wait expired: '+expression);}
 
 const fixture=String.raw`
-window.__fx={calls:[],actions:[],fail:false,hold:true,late:null};
+window.__fx={calls:[],actions:[],inviteActions:[],hold:true,fail:false,trusted:true};
 (()=>{
-  const f=window.__fx;
-  const create={role:'create',title:'\u521b\u5efa\u623f\u95f4',text:'',fields:[
-    {id:'map',label:'\u5730\u56fe',selected:'school',options:[{value:'school',label:'\u9003\u79bb\u5b66\u9662',modes:['CAMPAIGN']},{value:'camp',label:'\u795e\u79d8\u8425\u5730',modes:['SURVIVAL']}]},
-    {id:'difficulty',label:'\u96be\u5ea6',selected:'1',options:[{value:'1',label:'\u666e\u901a'},{value:'2',label:'\u56f0\u96be'}]},
-    {id:'mode',label:'\u6a21\u5f0f',selected:'CAMPAIGN',options:[{value:'CAMPAIGN',label:'\u6218\u5f79'},{value:'SURVIVAL',label:'\u751f\u5b58'}]}],
-    actions:[{action:'createConfigured',label:'\u786e\u8ba4\u521b\u5efa',value:'',fields:'map,difficulty,mode',jsonFields:true,enabled:true}]};
-  const room={role:'room',title:'\u7b49\u5f85\u623f\u95f4',text:'\u623f\u4e3b\u70b9\u51fb\u5f00\u59cb\u540e\u624d\u8fdb\u5165\u5730\u56fe',actions:[{action:'start',label:'\u5f00\u59cb',value:'',enabled:true},{action:'leave',label:'\u9000\u51fa\u623f\u95f4',value:'',enabled:true,safe:true,confirm:'\u9000\u51fa\u5e76\u6062\u590d\u539f\u7269\u54c1\u548c\u4f4d\u7f6e\uff1f'}]};
-  const invite={role:'invite',title:'\u9080\u8bf7\u5728\u7ebf\u73a9\u5bb6',text:'',cards:[{title:'10001',text:'\u5728\u7ebf',actions:[{action:'invite',label:'\u9080\u8bf7',value:'bbbbbbbb-bbbb-3bbb-8bbb-bbbbbbbbbbbb',enabled:true}]}]};
-  const rooms={role:'rooms',title:'\u623f\u95f4',cards:[{title:'ABCD',text:'\u7b49\u5f85\u4e2d \u00b7 1/4',actions:[{action:'join',label:'\u52a0\u5165',value:'ABCD',enabled:true}]}]};
-  const clone=x=>JSON.parse(JSON.stringify(x));
-  f.create=create;f.room=room;f.invite=invite;f.rooms=rooms;
-  f.state={supported:true,loading:false,protocol:2,actionSupported:true,allowed:true,activeGame:'',platform:{available:true,points:'9223372036854775807'},
-    games:[{id:'outbreak',title:'\u6c42\u63f4\u4e4b\u8def',state:{rooms:[]},ui:{currencies:[{label:'\u79ef\u5206',value:'8',scope:'\u672c\u73a9\u6cd5',note:''}],lobby:{sections:[create,rooms]},shop:{title:'\u6c42\u63f4\u4e4b\u8def\u5546\u5e97',sections:[{title:'\u8865\u7ed9',text:'\u670d\u52a1\u5668\u62a5\u4ef7',cards:[{title:'\u533b\u7597\u5305',text:'3 \u79ef\u5206',actions:[{action:'buy',label:'\u5151\u6362',value:'medkit:7:3',enabled:true}]}]}]}}},
-      {id:'zombie-challenge',title:'\u50f5\u5c38\u6311\u6218',state:{rooms:[]},ui:{lobby:{sections:[clone(create),{role:'rooms',title:'\u623f\u95f4',cards:[]}]},shop:{title:'\u50f5\u5c38\u6311\u6218\u5546\u5e97',sections:[]}}}]};
-  f.enter=()=>{f.state.activeGame='outbreak';f.state.games[0].state.rooms=[{id:'ROOM1',session:'aaaaaaaa-aaaa-3aaa-8aaa-aaaaaaaaaaaa',mine:true,phase:'WAITING',lobbyWaiting:true}];f.state.games[0].ui.lobby.sections=[create,room,invite,rooms];};
-  f.complete=(membership=true)=>{if(membership&&['createConfigured','join'].includes(f.last.action))f.enter();f.state.operation={request:f.last.request,status:'completed',notice:'\u670d\u52a1\u5668\u5df2\u786e\u8ba4'};};
-  f.reset=()=>{f.state.activeGame='';f.state.games[0].state.rooms=[];f.state.games[0].ui.lobby.sections=[create,rooms];delete f.state.operation;};
-  window.muxiTerminalQuery=o=>{
-    f.calls.push(o.request);let value={ok:true};
-    if(o.request==='games.context')value={game:'',page:'lobby',drafts:{}};
-    else if(o.request==='games.snapshot')value=clone(f.state);
-    else if(o.request==='friends.invites.snapshot')value={version:1,enabled:false,authenticated:false,rooms:[],onlinePlayers:[],invitations:[]};
-    else if(o.request==='apps.list')value=[];
-    else if(o.request.startsWith('resource.data:'))value='';
-    else if(o.request==='icons.state')value={revision:1};
-    else if(o.request.startsWith('icons.get:')){const icon=JSON.parse(o.request.slice(10));value={revision:1,src:icon.id.endsWith('/missing.png')?'':f.actualHorsePngs?.[icon.id]||'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a4v8AAAAASUVORK5CYII='};}
-    else if(o.request==='tasks.snapshot')value={supported:false,loading:false,rows:[]};
-    else if(o.request.startsWith('games.action:')){
-      const action=JSON.parse(o.request.slice(13)),request='aaaaaaaa-aaaa-4aaa-8aaa-'+String(f.actions.length+1).padStart(12,'0');
-      f.actions.push(action);f.last={...action,request};f.state.operation={request,status:'pending',notice:''};value={ok:true,request};
-      if(f.fail)f.state.operation={request,status:'failed',notice:'\u623f\u95f4\u521b\u5efa\u5931\u8d25'};
-      if(!f.hold){
-        if(action.action==='start'){f.state.games[0].state.rooms[0].phase='ACTIVE';f.state.games[0].state.rooms[0].lobbyWaiting=true;f.state.games[0].ui.lobby.sections=[create,room,rooms];}
-        if(action.action==='leave')f.reset();
-        f.state.operation={request,status:'completed',notice:'\u670d\u52a1\u5668\u5df2\u786e\u8ba4'};
-      }
-      if(f.late===true){f.late=()=>o.onSuccess(JSON.stringify(value));return;}
-    }
-    queueMicrotask(()=>o.onSuccess(JSON.stringify(value)));
-  };
-})();`.replace(/\\u([0-9a-f]{4})/gi,(_,code)=>String.fromCharCode(92)+'u'+code);
+ const f=window.__fx,H='11111111-1111-4111-8111-111111111111',P='22222222-2222-4222-8222-222222222222',S='33333333-3333-4333-8333-333333333333';
+ const clone=x=>JSON.parse(JSON.stringify(x));f.H=H;f.P=P;f.S=S;
+ const field=(id,selected,options)=>({id,label:{map:'地图',difficulty:'难度',mode:'模式'}[id],selected,options:options.map(x=>typeof x==='string'?{value:x,label:x}:x)});
+ const tiers=['简单','普通','困难','专家','极限'].map((label,i)=>({value:String(i+1),label}));
+ const specs=[
+ ['flight','太平洋空战',[field('mode','pve',[{value:'pve',label:'PVE 协作'},{value:'pvp',label:'PVP 红蓝对战'}]),field('map','pacific-training',[{value:'pacific-training',label:'硫磺岛'}]),field('difficulty','1',tiers)]],
+ ['horse_racing','障碍赛马',[field('mode','obstacle',[{value:'obstacle',label:'障碍赛'}]),field('map','horse-stadium',[{value:'horse-stadium',label:'赛马场'}]),field('difficulty','1',tiers)]],
+ ['zombie-challenge','僵尸挑战',[field('difficulty','NORMAL',[{value:'NORMAL',label:'普通'},{value:'EXTREME',label:'极限'}]),field('map','research_lab',[{value:'research_lab',label:'研究所'},{value:'mysterious_camp',label:'神秘营地'}])]],
+ ['outbreak','求援之路',[field('map','school',[{value:'school',label:'逃离学院',modes:['CAMPAIGN']},{value:'camp',label:'神秘营地',modes:['SURVIVAL']}]),field('difficulty','1',[{value:'0',label:'简单'},{value:'1',label:'普通'},{value:'2',label:'困难'},{value:'3',label:'极限'}]),field('mode','CAMPAIGN',[{value:'CAMPAIGN',label:'战役'},{value:'SURVIVAL',label:'生存'}])]]];
+ const make=([id,title,fields])=>({id,title,state:{self:H,rooms:[]},ui:{lobby:{sections:[{role:'create',fields,actions:[{action:id==='zombie-challenge'?'createMap':'createConfigured',value:'',enabled:true,jsonFields:id!=='zombie-challenge',fields:fields.map(f=>f.id).join(',')}]},{role:'rooms',cards:[]}]},shop:{title:title+'商店',sections:[{title:'补给',cards:[{title:'医疗包',text:'3 积分',actions:[{label:'兑换',action:'buy',value:'medkit:7:3',enabled:true}]}]}]}}});
+ f.state={supported:true,loading:false,roomUiVersion:1,protocol:2,actionSupported:true,allowed:true,activeGame:'',self:{uuid:H,name:'Dot 🦊'},platform:{available:true,points:'9223372036854775807'},games:specs.map(make)};
+ f.rooms=(n=4)=>{for(const g of f.state.games){g.state.rooms=[];g.ui.lobby.sections=g.ui.lobby.sections.filter(s=>['create','rooms'].includes(s.role));g.ui.lobby.sections[0].actions[0].enabled=true;const rows=g.ui.lobby.sections.find(s=>s.role==='rooms');rows.cards=[];for(let i=0;i<n;i++){const id=g.id+'-'+i;g.state.rooms.push({id,session:S,host:P,mine:false,roomName:'队友 '+i+' 的房间',phase:'WAITING',count:1,capacity:4});rows.cards.push({title:id,actions:[{label:'加入',action:'join',value:id,enabled:true}]});}}};
+ f.own=()=>f.state.games.flatMap(g=>g.state.rooms).find(r=>r.mine);
+ f.compose=()=>{for(const g of f.state.games){const r=g.state.rooms.find(r=>r.mine);g.ui.lobby.sections=g.ui.lobby.sections.filter(s=>['create','rooms'].includes(s.role));g.ui.lobby.sections[0].actions[0].enabled=!f.own();if(!r)continue;
+  const host=r.host===H,waiting=['WAITING','LOBBY'].includes(r.phase),create=g.ui.lobby.sections[0],diff=create.fields.find(f=>f.id==='difficulty');
+  g.ui.lobby.sections.push({role:'room',actions:[{label:'开始',action:'start',value:'',enabled:host&&waiting},{label:'退出并恢复',action:'leave',value:'',enabled:true,safe:true,confirm:'退出并恢复原物品和位置？'}]},{role:'settings',fields:[{...clone(diff),id:'roomDifficulty',selected:String(r.difficulty)}],actions:[{label:'修改难度',action:g.id==='horse_racing'?'enemy':'difficulty',value:'{roomDifficulty}',enabled:host&&waiting}],cards:g.id==='flight'?r.roster.map(m=>({title:m.name,text:m.side==='red'?'红队':'蓝队',actions:['red','blue'].map(side=>({label:side==='red'?'红队':'蓝队',action:'assignSide',value:m.uuid+'|'+side,enabled:host&&waiting&&r.mode==='pvp'}))})):[]},{role:'invite',cards:[{title:'100002',actions:[{label:'邀请',action:'invite',value:P,enabled:host&&waiting}]}]});
+ }};
+ f.enter=(gameId=f.last?.game||'flight',name='Dot 🦊的房间',values)=>{const g=f.state.games.find(g=>g.id===gameId),fields=g.ui.lobby.sections[0].fields,selected=Object.fromEntries(fields.map((v,i)=>[v.id,values?.[i]||v.selected]));g.state.rooms=g.state.rooms.filter(r=>!r.mine);g.state.rooms.unshift({id:'ROOM1',session:S,host:H,mine:true,roomName:name,phase:g.id==='zombie-challenge'?'LOBBY':'WAITING',count:2,capacity:selected.mode==='pvp'?2:4,...selected,roster:[{uuid:H,name:'Dot 🦊',host:true,online:true,side:g.id==='flight'?'red':undefined},{uuid:P,name:'队友小白',host:false,online:true,side:g.id==='flight'?(selected.mode==='pvp'?'blue':'red'):undefined}]});f.state.activeGame=gameId;f.compose();};
+ f.apply=()=>{const a=f.last;if(a.action==='roomCreate'){const [name,values]=JSON.parse(a.value);f.enter(a.game,name,values);}else if(a.action==='roomSettings'){const [,name,change]=JSON.parse(a.value),r=f.own();r.roomName=name;if(change.length)r.difficulty=change[1];f.compose();}else if(a.action==='join')f.enter(a.game,'加入的房间');else if(a.action==='start'){f.own().phase='RUNNING';f.compose();}else if(a.action==='leave'){for(const g of f.state.games)g.state.rooms=g.state.rooms.filter(r=>!r.mine);f.state.activeGame='';f.compose();}else if(a.action==='assignSide'){const [id,side]=a.value.split('|');f.own().roster.find(m=>m.uuid===id).side=side;f.compose();}};
+ f.complete=(membership=true)=>{if(membership)f.apply();f.state.operation={request:f.last.request,status:f.fail?'failed':'completed',notice:f.fail?'房间操作失败':'服务器已确认'};};
+ f.reset=()=>{f.state.activeGame='';delete f.state.operation;f.hold=true;f.fail=false;f.rooms();};
+ f.social=()=>({version:1,enabled:f.trusted,authenticated:f.trusted,selfUid:'100001',selfUuid:H,onlinePlayers:[{uid:'100002',uuid:P,gameName:'100002',displayName:'小白'},{uid:'100003',uuid:'44444444-4444-4444-8444-444444444444',gameName:'100003',displayName:'小红'}],rooms:f.own()?[{game:f.state.activeGame,session:S,host:f.own().host,mine:true,inviteable:f.own().host===H&&['WAITING','LOBBY'].includes(f.own().phase),socialManaged:true}]:[],invitations:f.tickets||[],operation:f.inviteReceipt});
+ f.finishInvite=()=>{f.tickets=[{invitation:'55555555-5555-4555-8555-555555555555',game:f.state.activeGame,room:S,host:H,target:P,source:f.lastInvite.source,status:'PENDING',expiresInSeconds:300}];f.inviteReceipt={request:f.inviteRequest,status:'completed'};};
+ f.state.social={enabled:true,authenticated:true,invitations:[]};f.rooms();
+ window.muxiTerminalQuery=o=>{f.calls.push(o.request);let value={ok:true};
+  if(o.request==='games.context')value={game:'',page:'lobby',drafts:{}};
+  else if(o.request==='games.snapshot')value=clone(f.state);
+  else if(o.request==='friends.invites.snapshot')value=f.social();
+  else if(o.request==='friends.invite-peers')value={selfUid:'100001',friends:[{uid:'100002',uuid:P,gameName:'100002'}]};
+  else if(o.request==='apps.list')value=[];
+  else if(o.request==='tasks.snapshot')value={supported:false,rows:[]};
+  else if(o.request.startsWith('resource.data:'))value='';
+  else if(o.request==='icons.state')value={revision:1};
+  else if(o.request.startsWith('icons.get:'))value={revision:1,src:''};
+  else if(o.request.startsWith('friends.invites.action:')){const a=JSON.parse(o.request.slice(23));f.inviteActions.push(a);f.lastInvite=a;f.inviteRequest='aaaaaaaa-aaaa-4aaa-8aaa-'+String(f.inviteActions.length).padStart(12,'0');f.inviteReceipt={request:f.inviteRequest,status:'pending'};value={ok:true,request:f.inviteRequest};}
+  else if(o.request.startsWith('games.action:')){const a=JSON.parse(o.request.slice(13));f.actions.push(a);f.last={...a,request:'bbbbbbbb-bbbb-4bbb-8bbb-'+String(f.actions.length).padStart(12,'0')};f.state.operation={request:f.last.request,status:f.fail?'failed':'pending',notice:f.fail?'房间操作失败':''};value={ok:true,request:f.last.request};if(!f.hold&&!f.fail)f.complete();}
+  queueMicrotask(()=>o.onSuccess(JSON.stringify(value)));
+ };
+})();`;
 
 try{
   let port;for(let i=0;i<200;i++){if(fs.existsSync(path.join(profile,'DevToolsActivePort'))){port=Number(fs.readFileSync(path.join(profile,'DevToolsActivePort'),'utf8').split('\n')[0]);break;}if(child.exitCode!==null)throw Error(stderr);await pause(100);}
@@ -101,124 +99,92 @@ try{
   await cdp('Page.addScriptToEvaluateOnNewDocument',{source:fixture});
   await cdp('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/index.html#/games`});
   await eventually('!!document.querySelector("[data-mg-create]")');
-  // The public owner may stage its module before wiring the shared index.
-  // Consumer-only tests use that exact module; production integration remains its owner's work.
-  if(!await js('!!window.TerminalIcons')&&fs.existsSync(path.join(assets,'terminal-icons.js'))){
-    await js(fs.readFileSync(path.join(assets,'terminal-icons.js'),'utf8'));
-    await js(`{const style=document.createElement('style');style.textContent=${JSON.stringify(fs.readFileSync(path.join(assets,'terminal-icons.css'),'utf8'))};document.head.appendChild(style);}`);
+  const click=selector=>js(`{const e=document.querySelector(${JSON.stringify(selector)});e.focus();e.click();}`);
+  const change=(selector,value)=>js(`{const e=document.querySelector(${JSON.stringify(selector)});e.value=${JSON.stringify(value)};e.dispatchEvent(new Event('change',{bubbles:true}));}`);
+  const refresh=()=>js('window.MuxiMinigamesApp.activate()');
+  const close=()=>click('.mg-dialog [data-mg-dialog-close]');
+  await check('clean lobby has room list, no inline creation/settings/invitation form',`document.querySelector('#mg-room-list')&&document.getElementById('mg-room-invitations').hidden&&!document.querySelector('[data-mg-field]')&&!document.querySelector('#mg-content .friends-invite-panel')`);
+  await js(`__fx.state.games[0].ui.lobby.sections.push({role:'recovery',title:'恢复上次状态',actions:[{label:'恢复并退出',action:'leave',value:'',safe:true,enabled:true}]});__fx.state.allowed=false`);await refresh();
+  await check('recovery retains a safe exit even when normal actions are restricted',`document.querySelector('.mg-recovery button')&&!document.querySelector('.mg-recovery button').disabled&&document.querySelector('[data-mg-create]').disabled`);
+  await js('__fx.state.allowed=true;__fx.rooms(20)');await refresh();
+  for(const [width,height]of [[1920,1080],[1280,720],[640,360],[480,320]]){
+   await cdp('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});
+   await check(`lobby fills available height and scrolls internally ${width}x${height}`,`(()=>{const p=document.getElementById('games'),l=document.getElementById('mg-room-list');return p.scrollWidth<=p.clientWidth&&p.scrollHeight<=p.clientHeight&&l.scrollHeight>l.clientHeight&&l.getBoundingClientRect().bottom<=p.getBoundingClientRect().bottom;})()`);
+   await js(`document.getElementById('mg-room-list').scrollTop=100`);await refresh();
+   await check(`refresh preserves list scroll ${width}x${height}`,`document.getElementById('mg-room-list').scrollTop===100`);
+   await shot(`lobby-${width}x${height}`);
   }
-  await check('default lobby shows room list and create, hides mode/form/invitation',`document.querySelector('[data-mg-create]')&&document.querySelector('[data-mg-action]')&&!document.querySelector('[data-mg-choice]')&&document.getElementById('mg-games').hidden&&document.getElementById('mg-room-invitations').hidden`);
-  await js(`__fx.savedRoomCards=structuredClone(__fx.rooms.cards);__fx.rooms.cards=Array.from({length:70},(_,i)=>({title:'ROOM '+(i+1),text:'Waiting · 1/4',actions:[{action:'join',label:'加入',value:'ABCD',enabled:true}]}));__fx.state.games[0].ui.lobby.sections.push({role:'recovery',title:'LOBBY_RECOVERY_FOOTER',text:'Recovery stays in room details'},{role:'result',title:'LOBBY_RESULT_FOOTER',text:'Results stay in room details'});window.MuxiMinigamesApp.activate()`);
-  await eventually(`!!document.getElementById('mg-room-list')&&document.querySelectorAll('#mg-room-list .guide-card').length===70`);
-  await check('routine lobby hint yields space to the list',`document.getElementById('mg-notice').hidden`);
-  await js(`__fx.state.notice='服务暂不可用，请刷新';window.MuxiMinigamesApp.activate()`);
-  await eventually(`document.getElementById('mg-notice').textContent==='服务暂不可用，请刷新'`);
-  await check('server notices remain visible in the lobby',`!document.getElementById('mg-notice').hidden`);
-  await js(`delete __fx.state.notice;window.MuxiMinigamesApp.activate()`);
-  await eventually(`document.getElementById('mg-notice').hidden`);
-  await check('lobby omits recovery/result footer while retaining provider data',`!document.getElementById('mg-content').textContent.includes('LOBBY_RECOVERY_FOOTER')&&!document.getElementById('mg-content').textContent.includes('LOBBY_RESULT_FOOTER')&&__fx.state.games[0].ui.lobby.sections.some(s=>s.role==='recovery')&&__fx.state.games[0].ui.lobby.sections.some(s=>s.role==='result')`);
-  for(const [width,height] of [[1920,1080],[1280,720],[640,360],[480,320]]){
-    await cdp('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});
-    await check(`room list fills remaining APP height at ${width}x${height}`,`(()=>{const page=document.getElementById('games'),list=document.getElementById('mg-room-list'),p=page.getBoundingClientRect(),r=list.getBoundingClientRect();return r.height>=110&&Math.abs(r.bottom-(p.bottom-parseFloat(getComputedStyle(page).paddingBottom)))<=1&&page.scrollHeight<=page.clientHeight&&page.scrollWidth<=page.clientWidth&&list.scrollHeight>list.clientHeight;})()`);
-    await check(`create refresh and back remain visible at ${width}x${height}`,`[document.querySelector('[data-mg-create]'),document.getElementById('mg-refresh'),document.getElementById('mg-back')].every(button=>{const r=button.getBoundingClientRect();return r.top>=0&&r.left>=0&&r.bottom<=innerHeight&&r.right<=innerWidth&&!button.disabled;})`);
-    await js(`document.getElementById('mg-room-list').scrollTop=100`);
-    await check(`rooms scroll internally at ${width}x${height}`,`document.getElementById('mg-room-list').scrollTop===100&&document.getElementById('games').scrollTop===0`);
-    await shot(`lobby-list-${width}x${height}`);
-  }
-  await js(`__fx.rooms.text='Refreshed rooms';window.MuxiMinigamesApp.activate()`);
-  await eventually(`document.getElementById('mg-room-list').textContent.includes('Refreshed rooms')`);
-  await check('snapshot refresh retains room-list scroll position',`document.getElementById('mg-room-list').scrollTop===100`);
-  await js(`__fx.rooms.cards=__fx.savedRoomCards;delete __fx.rooms.text;__fx.state.games[0].ui.lobby.sections=__fx.state.games[0].ui.lobby.sections.filter(s=>!['result','recovery'].includes(s.role));window.MuxiMinigamesApp.activate()`);
   await cdp('Emulation.setDeviceMetricsOverride',{width:1280,height:720,deviceScaleFactor:1,mobile:false});
-  await eventually(`document.querySelectorAll('#mg-room-list .guide-card').length===1`);
-  await shot('01-lobby');
-  await js(`document.querySelector('[data-mg-create]').click()`);
-  await check('create opens separate mode selection',`!document.getElementById('mg-games').hidden&&document.querySelectorAll('[data-mg-game]').length===2`);await shot('02-mode');
-  await js(`document.querySelector('[data-mg-cancel]').click()`);
-  await check('cancel makes no action request',`__fx.actions.length===0&&document.getElementById('mg-games').hidden`);
-  await js(`document.querySelector('[data-mg-create]').click();document.querySelector('[data-mg-game="outbreak"]').click()`);
-  await check('campaign selects only compatible maps even when map field comes first',`document.querySelectorAll('[data-mg-map]').length===1&&document.querySelector('[data-mg-map]').dataset.mgMap==='school'`);
-  await js(`document.querySelector('[data-mg-choice="outbreak:mode"][data-mg-value="SURVIVAL"]').click()`);
-  await check('switch mode replaces incompatible map',`document.querySelectorAll('[data-mg-map]').length===1&&document.querySelector('[data-mg-map]').dataset.mgMap==='camp'`);await shot('03-map');
-  await js(`document.querySelector('[data-mg-map]').click()`);
-  await check('confirmation only exposes difficulty and selected map summary',`document.querySelector('[data-mg-choice="outbreak:difficulty"]')&&!document.querySelector('[data-mg-map]')&&!document.querySelector('[data-mg-choice="outbreak:mode"]')&&__fx.actions.length===0`);await shot('04-confirm');
-  await js(`__fx.fail=true;document.querySelector('[data-mg-action]').click()`);
-  await eventually(`document.getElementById('mg-notice').textContent.includes('\u5931\u8d25')`);
-  await check('create failure stays in confirmation with invitations hidden',`document.querySelector('[data-mg-choice="outbreak:difficulty"]')&&document.getElementById('mg-room-invitations').hidden`);
-  await js(`__fx.fail=false;document.querySelector('[data-mg-action]').click();document.querySelector('[data-mg-action]').click()`);await pause(100);
-  await check('duplicate clicks submit once; ACK alone never enters room',`__fx.actions.length===2&&document.getElementById('mg-room-invitations').hidden&&!document.querySelector('[data-mg-action="1"]')`);
-  await js(`__fx.complete(false);window.MuxiMinigamesApp.activate()`);await pause(80);
-  await check('completed receipt without membership cannot enter room',`document.getElementById('mg-room-invitations').hidden&&document.querySelector('[data-mg-choice="outbreak:difficulty"]')`);
-  await js(`__fx.enter();window.MuxiMinigamesApp.activate()`);await eventually(`!document.getElementById('mg-room-invitations').hidden`);
-  await js(`__fx.state.games[0].ui.lobby.sections.push({role:'recovery',title:'ROOM_RECOVERY_DETAILS',text:'Recovery retained'},{role:'result',title:'ROOM_RESULT_DETAILS',text:'Results retained'});window.MuxiMinigamesApp.activate()`);
-  await eventually(`document.getElementById('mg-content').textContent.includes('ROOM_RESULT_DETAILS')`);
-  await check('room details retain recovery and result sections without the lobby-only layout',`document.getElementById('mg-content').textContent.includes('ROOM_RECOVERY_DETAILS')&&!document.getElementById('games').classList.contains('mg-lobby')&&!document.getElementById('mg-room-list')`);
-  await check('final receipt plus membership opens room-scoped invitations',`document.getElementById('friendsInviteOnline')&&document.getElementById('friendsInviteFriends')&&document.querySelector('[data-mg-action]')`);await shot('05-waiting-room');
-  await eventually(`document.getElementById('friendsInviteStatus').textContent.includes('\u672a\u63d0\u4f9b')`);
-  await check('unavailable trusted friends service is stated honestly',`document.getElementById('friendsInviteStatus').textContent.includes('\u672a\u63d0\u4f9b')`);
-  await js(`__fx.hold=false;[...document.querySelectorAll('[data-mg-action]')].find(b=>b.textContent==='\u5f00\u59cb').click()`);
-  await eventually(`document.getElementById('mg-room-invitations').hidden`);
-  await check('active room hides all invitations despite stale waiting flag',`document.getElementById('mg-room-invitations').hidden&&!document.getElementById('mg-content').textContent.includes('\u9080\u8bf7\u5728\u7ebf\u73a9\u5bb6')`);await shot('06-active-room');
-  await js(`[...document.querySelectorAll('[data-mg-action]')].find(b=>b.textContent==='\u9000\u51fa\u623f\u95f4').click()`);
-  await check('leave requires explicit confirmation',`!document.getElementById('mg-confirm').hidden`);await shot('07-leave-dialog');
-  const beforeLeave=await js('__fx.actions.length');await js(`document.getElementById('mg-confirm-cancel').click()`);
-  await check('cancel leave preserves membership and sends nothing',`__fx.actions.length===${beforeLeave}&&__fx.state.games[0].state.rooms.length===1`);
-  await js(`[...document.querySelectorAll('[data-mg-action]')].find(b=>b.textContent==='\u9000\u51fa\u623f\u95f4').click();document.getElementById('mg-confirm-ok').click()`);
-  await eventually(`!!document.querySelector('[data-mg-create]')&&!document.querySelector('[data-mg-open-room]')`);
-  await check('confirmed leave returns clean lobby',`document.getElementById('mg-room-invitations').hidden&&document.getElementById('mg-games').hidden`);
-  await js(`__fx.hold=true;document.querySelector('[data-mg-action]').click();__fx.complete();window.MuxiMinigamesApp.activate()`);
-  await eventually(`!document.getElementById('mg-room-invitations').hidden`);
-  await check('join from lobby list enters room after final receipt and membership',`__fx.last.action==='join'&&__fx.last.value==='ABCD'&&!document.getElementById('mg-room-invitations').hidden`);
-  await js(`document.querySelector('[data-mg-page="shop"]').click()`);
-  await check('shop stays in existing navigation and retains exact platform amount',`document.getElementById('mg-content').textContent.includes('\u5546\u5e97')&&document.getElementById('mg-platform').textContent.includes('9223372036854775807')`);await shot('08-shop');
-  await check('games reuses pixel button style and terminal toolbar',`getComputedStyle(document.querySelector('#mg-content .primary')).borderRadius==='0px'&&document.getElementById('games').parentElement.id==='app-content'`);
-  await js(`__fx.late=true;document.querySelector('[data-mg-action]').click()`);await pause(4150);
-  await check('lost callback stays blocked instead of repeating uncertain mutation',`document.querySelector('[data-mg-action]').disabled&&/\u8d85\u65f6|\u672a\u6536\u5230\u6700\u7ec8\u786e\u8ba4/.test(document.getElementById('mg-notice').textContent)`);
-  await js(`__fx.complete(false);__fx.late()`);
-  await eventually(`!document.querySelector('[data-mg-action]').disabled`);
-  await check('late callback resumes correlation and only final receipt unlocks',`!document.querySelector('[data-mg-action]').disabled&&document.getElementById('mg-notice').textContent.includes('\u5df2\u786e\u8ba4')`);
-  if(await js('!!window.TerminalIcons')){
-    await js(`(async()=>{__fx.late=false;const card=__fx.state.games[0].ui.shop.sections[0].cards[0];card.icon={kind:'item',id:'minecraft:enchanted_golden_apple',label:'Apple'};card.actions[0].confirm='Confirm item purchase?';await window.MuxiMinigamesApp.activate();})()`);
-    await eventually(`!!document.querySelector('#mg-content img[data-terminal-icon-id="minecraft:enchanted_golden_apple"]')&&!document.querySelector('#mg-content img[data-terminal-icon-id="minecraft:enchanted_golden_apple"]').hidden`);
-    await check('cards consume shared icon html and hydrate APIs',`document.querySelector('#mg-content img').naturalWidth>0&&__fx.calls.some(c=>c.startsWith('icons.get:'))`);
-    await js(`document.querySelector('[data-mg-action]').click()`);
-    await eventually(`!!document.querySelector('#mg-confirm-text img')&&!document.querySelector('#mg-confirm-text img').hidden`);
-    await check('confirmation inherits server card descriptor through common icon service',`document.querySelector('#mg-confirm-text img').dataset.terminalIconId==='minecraft:enchanted_golden_apple'`);await shot('10-dialog-icon-consumer-fixture');
-    await js(`document.getElementById('mg-confirm-cancel').click()`);
-    await check('closing confirmation releases its shared image attachment',`document.getElementById('mg-confirm').hidden&&!document.querySelector('#mg-confirm-text img').hasAttribute('src')`);
-    await js(`(async()=>{const card=__fx.state.games[0].ui.shop.sections[0].cards[0];card.horseSku='seabiscuit';card.horsePreviewId='catalog-seabiscuit';await window.MuxiMinigamesApp.activate();})()`);
-    await check('horse metadata without a PNG descriptor has an explicit large preview fallback',`document.querySelector('.mg-card-preview')&&getComputedStyle(document.querySelector('.mg-preview-unavailable')).display!=='none'&&document.querySelector('.mg-preview-unavailable').textContent==='\u5916\u89c2\u9884\u89c8\u6682\u4e0d\u53ef\u7528'&&document.querySelector('.mg-preview-media').getBoundingClientRect().height>100`);
-    await js(`(async()=>{const card=__fx.state.games[0].ui.shop.sections[0].cards[0];card.preview={kind:'resource',id:'https://invalid.example/horse.png',label:'<img src=x onerror=alert(1)>'};await window.MuxiMinigamesApp.activate();})()`);
-    await check('preview labels are escaped and remote image URLs never reach the native icon bridge',`document.querySelector('.mg-card-preview figcaption').textContent==='<img src=x onerror=alert(1)>'&&!document.querySelector('.mg-card-preview figcaption img')&&!__fx.calls.some(c=>c.includes('invalid.example'))`);
-    await js(`(async()=>{const card=__fx.state.games[0].ui.shop.sections[0].cards[0];card.preview={kind:'resource',id:'muxi_minigames:textures/gui/horse_preview/missing.png',label:'\u901a\u7528\u9a6c\u6c60\u793a\u610f\u56fe'};await window.MuxiMinigamesApp.activate();})()`);
-    await eventually(`__fx.calls.some(c=>c.includes('/missing.png'))`);
-    await check('missing PNG retains its explicit fallback, generic description and purchase action',`document.querySelector('.mg-card-preview img').hidden&&getComputedStyle(document.querySelector('.mg-preview-unavailable')).display!=='none'&&document.querySelector('.mg-card-preview figcaption').textContent==='\u901a\u7528\u9a6c\u6c60\u793a\u610f\u56fe'&&!document.querySelector('[data-mg-action]').disabled`);
-    await shot('11-horse-preview-missing');
-    if(process.argv.includes('--horse-previews')){
-      const horseRoot=path.resolve(repo,'../muxi-minigames/src/main/resources/assets/muxi_minigames/textures/gui/horse_preview');
-      const pngs={},cards=[],assetEvidence=[];
-      for(const sku of ['seabiscuit','winx','secretariat','frankel','equinox','generic']){
-        const file=path.join(horseRoot,sku+'.png'),data=fs.readFileSync(file);
-        assert.ok(data.length<=256*1024&&data.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])),'Bounded actual PNG: '+sku);
-        const id='muxi_minigames:textures/gui/horse_preview/'+sku+'.png';pngs[id]='data:image/png;base64,'+data.toString('base64');
-        cards.push({title:sku,horseSku:sku,preview:{kind:'resource',id,label:sku==='generic'?'\u901a\u7528\u9a6c\u6c60\u793a\u610f\u56fe':'\u539f\u7248\u9a6c\u5916\u89c2\u793a\u610f\u56fe'},actions:[]});
-        assetEvidence.push({sku,file,sha256:crypto.createHash('sha256').update(data).digest('hex'),bytes:data.length,width:data.readUInt32BE(16),height:data.readUInt32BE(20)});
-      }
-      fs.writeFileSync(path.join(output,'horse-png-assets.json'),JSON.stringify(assetEvidence,null,2));
-      await js(`(async()=>{__fx.actualHorsePngs=${JSON.stringify(pngs)};__fx.state.games[0].ui.shop.sections[0].cards=${JSON.stringify(cards)};await window.MuxiMinigamesApp.activate();})()`);
-      await eventually(`document.querySelectorAll('.mg-card-preview img').length===6&&[...document.querySelectorAll('.mg-card-preview img')].every(img=>!img.hidden&&img.naturalWidth>1)`);
-      await check('six actual owner PNGs load through the shared icon API and hide the fallback',`[...document.querySelectorAll('.mg-card-preview')].every(figure=>getComputedStyle(figure.querySelector('.mg-preview-unavailable')).display==='none')&&document.querySelectorAll('.mg-card-preview figcaption')[5].textContent==='\u901a\u7528\u9a6c\u6c60\u793a\u610f\u56fe'`);
-      await shot('12-horse-previews-owner-assets');
-    }
+  await click('[data-mg-create]');
+  await check('create is one dialog with actual nickname, game, mode, map, difficulty',`document.querySelector('[role="dialog"]')&&!document.querySelector('.mg-dialog').hidden&&document.querySelector('[data-mg-room-name]').value==='Dot 🦊的房间'&&document.querySelectorAll('.mg-dialog select').length===4`);
+  await check('flight creation does not expose hangar or seat knobs',`!document.querySelector('.mg-dialog').textContent.match(/redHumans|blueAi|机库|出击上限/)`);
+  await shot('create-flight');
+  for(const [width,height]of [[640,360],[480,320]]){
+   await cdp('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});
+   await check(`create dialog fits viewport ${width}x${height}`,`(()=>{const p=document.querySelector('.mg-dialog-panel'),r=p.getBoundingClientRect();return r.left>=0&&r.top>=0&&r.right<=innerWidth&&r.bottom<=innerHeight&&p.scrollWidth<=p.clientWidth;})()`);await shot(`create-${width}x${height}`);
   }
-  await cdp('Emulation.setDeviceMetricsOverride',{width:640,height:360,deviceScaleFactor:1,mobile:false});
-  await check('horse preview remains within the card and viewport at small sizes',`[...document.querySelectorAll('.mg-card-preview')].every(figure=>figure.getBoundingClientRect().width<=256&&figure.getBoundingClientRect().width<=figure.parentElement.getBoundingClientRect().width)&&document.getElementById('games').scrollWidth<=document.getElementById('games').clientWidth`);
-  await shot('13-small-horse-shop');
-  await js(`document.getElementById('mg-back').click()`);await shot('09-small-lobby');
-  await check('small viewport does not overflow horizontally',`document.getElementById('games').scrollWidth<=document.getElementById('games').clientWidth`);
+  await cdp('Emulation.setDeviceMetricsOverride',{width:1280,height:720,deviceScaleFactor:1,mobile:false});
+  await change('[data-mg-create-game]','outbreak');await change('[data-mg-field="mode"]','SURVIVAL');
+  await check('mode filters compatible map regardless of native field order',`document.querySelector('[data-mg-field="map"]').options.length===1&&document.querySelector('[data-mg-field="map"]').value==='camp'`);
+  await close();await check('cancel creation sends no request',`__fx.actions.length===0&&document.querySelector('.mg-dialog').hidden`);
+  for(let i=0;i<3;i++){await click('[data-mg-create]');await close();}
+  await check('reopening create does not duplicate dialog or submit listeners',`document.querySelectorAll('.mg-dialog').length===1&&__fx.actions.length===0`);
+  await click('[data-mg-create]');
+  await js(`{const e=document.querySelector('[data-mg-room-name]');e.value='<img src=x onerror=alert(1)>';e.dispatchEvent(new Event('input',{bubbles:true}));}`);
+  await click('[data-mg-submit="create"]');await check('invalid long name cannot submit',`__fx.actions.length===0&&document.querySelector('.mg-dialog-status').textContent.length>0`);
+  await js(`{const e=document.querySelector('[data-mg-room-name]');e.value='<b>Dot</b>';e.dispatchEvent(new Event('input',{bubbles:true}));}`);
+  await change('[data-mg-field="difficulty"]','3');await js(`document.querySelector('[data-mg-submit="create"]').click();document.querySelector('[data-mg-submit="create"]').click()`);
+  await pause(100);
+  await check('duplicate create sends once; ACK does not auto-enter or start',`__fx.actions.length===1&&__fx.last.action==='roomCreate'&&!__fx.own()&&!document.querySelector('.mg-dialog').hidden&&document.querySelector('[data-mg-submit="create"]').disabled&&!__fx.actions.some(a=>a.action==='start')`);
+  await js('__fx.complete(false)');await refresh();
+  await check('completed receipt without actual membership does not enter room',`!__fx.own()&&!document.querySelector('.mg-dialog').hidden&&document.querySelector('[data-mg-submit="create"]').disabled`);
+  await js('__fx.apply()');await refresh();await eventually(`!!document.querySelector('[data-mg-settings]')`);
+  await check('membership plus final receipt enters waiting details and actual roster',`document.querySelector('.mg-dialog').hidden&&document.querySelectorAll('.mg-members li').length===2&&document.querySelector('.mg-room-overview h3').textContent==='<b>Dot</b>'&&!document.querySelector('.mg-room-overview h3 b')&&__fx.own().phase==='WAITING'`);
+  await check('room has unified invite/settings buttons and removes bottom invite complexity',`document.querySelectorAll('[data-mg-invites]').length===1&&document.querySelectorAll('[data-mg-settings]').length===1&&document.getElementById('mg-room-invitations').hidden&&!document.querySelector('#mg-content [data-mg-choice]')`);await shot('waiting-room');
+  await click('[data-mg-settings]');
+  await check('PVE settings contain only room name and one difficulty',`document.querySelector('.mg-dialog [data-mg-room-name]')&&document.querySelectorAll('.mg-dialog select').length===1&&document.querySelectorAll('[data-mg-modal-action]').length===0`);
+  await check('PVE hides redundant team assignment controls',`document.querySelectorAll('[data-mg-modal-action]').length===0`);await shot('settings-flight');
+  await js(`{const e=document.querySelector('[data-mg-room-name]');e.value='训练室';e.dispatchEvent(new Event('input',{bubbles:true}));__fx.hold=false;}`);await change('[data-mg-field]','4');await click('[data-mg-submit="settings"]');await eventually('document.querySelector(".mg-dialog").hidden');
+  await check('settings save waits for receipt and authoritative room name/difficulty',`__fx.own().roomName==='训练室'&&__fx.own().difficulty==='4'&&document.querySelector('.mg-room-overview h3').textContent==='训练室'`);
+  await js(`__fx.own().mode='pvp';__fx.own().roster[1].side='blue';__fx.compose()`);await refresh();await click('[data-mg-settings]');
+  await check('PVP retains compact red/blue team assignment in settings',`document.querySelectorAll('[data-mg-modal-action]').length===4`);await shot('settings-flight-pvp');await close();
+  await js(`__fx.own().mode='pve';__fx.own().roster[1].side='red';__fx.compose()`);await refresh();
+  await click('[data-mg-invites]');await eventually(`document.querySelectorAll('[data-invite-uid]').length===2`);
+  await check('invite dialog tab order is online left, friends right',`document.getElementById('friendsInviteOnline').textContent==='在线玩家'&&document.getElementById('friendsInviteFriends').textContent==='我的好友'&&document.getElementById('friendsInviteOnline').compareDocumentPosition(document.getElementById('friendsInviteFriends'))&Node.DOCUMENT_POSITION_FOLLOWING`);await shot('invite-online');
+  await click('#friendsInviteFriends');await eventually(`document.querySelectorAll('[data-invite-uid]').length===1`);await shot('invite-friends');
+  await check('friends tab uses actual online friendship intersection',`document.querySelector('[data-invite-uid]').dataset.inviteUid==='100002'&&__fx.calls.includes('friends.invite-peers')`);
+  await js(`document.querySelector('[data-invite-uid]').click();document.querySelector('[data-invite-uid]').click()`);await pause(100);
+  await check('invite duplicate click sends once and waits for final receipt',`__fx.inviteActions.length===1&&document.querySelector('[data-invite-uid]').disabled`);
+  await close();await click('[data-mg-invites]');
+  await check('close/reopen preserves pending invite and disables duplicate issuance',`document.querySelector('[data-invite-uid]').disabled&&__fx.inviteActions.length===1`);
+  await js('__fx.finishInvite()');await eventually(`!!document.querySelector('[data-invite-cancel]')&&!document.querySelector('[data-invite-uid]').disabled`);
+  await check('matching final receipt plus invitation ticket unlocks dialog',`__fx.inviteActions.length===1&&document.querySelector('[data-invite-cancel]')`);
+  await close();await js(`__fx.trusted=false;__fx.state.social={enabled:false,authenticated:false,invitations:[]}`);await refresh();await click('[data-mg-invites]');await click('#friendsInviteRefresh');await click('#friendsInviteOnline');await eventually(`!!document.querySelector('[data-invite-player]')`);
+  await check('online invitation fallback uses actual game action, friends honestly unavailable',`document.querySelector('[data-invite-player]').dataset.invitePlayer===__fx.P`);
+  const writes=await js('__fx.actions.length');await click('[data-invite-player]');await eventually(`__fx.actions.length===${writes+1}&&!document.querySelector('[data-invite-player]').disabled`);
+  await check('fallback issues exactly one native invite',`__fx.last.action==='invite'&&__fx.last.value===__fx.P`);await click('#friendsInviteFriends');await check('unavailable friends tab is explicit',`document.getElementById('friendsInviteStatus').textContent.includes('未提供')&&!document.querySelector('[data-invite-uid]')`);await close();
+  await js(`__fx.own().host=__fx.P;__fx.compose()`);await refresh();await click('[data-mg-settings]');
+  await check('member can inspect settings but cannot rename/change difficulty/save/invite',`[...document.querySelectorAll('.mg-dialog input,.mg-dialog select,.mg-dialog [data-mg-submit],.mg-dialog [data-mg-modal-action]')].every(c=>c.disabled)&&document.querySelector('[data-mg-invites]').disabled`);await shot('settings-member-readonly');await close();
+  await js(`__fx.own().host=__fx.H;__fx.own().phase='RUNNING';__fx.compose()`);await refresh();await click('[data-mg-settings]');
+  await check('active room settings remain read-only despite host',`document.querySelector('[data-mg-submit="settings"]').disabled&&document.querySelector('[data-mg-invites]').disabled`);await close();
+  await js(`__fx.own().phase='WAITING';__fx.compose();__fx.fail=true`);await refresh();await click('[data-mg-settings]');await click('[data-mg-submit="settings"]');await eventually(`document.querySelector('.mg-dialog-status').textContent.includes('失败')`);
+  await check('failed server setting stays in dialog without invented success',`!document.querySelector('.mg-dialog').hidden&&__fx.own().roomName==='训练室'&&!document.querySelector('[data-mg-submit="settings"]').disabled`);await close();await js('__fx.fail=false');
+  for(const gameId of ['horse_racing','zombie-challenge','outbreak']){
+   await js(`__fx.reset()`);await click('#mg-back');await refresh();await click('[data-mg-create]');await change('[data-mg-create-game]',gameId);
+   if(gameId==='outbreak')await change('[data-mg-field="mode"]','SURVIVAL');
+   await js('__fx.hold=false');await click('[data-mg-submit="create"]');await eventually(`!!document.querySelector('[data-mg-settings]')&&document.querySelector('.mg-dialog').hidden`);
+   await check(`${gameId} creates into waiting via same compact room adapter`, `__fx.last.game===${JSON.stringify(gameId)}&&__fx.last.action==='roomCreate'&&['WAITING','LOBBY'].includes(__fx.own().phase)&&__fx.own().roomName==='Dot 🦊的房间'`);
+   await click('[data-mg-settings]');await check(`${gameId} exposes one difficulty setting`, `document.querySelectorAll('.mg-dialog select').length===1&&!document.querySelector('[data-mg-submit="settings"]').disabled`);await shot('settings-'+gameId);await close();
+  }
+  await click('[data-mg-page="shop"]');await check('shop preserves exact point amount and game currency actions',`document.getElementById('mg-platform').textContent.includes('9223372036854775807')&&document.querySelector('#mg-content [data-mg-action]')`);await shot('shop-regression');
+  await click('#mg-back');await js('__fx.reset()');await refresh();await click('[data-mg-create]');
+  await js(`document.querySelector('.mg-dialog-footer [data-mg-submit]').focus()`);await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});await cdp('Input.dispatchKeyEvent',{type:'keyUp',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
+  await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});await cdp('Input.dispatchKeyEvent',{type:'keyUp',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});
+  await check('arrow navigation cannot move focus into the modal background',`document.querySelector('.mg-dialog').contains(document.activeElement)`);
+  await check('Tab traps focus within the modal',`document.querySelector('.mg-dialog').contains(document.activeElement)`);
+  await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await cdp('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await check('Escape closes modal and sends no mutation',`document.querySelector('.mg-dialog').hidden&&document.activeElement.matches('[data-mg-create]')`);
   assert.deepEqual(errors,[],'no uncaught browser exceptions');
-  const sourceHashes={};for(const file of ['apps/minigames/app.js','apps/minigames/model.js','apps/minigames/app.css','friends-invites.js','index.html'])sourceHashes[file]=crypto.createHash('sha256').update(fs.readFileSync(path.join(assets,file))).digest('hex');
-  const report={success:true,checks,checkCount:checks.length,errors,sourceHashes,scope:'Actual Chromium DOM, layout and screenshots; native API fixtures. No Minecraft/MCEF or real-player/backend acceptance.',output};
-  fs.writeFileSync(path.join(output,'result.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
+  const sourceHashes={};for(const file of ['apps/minigames/app.js','apps/minigames/model.js','apps/minigames/dialog.js','apps/minigames/app.css','friends-invites.js','friends-invites-controller.js','index.html'])sourceHashes[file]=crypto.createHash('sha256').update(fs.readFileSync(path.join(assets,file))).digest('hex');
+  const report={success:true,checkCount:checks.length,checks,errors,sourceHashes,scope:'Actual headless Chromium DOM/layout/interaction with explicit native API fixtures; no Minecraft/MCEF or live friend service acceptance.',output};fs.writeFileSync(path.join(output,'result.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
 }catch(error){await shot('failure').catch(()=>{});fs.writeFileSync(path.join(output,'failure.json'),JSON.stringify({error:String(error),checks,errors,stderr},null,2));throw error;}
 finally{if(socket){await cdp('Browser.close').catch(()=>{});socket.close();}await new Promise(resolve=>server.close(resolve));}

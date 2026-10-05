@@ -24,5 +24,7 @@ check('mode-map filtering does not depend on server field order',()=>{
 });
 check('active room never exposes invitations even if a stale waiting flag remains',()=>assert.equal(M.waiting({phase:'ACTIVE',lobbyWaiting:true}),false));
 check('native waiting phases expose invitations',()=>assert.equal(M.waiting({phase:'WAITING',lobbyWaiting:true}),true));
-check('legacy waiting countdown remains compatible',()=>assert.equal(M.waiting({phase:'COUNTDOWN',lobbyWaiting:true}),true));
+check('countdown cannot mutate waiting settings',()=>assert.equal(M.waiting({phase:'COUNTDOWN',lobbyWaiting:true}),false));
+check('nickname default has bounded UTF16 length',()=>{assert.equal(M.defaultName('Tester'),'Tester的房间');assert.equal(M.defaultName('😀'.repeat(20)).length,23);});
+check('names cannot smuggle formatting or exceed packet name limit',()=>{for(const value of ['', 'a'.repeat(25),'bad\nname','bad§name','bad\u200Bname'])assert.throws(()=>M.roomName(value));});
 console.log(`Minigames terminal model: ${passed} meaningful boundary checks passed`);

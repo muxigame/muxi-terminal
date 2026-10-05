@@ -29,7 +29,7 @@
     if(actions.some(button=>['start','difficulty'].includes(button.action)))return 'room';
     return '';
   }
-  function waiting(room){return !!room&&(['WAITING','LOBBY','BUILDING'].includes(room.phase)||(room.lobbyWaiting===true&&['PREPARING','COUNTDOWN'].includes(room.phase)));}
+  function waiting(room){return !!room&&(['WAITING','LOBBY'].includes(room.phase));}
   function actionValue(game,button,owner,drafts){
     const selected=values(game,owner,drafts);
     if(button.jsonFields){const keys=String(button.fields||'').split(',');const data={};for(const key of keys){if(!(key in selected))throw new Error('请选择完整创建参数');data[key]=selected[key];}return JSON.stringify(data);}
@@ -45,6 +45,12 @@
       if(button)return {game:target.game,button,owner};
     }return null;
   }
-  const api={esc,safeGame,cleanContext,values,fieldOptions,sections,createSection,ownRoom,role,waiting,actionValue,blocked,platformText,currentAction};
+  function defaultName(nickname){let name=String(nickname||'玩家').replace(/[\p{Cc}\p{Cf}§]/gu,'').trim()||'玩家';let end=Math.min(20,name.length);if(end&&/[\uD800-\uDBFF]/.test(name[end-1]))end--;return name.slice(0,end)+'的房间';}
+  function roomName(value){const name=String(value||'').trim();if(!name||name.length>24||/[\p{Cc}\p{Cf}§]/u.test(name))throw Error('房间名称应为 1—24 个字，不能包含控制字符');return name;}
+  function createPacket(item,name,drafts){const owner=createSection(item),selected=values(item.id,owner||{},drafts);if(!owner)throw Error('当前玩法不能创建房间');for(const field of owner.fields||[])if(!fieldOptions(field,selected).some(option=>String(option.value)===selected[field.id]))throw Error('请选择兼容的模式和地图');const packet=JSON.stringify([roomName(name),(owner.fields||[]).map(field=>selected[field.id])]);if(packet.length>128)throw Error('房间名称或选项过长');return packet;}
+  function settings(item){return sections(item).filter(section=>['room','settings'].includes(role(section))).flatMap(section=>(section.fields||[]).flatMap(field=>{const action=(section.actions||[]).find(a=>['difficulty','enemy'].includes(a.action)&&a.value==='{'+field.id+'}');return action?[{field,action,owner:section}]:[];}));}
+  function permissions(snapshot,item,room){const self=snapshot.self?.uuid||item?.state?.self||'';const host=!!room&&room.host===self,waitingRoom=waiting(room),allowed=snapshot.allowed!==false;return {host,waiting:waitingRoom,configure:host&&waitingRoom&&allowed,invite:host&&waitingRoom&&allowed&&(room.count??room.roster?.length??0)<(room.capacity??4)};}
+  function roomProfile(item,room){const owner=createSection(item),raw={mode:room.mode,map:room.map,difficulty:String(room.difficulty??room.enemyTier??'')};const label=id=>{const field=owner?.fields?.find(f=>f.id===id),option=fieldOptions(field||{},raw).find(o=>String(o.value)===String(raw[id]));return option?.label||raw[id]|| (id==='mode'?'合作挑战':id==='map'?(room.mapTitle||room.title||'默认地图'):'默认难度');};return {mode:label('mode'),map:label('map'),difficulty:label('difficulty')};}
+  const api={esc,safeGame,cleanContext,values,fieldOptions,sections,createSection,ownRoom,role,waiting,actionValue,blocked,platformText,currentAction,defaultName,roomName,createPacket,settings,permissions,roomProfile};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.MuxiMinigamesModel=api;
 })(typeof window!=='undefined'?window:globalThis);
