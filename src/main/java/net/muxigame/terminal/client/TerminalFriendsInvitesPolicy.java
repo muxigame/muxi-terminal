@@ -4,7 +4,7 @@ import java.util.*;
 
 /** Native SDK snapshot projection and full-session invitation validation. */
 final class TerminalFriendsInvitesPolicy {
-    static final Set<String> GAMES=Set.of("zombie-challenge","outbreak","flight");
+    static final Set<String> GAMES=Set.of("zombie-challenge","outbreak","flight","tower_defense");
     static String text(JsonObject row,String key){var value=row.get(key);if(value==null || !value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString())throw new IllegalArgumentException("邀请信息不匹配");return value.getAsString();}
     static boolean yes(JsonObject row,String key){var value=row.get(key);return value!=null && value.isJsonPrimitive() && value.getAsJsonPrimitive().isBoolean() && value.getAsBoolean();}
     static String uuid(String value){if(!UUID.fromString(value).toString().equals(value))throw new IllegalArgumentException("请选择完整有效的邀请 / 房间标识");return value;}
