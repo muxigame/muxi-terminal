@@ -51,6 +51,26 @@
   function settings(item){return sections(item).filter(section=>['room','settings'].includes(role(section))).flatMap(section=>(section.fields||[]).flatMap(field=>{const action=(section.actions||[]).find(a=>['difficulty','enemy'].includes(a.action)&&a.value==='{'+field.id+'}');return action?[{field,action,owner:section}]:[];}));}
   function permissions(snapshot,item,room){const self=snapshot.self?.uuid||item?.state?.self||'';const host=!!room&&room.host===self,waitingRoom=waiting(room),allowed=snapshot.allowed!==false;return {host,waiting:waitingRoom,configure:host&&waitingRoom&&allowed,invite:host&&waitingRoom&&allowed&&(room.count??room.roster?.length??0)<(room.capacity??4)};}
   function roomProfile(item,room){const owner=createSection(item),raw={mode:room.mode,map:room.map,difficulty:String(room.difficulty??room.enemyTier??'')};const label=id=>{const field=owner?.fields?.find(f=>f.id===id),option=fieldOptions(field||{},raw).find(o=>String(o.value)===String(raw[id]));return option?.label||raw[id]|| (id==='mode'?'合作挑战':id==='map'?(room.mapTitle||room.title||'默认地图'):'默认难度');};return {mode:label('mode'),map:label('map'),difficulty:label('difficulty')};}
-  const api={esc,safeGame,cleanContext,values,fieldOptions,sections,createSection,ownRoom,role,waiting,actionValue,blocked,platformText,currentAction,defaultName,roomName,createPacket,settings,permissions,roomProfile};
+  const canonicalUuid=value=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value);
+  const validAiRevision=value=>typeof value==='string'&&/^(0|[1-9][0-9]{0,18})$/.test(value)&&BigInt(value)<9223372036854775807n;
+  function aiControls(snapshot,item,room){
+    const supported=snapshot.roomAiVersion===1&&['outbreak','zombie-challenge'].includes(item?.id)&&item?.roomCapabilities?.aiTeammates?.supported===true&&room?.ai?.supported===true;
+    const editable=supported&&room.ai.editable===true&&room.ai.locked===false&&permissions(snapshot,item,room).host&&!blocked(snapshot,item.id,{enabled:true})&&validAiRevision(room.ai.revision)&&canonicalUuid(room.session);
+    return {supported,editable,canAdd:editable&&(room.count??Infinity)<(room.capacity??0),canRemove:editable,revision:room?.ai?.revision};
+  }
+  function aiPacket(snapshot,item,room,op,seat){
+    const controls=aiControls(snapshot,item,room);
+    if(!controls.editable||!['aiAdd','aiRemove'].includes(op)||op==='aiAdd'&&!controls.canAdd)throw Error('AI 队友列表或房间权限已变化，请刷新后重试');
+    if(op==='aiRemove'&&(!canonicalUuid(seat)||!(room.roster||[]).some(row=>row.kind==='ai'&&row.aiId===seat)))throw Error('AI 席位已变化，请刷新后重试');
+    return JSON.stringify([room.session,controls.revision,...(op==='aiRemove'?[seat]:[])]);
+  }
+  function aiConfirmed(room,operation){
+    if(!operation.ai)return true;
+    if(room?.session!==operation.session||room.ai?.revision!==operation.nextAiRevision)return false;
+    const ids=(room.roster||[]).filter(row=>row.kind==='ai').map(row=>row.aiId),before=operation.beforeAiIds;
+    if(operation.ai==='aiAdd')return ids.length===before.length+1&&before.every(id=>ids.includes(id))&&ids.filter(id=>!before.includes(id)).length===1;
+    return !ids.includes(operation.aiId)&&ids.length===before.length-1&&ids.every(id=>before.includes(id));
+  }
+  const api={esc,safeGame,cleanContext,values,fieldOptions,sections,createSection,ownRoom,role,waiting,actionValue,blocked,platformText,currentAction,defaultName,roomName,createPacket,settings,permissions,roomProfile,aiControls,aiPacket,aiConfirmed};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.MuxiMinigamesModel=api;
 })(typeof window!=='undefined'?window:globalThis);

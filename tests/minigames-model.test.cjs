@@ -28,3 +28,19 @@ check('countdown cannot mutate waiting settings',()=>assert.equal(M.waiting({pha
 check('nickname default has bounded UTF16 length',()=>{assert.equal(M.defaultName('Tester'),'Tester的房间');assert.equal(M.defaultName('😀'.repeat(20)).length,23);});
 check('names cannot smuggle formatting or exceed packet name limit',()=>{for(const value of ['', 'a'.repeat(25),'bad\nname','bad§name','bad\u200Bname'])assert.throws(()=>M.roomName(value));});
 console.log(`Minigames terminal model: ${passed} meaningful boundary checks passed`);
+
+const session='11111111-1111-4111-8111-111111111111',seat='22222222-2222-4222-8222-222222222222';
+const aiSnapshot={protocol:2,roomAiVersion:1,allowed:true,self:{uuid:'host'},activeGame:'outbreak'};
+const aiGame={id:'outbreak',roomCapabilities:{aiTeammates:{supported:true}}};
+const aiRoom={session,host:'host',phase:'WAITING',count:1,capacity:4,ai:{supported:true,editable:true,locked:false,revision:'0'},roster:[]};
+check('host waiting AI add packet contains session and CAS only',()=>assert.deepEqual(JSON.parse(M.aiPacket(aiSnapshot,aiGame,aiRoom,'aiAdd')),[session,'0']));
+check('nonhost cannot add despite forged editable state',()=>assert.equal(M.aiControls(aiSnapshot,aiGame,{...aiRoom,host:'other'}).editable,false));
+check('full human plus AI room disables add',()=>assert.throws(()=>M.aiPacket(aiSnapshot,aiGame,{...aiRoom,count:4},'aiAdd')));
+check('native playing lock refuses UI seat changes',()=>assert.equal(M.aiControls(aiSnapshot,aiGame,{...aiRoom,ai:{...aiRoom.ai,editable:false,locked:true}}).editable,false));
+check('unsupported game cannot expose manual AI even if declarations are forged',()=>{for(const id of ['flight','horse_racing','fixture'])assert.equal(M.aiControls({...aiSnapshot,activeGame:id},{...aiGame,id},aiRoom).supported,false);});
+check('missing backend version or owner capability hides AI controls',()=>{assert.equal(M.aiControls({...aiSnapshot,roomAiVersion:undefined},aiGame,aiRoom).supported,false);assert.equal(M.aiControls(aiSnapshot,{...aiGame,roomCapabilities:{}},aiRoom).supported,false);});
+check('invalid or exhausted revisions cannot mutate',()=>{for(const revision of ['00','-1','1e3','9223372036854775807',0])assert.equal(M.aiControls(aiSnapshot,aiGame,{...aiRoom,ai:{...aiRoom.ai,revision}}).editable,false);});
+check('remove requires actual AI roster identity',()=>{assert.throws(()=>M.aiPacket(aiSnapshot,aiGame,aiRoom,'aiRemove',seat));const room={...aiRoom,roster:[{kind:'ai',aiId:seat}],ai:{...aiRoom.ai,revision:'1'}};assert.deepEqual(JSON.parse(M.aiPacket(aiSnapshot,aiGame,room,'aiRemove',seat)),[session,'1',seat]);});
+check('AI ACK requires matching revision and actual new roster seat',()=>{const operation={ai:'aiAdd',session,nextAiRevision:'1',beforeAiIds:[]};assert.equal(M.aiConfirmed(aiRoom,operation),false);assert.equal(M.aiConfirmed({...aiRoom,ai:{...aiRoom.ai,revision:'1'}},operation),false);assert.equal(M.aiConfirmed({...aiRoom,ai:{...aiRoom.ai,revision:'1'},roster:[{kind:'ai',aiId:seat}]},operation),true);});
+check('remove receipt requires actual seat disappearance in same room',()=>{const operation={ai:'aiRemove',session,nextAiRevision:'2',beforeAiIds:[seat],aiId:seat};const room={...aiRoom,ai:{...aiRoom.ai,revision:'2'}};assert.equal(M.aiConfirmed(room,operation),true);assert.equal(M.aiConfirmed({...room,roster:[{kind:'ai',aiId:seat}]},operation),false);assert.equal(M.aiConfirmed({...room,session:'other'},operation),false);});
+console.log(`Minigames terminal model including AI: ${passed} meaningful boundary checks passed`);
