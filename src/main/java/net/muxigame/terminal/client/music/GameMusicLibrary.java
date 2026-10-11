@@ -9,6 +9,8 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.neoforged.fml.ModList;
 import java.util.*;
 import java.util.concurrent.*;
+import java.nio.file.*;
+import com.google.gson.*;
 
 /** Cached, incrementally published actual files. Pack scanning never runs on the render thread. */
 final class GameMusicLibrary {
@@ -21,6 +23,11 @@ final class GameMusicLibrary {
     private static boolean started, loading;
     private static int scans;
     private static String error = "";
+    private static final MusicCatalogFilter FILTER = new MusicCatalogFilter();
+    private record Metrics(double minimumSeconds,int examined,int filteredShort,int filteredCategory,
+                           int cacheHits,int unknownDuration,long encodedBytes,double millis) {}
+    private static volatile Metrics metrics = new Metrics(10,0,0,0,0,0,0,0);
+    static JsonObject diagnostics() { return new Gson().toJsonTree(metrics).getAsJsonObject(); }
     private static final List<Track> catalog = new ArrayList<>();
     static List<Track> tracks() { ensure(); return List.copyOf(catalog); }
     static Track find(String id) { return tracks().stream().filter(t -> t.id().equals(id)).findFirst().orElse(null); }
@@ -28,7 +35,7 @@ final class GameMusicLibrary {
     static String error() { return error; }
     static int scans() { return scans; }
     static long resourceGeneration() { return resourceGeneration; }
-    static void reloaded() { resourceGeneration++; invalidate(); }
+    static void reloaded() { resourceGeneration++; FILTER.clear(); invalidate(); }
     static long generation() { return generation; }
     static void invalidate() {
         generation++; if (worker != null) worker.cancel(true);
@@ -38,7 +45,8 @@ final class GameMusicLibrary {
         if (started) return;
         started = true; loading = true; scans++;
         Minecraft mc = Minecraft.getInstance(); ResourceManager resources = mc.getResourceManager();
-        long token = generation;
+        long token = generation, resourcesToken = resourceGeneration;
+        Path filterConfig = mc.gameDirectory.toPath().resolve("config/muxi_terminal/music-catalog.json");
         Map<String, String> providers = new HashMap<>();
         for (var mod : ModList.get().getMods()) {
             String key = "modmenu.nameTranslation." + mod.getModId();
@@ -47,6 +55,9 @@ final class GameMusicLibrary {
         // Minecraft's pack metadata supplies its official name, just like mod metadata.
         providers.putIfAbsent("minecraft", "Minecraft");
         worker = SCAN.submit(() -> {
+            long began = System.nanoTime();
+            double minimum = minimumSeconds(filterConfig);
+            int[] counts = new int[5]; long[] encoded = new long[1];
             List<Track> batch = new ArrayList<>(); Set<ResourceLocation> seen = new HashSet<>();
             Map<String, String> groups = new HashMap<>();
             try {
@@ -56,8 +67,18 @@ final class GameMusicLibrary {
                             if (Thread.currentThread().isInterrupted() || token != generation) throw new CancellationException();
                             String path = file.getPath();
                             if (!path.endsWith(".ogg") || !(path.startsWith("sounds/music/") || path.contains("/music/")) || !seen.add(file)) return;
+                            if (!MusicCatalogFilter.musicPath(path)) { counts[2]++; return; }
                             var resource = resources.getResource(file);
                             if (resource.isEmpty()) return;
+                            counts[0]++;
+                            try {
+                                String cacheKey = resourcesToken + "\n" + resource.get().sourcePackId() + "\n" + file;
+                                var checked = FILTER.inspect(cacheKey, resource.get()::open, minimum);
+                                if (checked.cacheHit()) counts[3]++; else encoded[0] += checked.metadata().encodedBytes();
+                                if (checked.metadata().seconds() < 0) counts[4]++;
+                                if (!checked.keep()) { counts[1]++; return; }
+                            } catch (java.io.InterruptedIOException cancelled) { throw new CancellationException(); }
+                              catch (java.io.IOException unknown) { counts[4]++; }
                             String provider = namespace;
                             String packId = resource.get().sourcePackId();
                             if (packId.startsWith("mod/") && providers.containsKey(packId.substring(4))) provider = packId.substring(4);
@@ -71,7 +92,9 @@ final class GameMusicLibrary {
                     }
                 }
                 publish(mc, token, batch);
-                mc.execute(() -> { if (token == generation) loading = false; });
+                Metrics measured = new Metrics(minimum,counts[0],counts[1],counts[2],counts[3],counts[4],encoded[0],
+                    (System.nanoTime()-began)/1_000_000.0);
+                mc.execute(() -> { if (token == generation) { loading = false; metrics = measured; } });
             } catch (CancellationException ignored) {
             } catch (Throwable failure) {
                 if (!(failure instanceof InterruptedException)) mc.execute(() -> {
@@ -79,6 +102,18 @@ final class GameMusicLibrary {
                 });
             }
         });
+    }
+    private static double minimumSeconds(Path config) {
+        try {
+            if (!Files.exists(config,LinkOption.NOFOLLOW_LINKS)) {
+                Files.createDirectories(config.getParent());
+                Files.writeString(config,"{\"minTrackSeconds\":10}\n",StandardOpenOption.CREATE_NEW);
+            }
+            if (!Files.isRegularFile(config,LinkOption.NOFOLLOW_LINKS) || Files.size(config)>2048) return 10;
+            double value = JsonParser.parseString(Files.readString(config)).getAsJsonObject().get("minTrackSeconds").getAsDouble();
+            if (Double.isFinite(value) && value>=0 && value<=120) return value;
+        } catch (Exception ignored) {}
+        return MusicCatalogFilter.DEFAULT_MINIMUM_SECONDS;
     }
     private static void publish(Minecraft mc, long token, List<Track> batch) {
         if (batch.isEmpty()) return;

@@ -479,6 +479,7 @@ public final class TerminalMusicService {
         out.add("tracks", available); out.addProperty("playlistReason", GameMusicLibrary.error().isEmpty() ? playlistReason : GameMusicLibrary.error());
         out.addProperty("catalogLoading", GameMusicLibrary.loading()); out.addProperty("catalogScans", GameMusicLibrary.scans());
         out.addProperty("catalogGeneration", GameMusicLibrary.generation());
+        out.add("catalogFilter", GameMusicLibrary.diagnostics());
         JsonArray groups = new JsonArray(); Map<String, String> names = new LinkedHashMap<>(); Map<String, Integer> counts = new HashMap<>();
         for (var track : gameTracks) { names.put(track.group(), track.provider()); counts.merge(track.group(), 1, Integer::sum); }
         for (var choice : portableChoices.values()) {
