@@ -13,7 +13,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 
-/** Full-screen tablet shell around one persistent MCEF browser session. */
+/** Resizable tablet shell around the persistent MCEF browser session. */
 public class TerminalScreen extends Screen {
     private static final int FRAME = 10;
     private static final int TOP = 24;
@@ -28,6 +28,9 @@ public class TerminalScreen extends Screen {
         public void type(MCEFBrowser target, char character, int modifiers) { target.sendKeyTyped(character, modifiers); }
     });
     private int left, top, contentWidth, contentHeight;
+    private boolean fullscreen;
+    private TerminalWindowLayout.View windowLayout;
+    private WindowModeButton windowModeButton;
 
     public TerminalScreen(MCEFBrowser browser) {
         super(Component.literal("玩家终端"));
@@ -42,6 +45,8 @@ public class TerminalScreen extends Screen {
         closeButton = addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
             Component.literal("X"), button -> onClose()).bounds(left + contentWidth - 10, top - TOP + 3, 18, 18)
             .tooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal("Esc 退出并保留页面；F6 聚焦关闭按钮"))).build());
+        windowModeButton = addRenderableWidget(new WindowModeButton());
+        positionWindowControls();
         focusBrowser();
     }
 
@@ -49,43 +54,89 @@ public class TerminalScreen extends Screen {
     protected void setInitialFocus() {
         setFocused(null);
         if (closeButton != null) closeButton.setFocused(false);
+        if (windowModeButton != null) windowModeButton.setFocused(false);
         focusBrowser();
     }
 
     private void layout() {
-        int availableWidth = Math.max(180, (int)(width * 0.58f));
-        int availableHeight = Math.max(120, (int)(height * 0.54f));
-        double ratio = 16.0 / 10.0;
-        int outerWidth = availableWidth;
-        int outerHeight = (int) Math.round(outerWidth / ratio);
-        if (outerHeight > availableHeight) {
-            outerHeight = availableHeight;
-            outerWidth = (int) Math.round(outerHeight * ratio);
-        }
-        left = (width - outerWidth) / 2 + FRAME;
-        top = (height - outerHeight) / 2 + TOP;
-        contentWidth = Math.max(64, outerWidth - FRAME * 2);
-        contentHeight = Math.max(64, outerHeight - TOP - FRAME);
+        windowLayout = TerminalWindowLayout.fit(width, height, fullscreen);
+        var content = windowLayout.content();
+        left = content.x();
+        top = content.y();
+        contentWidth = content.width();
+        contentHeight = content.height();
+        positionWindowControls();
         resizeBrowser();
+    }
+
+    private void positionWindowControls() {
+        if (windowLayout == null) return;
+        if (closeButton != null) {
+            closeButton.setX(windowLayout.close().x());
+            closeButton.setY(windowLayout.close().y());
+        }
+        if (windowModeButton != null) {
+            windowModeButton.setX(windowLayout.windowMode().x());
+            windowModeButton.setY(windowLayout.windowMode().y());
+            windowModeButton.setTooltip(net.minecraft.client.gui.components.Tooltip.create(
+                Component.literal(fullscreen ? "还原终端窗口" : "全屏终端窗口")));
+        }
+    }
+
+    private void toggleFullscreen() {
+        releaseBrowserKeys();
+        fullscreen = !fullscreen;
+        layout();
+        focusBrowser();
+    }
+
+    private boolean windowControlFocused() {
+        return (closeButton != null && closeButton.isFocused())
+            || (windowModeButton != null && windowModeButton.isFocused());
+    }
+
+    /** Native MC background with pixel icons independent of font glyph coverage. */
+    private final class WindowModeButton extends net.minecraft.client.gui.components.Button {
+        WindowModeButton() {
+            super(0, 0, 18, 18, Component.empty(), button -> toggleFullscreen(), DEFAULT_NARRATION);
+        }
+        @Override protected net.minecraft.network.chat.MutableComponent createNarrationMessage() {
+            return Component.translatable("gui.narrate.button", Component.literal(fullscreen ? "还原" : "全屏"));
+        }
+        @Override protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+            super.renderWidget(graphics, mouseX, mouseY, delta);
+            int color = active ? 0xffffffff : 0xffa0a0a0;
+            int x = getX(), y = getY();
+            if (fullscreen) {
+                outline(graphics, x + 6, y + 4, 8, 8, color);
+                outline(graphics, x + 4, y + 6, 8, 8, color);
+            } else outline(graphics, x + 5, y + 5, 8, 8, color);
+        }
+        private void outline(GuiGraphics graphics, int x, int y, int w, int h, int color) {
+            graphics.fill(x, y, x + w, y + 1, color);
+            graphics.fill(x, y + h - 1, x + w, y + h, color);
+            graphics.fill(x, y, x + 1, y + h, color);
+            graphics.fill(x + w - 1, y, x + w, y + h, color);
+        }
     }
 
     private void resizeBrowser() {
         if (minecraft == null) return;
         double scale = minecraft.getWindow().getGuiScale();
-        TerminalBrowserSession.resizeViews(Math.max(1, (int) Math.round(contentWidth * scale)),
-            Math.max(1, (int) Math.round(contentHeight * scale)), Math.max(1,(int)Math.round(APP_BAR*scale)));
+        TerminalBrowserSession.resizeViews(windowLayout.browserWidth(scale),
+            windowLayout.browserHeight(scale), Math.max(1,(int)Math.round(APP_BAR*scale)));
     }
 
     private int browserX(double x) {
-        return (int) Math.round((x - left) * minecraft.getWindow().getGuiScale());
+        return windowLayout.browserX(x, minecraft.getWindow().getGuiScale());
     }
 
     private int browserY(double y) {
-        return (int) Math.round((y - top - (TerminalBrowserSession.activeBrowser()==browser?0:APP_BAR)) * minecraft.getWindow().getGuiScale());
+        return windowLayout.browserY(y, minecraft.getWindow().getGuiScale(), TerminalBrowserSession.activeBrowser()==browser?0:APP_BAR);
     }
 
     private boolean inside(double x, double y) {
-        return x >= left && y >= top && x < left + contentWidth && y < top + contentHeight;
+        return windowLayout.content().contains(x, y);
     }
 
     @Override
@@ -129,7 +180,7 @@ public class TerminalScreen extends Screen {
 
     protected final MCEFBrowser focusBrowser() {
         MCEFBrowser next = TerminalBrowserSession.activeBrowser();
-        keyCapture.bind(next, closeButton == null || !closeButton.isFocused());
+        keyCapture.bind(next, !windowControlFocused());
         return next;
     }
 
@@ -211,6 +262,7 @@ public class TerminalScreen extends Screen {
             if(TerminalBrowserSession.content()!=null && y<top+APP_BAR)return true;
             setFocused(null);
             closeButton.setFocused(false);
+            windowModeButton.setFocused(false);
             focusBrowser().sendMousePress(browserX(x), browserY(y), button);
         }
         return super.mouseClicked(x, y, button);
@@ -237,14 +289,15 @@ public class TerminalScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == 256 || (keyCode == 87 && (modifiers & 2) != 0)) { onClose(); return true; }
-        if (keyCode == 295) { // F6 switches between web content and the permanent close button.
+        if (keyCode == 295) { // F6 keeps the existing shortcut to the permanent close button.
             boolean focused = !closeButton.isFocused();
+            windowModeButton.setFocused(false);
             setFocused(focused ? closeButton : null);
             closeButton.setFocused(focused);
             focusBrowser();
             return true;
         }
-        if (closeButton.isFocused()) return super.keyPressed(keyCode, scanCode, modifiers);
+        if (windowControlFocused()) return super.keyPressed(keyCode, scanCode, modifiers);
         focusBrowser();
         if (keyCode == 263 && (modifiers & 4) != 0) { // Alt+Left is native navigation, including external pages.
             TerminalBrowserSession.back();
