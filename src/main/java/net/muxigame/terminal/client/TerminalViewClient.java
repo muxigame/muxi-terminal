@@ -77,6 +77,8 @@ final class TerminalViewClient {
             }
         });
         client.addLifeSpanHandler(new CefLifeSpanHandlerAdapter(){
+            @Override public void onAfterCreated(CefBrowser b){net.muxigame.terminal.client.compat.TerminalMcefShutdown.opened(b);}
+            @Override public void onBeforeClose(CefBrowser b){net.muxigame.terminal.client.compat.TerminalMcefShutdown.closed(b);}
             @Override public boolean onBeforePopup(CefBrowser b,CefFrame f,String target,String name){
                 long epoch=TerminalBrowserSession.generation();
                 if(kind==TerminalBrowserSession.Kind.WEB && TerminalWebPolicy.web(target))Minecraft.getInstance().execute(()->{

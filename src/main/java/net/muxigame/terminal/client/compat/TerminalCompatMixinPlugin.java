@@ -21,6 +21,6 @@ public final class TerminalCompatMixinPlugin implements IMixinConfigPlugin {
         String status=count==1?"disabled:1":"not-present";
         System.setProperty("muxi_terminal.mcef_shutdown_guard",status);
         System.getLogger("MuxiTerminal/McefShutdownGuard").log(System.Logger.Level.INFO,
-            "MCEF global Windows helper-kill hook: {0}; normal per-JVM shutdown remains unchanged",status);
+            "MCEF global Windows helper-kill hook: {0}; terminal graceful per-JVM close hook active",status);
     }
 }
