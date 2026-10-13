@@ -6,10 +6,11 @@
   let bytes=0,active=0,revision=-1,generation=0,disposed=false;
   const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function descriptor(value){
-    if(!value || !['item','resource','semantic'].includes(value.kind))throw new Error('Invalid icon kind');
+    if(!value || !['item','resource','preview','semantic'].includes(value.kind))throw new Error('Invalid icon kind');
     const id=String(value.id||'');
     if(value.kind==='semantic'){if(id!=='experience-levels')throw new Error('Unknown semantic icon');}
     else if(!/^[a-z0-9_.-]+:[a-z0-9_][a-z0-9_./-]*$/.test(id)||id.length>256)throw new Error('Invalid icon id');
+    if(value.kind==='preview'&&!/^muxi_horse_racing:textures\/gui\/umamusume_preview\/[a-z0-9_/-]+\.gif$/.test(id))throw new Error('Invalid animated preview id');
     return {kind:value.kind,id};
   }
   function invoke(command){
@@ -42,7 +43,8 @@
       const job=queue.shift();active++;
       invoke('icons.get:'+JSON.stringify(job.desc)).then(result=>{
         if(disposed||job.generation!==generation)return null;
-        if(!result || !/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(result.src||'') || result.src.length>350000)return null;
+        const animated=job.desc.kind==='preview',format=animated?/^data:image\/gif;base64,[A-Za-z0-9+/=]+$/:/^data:image\/png;base64,[A-Za-z0-9+/=]+$/;
+        if(!result || !format.test(result.src||'') || result.src.length>(animated?1400000:350000))return null;
         if(revision!==result.revision){invalidate(result.revision);return null;}
         return result.src;
       }).catch(()=>null).then(src=>{
@@ -125,5 +127,5 @@
   },2000);
   global.addEventListener?.('pagehide',dispose,{once:true});
   global.TerminalIcons=Object.freeze({html,request,hydrate,release,invalidate,dispose,
-    stats:()=>({entries:cache.size,bytes,attached:attached.size,pending:pending.size,queued:queue.length,active,queries:queries.size,revision,disposed})});
+    stats:()=>({entries:cache.size,bytes,attached:attached.size,previewAttached:[...attached.values()].filter(state=>state.key.startsWith('preview:')||state.key.includes(':textures/gui/umamusume_preview/')).length,pending:pending.size,queued:queue.length,active,queries:queries.size,revision,disposed})});
 })(window);

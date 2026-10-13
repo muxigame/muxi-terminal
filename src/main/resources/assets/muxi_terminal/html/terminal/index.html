@@ -143,11 +143,12 @@
     </section>
     <section id="games" class="page minigames-app" aria-label="小游戏 APP">
       <div class="toolbar"><button id="mg-back" class="back" aria-label="返回大厅">‹</button><div><div class="eyebrow">APP / MINIGAMES</div><h2>小游戏</h2></div><button id="mg-refresh" class="secondary">刷新</button></div>
-      <nav class="task-tabs" aria-label="小游戏页面"><button class="task-tab task-tab-active" data-mg-page="lobby" aria-pressed="true">大厅与队伍</button><button class="task-tab" data-mg-page="shop" aria-pressed="false">商店与兑换</button></nav>
+      <nav class="task-tabs mg-page-nav" aria-label="小游戏页面"><button class="task-tab task-tab-active" data-mg-page="lobby" aria-pressed="true">房间列表</button><button class="task-tab" data-mg-page="shop" aria-pressed="false">兑换商店</button><button id="mg-exchange-balance" class="task-tab mg-exchange-balance" type="button" aria-label="兑换币余额尚未同步，打开兑换商店"><svg class="mg-coin-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M6 1h8v2h3v3h2v8h-2v3h-3v2H6v-2H3v-3H1V6h2V3h3Z" fill="#d6b547" stroke="currentColor"/><path d="M8 5h4v2h2v6h-2v2H8v-2H6V7h2Zm1 3v4h2V8Z" fill="currentColor"/></svg><span id="mg-exchange-value" class="mg-exchange-value">—</span></button></nav>
       <p id="mg-notice" class="guide-intro mg-notice" role="status" aria-live="polite">正在读取小游戏服务…</p>
       <div id="mg-platform" class="task-intro mg-platform"></div>
       <div id="mg-stepbar" class="mg-stepbar" aria-label="房间步骤"></div>
       <div id="mg-games" class="guide-list mg-mode-list" aria-label="模式选择"></div>
+      <div id="mg-shop-switcher" class="mg-shop-switcher" hidden><label for="mg-shop-game">游戏商店</label><select id="mg-shop-game" data-mg-shop-game aria-label="选择游戏商店"></select></div>
       <div id="mg-currencies" class="mg-currencies"></div><div id="mg-content" class="mg-content"></div>
       <section id="mg-room-invitations" class="mg-room-invitations" hidden></section>
       <div id="mg-confirm" class="mg-confirm" hidden><div class="detail-card" role="dialog" aria-modal="true" aria-labelledby="mg-confirm-text"><h3>确认操作</h3><p id="mg-confirm-text"></p><div class="detail-actions"><button id="mg-confirm-cancel" class="secondary">取消</button><button id="mg-confirm-ok" class="primary">继续</button></div></div></div>

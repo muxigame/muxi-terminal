@@ -59,6 +59,11 @@ public final class TerminalIcons {
                 var stack=new ItemStack(BuiltInRegistries.ITEM.get(id));
                 if(stack.isEmpty())throw new IllegalArgumentException("Empty item icon");
                 png=renderItem(mc,stack);
+            }else if(kind.equals("preview")){
+                PreviewResource.requireId(id.getNamespace(),id.getPath());
+                try(var stream=mc.getResourceManager().getResource(id).orElseThrow().open()){
+                    png=PreviewResource.dataUri(stream);
+                }
             }else if(kind.equals("resource")){
                 if(!id.getPath().startsWith("textures/") || !id.getPath().endsWith(".png") || id.getPath().contains(".."))
                     throw new IllegalArgumentException("Only PNG textures are supported");

@@ -37,6 +37,8 @@
   }
   function blocked(snapshot,game,button){return snapshot.loading===true||snapshot.actionSupported===false||(snapshot.protocol!=null&&snapshot.protocol!==2)||button.enabled===false||(!button.safe&&(!snapshot.allowed||(snapshot.activeGame&&snapshot.activeGame!==game)));}
   function platformText(platform){return platform?.available?String(platform.points):'尚未同步';}
+  function shopGame(snapshot,context){const games=snapshot.games||[],saved=context.drafts['minigames:shop-game'];return games.find(item=>item.id===saved)||games.find(item=>sections(item,'shop').length)||games[0];}
+  function exchangeCurrency(snapshot){for(const item of snapshot.games||[]){const currency=(item.ui?.currencies||[]).find(row=>row.id==='challenge_coins');if(currency)return {game:item.id,...currency,value:String(currency.value??'—')};}return null;}
   function currentAction(snapshot,target){
     const game=(snapshot.games||[]).find(item=>item.id===target.game);
     for(const page of ['lobby','shop'])for(const owner of game?.ui?.[page]?.sections||[]){
@@ -71,6 +73,6 @@
     if(operation.ai==='aiAdd')return ids.length===before.length+1&&before.every(id=>ids.includes(id))&&ids.filter(id=>!before.includes(id)).length===1;
     return !ids.includes(operation.aiId)&&ids.length===before.length-1&&ids.every(id=>before.includes(id));
   }
-  const api={esc,safeGame,cleanContext,values,fieldOptions,sections,createSection,ownRoom,role,waiting,actionValue,blocked,platformText,currentAction,defaultName,roomName,createPacket,settings,permissions,roomProfile,aiControls,aiPacket,aiConfirmed};
+  const api={esc,safeGame,cleanContext,values,fieldOptions,sections,createSection,ownRoom,role,waiting,actionValue,blocked,platformText,shopGame,exchangeCurrency,currentAction,defaultName,roomName,createPacket,settings,permissions,roomProfile,aiControls,aiPacket,aiConfirmed};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.MuxiMinigamesModel=api;
 })(typeof window!=='undefined'?window:globalThis);

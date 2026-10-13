@@ -2,6 +2,29 @@
 .minigames-app .toolbar{height:auto;min-height:52px}
 .minigames-app .toolbar .secondary{margin-left:auto;padding:7px 12px;cursor:pointer}
 .mg-notice{min-height:38px;line-height:1.55}
+.minigames-app .mg-page-nav{display:flex;flex-wrap:nowrap;align-items:stretch;gap:6px;min-width:0;flex-shrink:0}
+.minigames-app .mg-page-nav .task-tab{height:var(--control-min-height,36px);min-height:var(--control-min-height,36px);padding:0 10px;flex-shrink:0;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center}
+.minigames-app .mg-page-nav .mg-exchange-balance{margin-left:auto;flex:0 1 auto;min-width:48px;max-width:45%;gap:6px}
+.mg-coin-icon{width:20px;height:20px;flex:0 0 20px;color:#665023;shape-rendering:crispEdges}
+.mg-exchange-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums}
+.mg-page-nav button:focus-visible,.mg-shop-switcher select:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+.mg-shop-switcher{display:flex;align-items:center;gap:12px;margin:0 0 12px;flex-shrink:0;min-width:0}
+.mg-shop-switcher label{flex-shrink:0;font-size:var(--font-body,15px)}
+.mg-shop-switcher select{min-width:0;width:min(320px,100%);padding:7px 10px;border:2px solid var(--line);background:var(--line-hi);color:var(--text);font:inherit;border-radius:0}
+.minigames-app.mg-shop.page-active{display:flex;flex-direction:column;overflow:hidden}
+.mg-shop>.toolbar,.mg-shop>.mg-page-nav,.mg-shop>.mg-notice,.mg-shop>.mg-platform,.mg-shop>.mg-currencies{flex-shrink:0}
+.mg-shop .mg-platform{padding:8px 12px;margin-bottom:10px;gap:12px}
+.mg-shop .mg-platform>div{display:flex;gap:8px;align-items:center;min-width:0;flex-wrap:wrap}
+.mg-shop .mg-platform p{margin:0}
+.mg-shop .mg-currencies{display:block;margin-bottom:10px;font-size:var(--font-small,12px)}
+.mg-shop .mg-currencies .task-intro{margin:0 0 6px;padding:6px 10px}
+.mg-shop .mg-currencies .task-intro>div{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mg-shop .mg-currencies p{margin:0}
+.mg-shop .mg-content{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;overflow-wrap:anywhere}
+.mg-shop-title{margin:0 0 10px}
+@media(max-width:500px){.minigames-app .mg-page-nav .task-tab{padding:0 7px;font-size:var(--font-small,12px)}.minigames-app .mg-page-nav .mg-exchange-balance{gap:4px}.mg-shop-switcher{gap:8px}.mg-shop .mg-platform{display:block}.mg-shop .mg-platform p{margin-top:4px}}
+/* Short windows retain a usable product region; the page may also scroll if status/currencies need space. */
+@media(max-height:420px){.minigames-app.mg-shop.page-active{overflow:auto}.mg-shop .mg-content{flex:1 0 100px;min-height:100px}.mg-shop .mg-platform p{display:none}.mg-shop .mg-platform>div{font-size:11px}.mg-shop .mg-platform strong{font-size:11px}.mg-shop .mg-shop-switcher{margin-bottom:8px}}
 .mg-platform strong,.mg-currencies strong{display:block}
 .mg-platform p,.mg-currencies p{font-size:var(--font-small,12px);color:var(--muted);line-height:1.6}
 .mg-currencies{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-bottom:12px}
@@ -30,6 +53,11 @@
 .mg-preview-media .terminal-icon{display:flex;width:100%;height:100%;flex:none}
 .mg-preview-media .terminal-icon img{object-fit:contain;image-rendering:pixelated}
 .mg-preview-media .ti-fallback{display:none}
+.mg-preview-primary,.mg-preview-backup{position:absolute;inset:0}
+.mg-preview-primary{z-index:1}
+.mg-preview-primary-label{display:none}
+.mg-card-preview:has(.mg-preview-primary img:not([hidden])) .mg-preview-primary-label{display:inline}
+.mg-card-preview:has(.mg-preview-primary img:not([hidden])) .mg-preview-backup-label,.mg-preview-media:has(.mg-preview-primary img:not([hidden])) .mg-preview-backup{display:none}
 .mg-preview-unavailable{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px;color:var(--muted);font-size:var(--font-small,12px);text-align:center}
 .mg-preview-media:has(img[data-terminal-icon-kind]:not([hidden])) .mg-preview-unavailable{display:none}
 .mg-card-preview figcaption{margin-top:6px;color:var(--muted);font-size:var(--font-small,12px);line-height:1.5;overflow-wrap:anywhere}
