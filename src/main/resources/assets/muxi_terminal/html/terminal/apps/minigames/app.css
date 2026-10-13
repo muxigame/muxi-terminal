@@ -2,29 +2,44 @@
 .minigames-app .toolbar{height:auto;min-height:52px}
 .minigames-app .toolbar .secondary{margin-left:auto;padding:7px 12px;cursor:pointer}
 .mg-notice{min-height:38px;line-height:1.55}
-.minigames-app .mg-page-nav{display:flex;flex-wrap:nowrap;align-items:stretch;gap:6px;min-width:0;flex-shrink:0}
+.minigames-app .mg-page-nav{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0;flex-shrink:0;margin-bottom:8px}
 .minigames-app .mg-page-nav .task-tab{height:var(--control-min-height,36px);min-height:var(--control-min-height,36px);padding:0 10px;flex-shrink:0;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center}
-.minigames-app .mg-page-nav .mg-exchange-balance{margin-left:auto;flex:0 1 auto;min-width:48px;max-width:45%;gap:6px}
+.minigames-app .mg-page-nav .mg-exchange-balance{margin-left:0;flex:0 1 auto;min-width:48px;max-width:38%;gap:6px}
 .mg-coin-icon{width:20px;height:20px;flex:0 0 20px;color:#665023;shape-rendering:crispEdges}
 .mg-exchange-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums}
 .mg-page-nav button:focus-visible,.mg-shop-switcher select:focus-visible{outline:2px solid var(--text);outline-offset:2px}
-.mg-shop-switcher{display:flex;align-items:center;gap:12px;margin:0 0 12px;flex-shrink:0;min-width:0}
-.mg-shop-switcher label{flex-shrink:0;font-size:var(--font-body,15px)}
-.mg-shop-switcher select{min-width:0;width:min(320px,100%);padding:7px 10px;border:2px solid var(--line);background:var(--line-hi);color:var(--text);font:inherit;border-radius:0}
+.mg-shop-switcher{display:flex;align-items:center;gap:6px;margin:0;flex:0 1 220px;min-width:130px}
+.mg-shop-switcher label{flex-shrink:0;font-size:var(--font-small,12px)}
+.mg-shop-switcher select{height:var(--control-min-height,36px);min-width:0;width:100%;padding:0 8px;border:2px solid var(--line);background:var(--line-hi);color:var(--text);font:inherit;border-radius:0}
+.minigames-app .mg-page-nav .mg-platform{display:flex;align-items:center;gap:6px;flex:0 1 auto;min-width:0;margin-left:auto;height:var(--control-min-height,36px);margin:0 0 0 auto;padding:0 8px;border:2px solid var(--line);background:var(--line-hi);box-shadow:none;white-space:nowrap}
+.minigames-app .mg-page-nav .mg-platform small{font-size:var(--font-small,12px)}
+.minigames-app .mg-page-nav .mg-platform strong{display:inline;min-width:0;max-width:17ch;overflow:hidden;text-overflow:ellipsis;font-size:var(--font-small,12px);font-variant-numeric:tabular-nums}
 .minigames-app.mg-shop.page-active{display:flex;flex-direction:column;overflow:hidden}
-.mg-shop>.toolbar,.mg-shop>.mg-page-nav,.mg-shop>.mg-notice,.mg-shop>.mg-platform,.mg-shop>.mg-currencies{flex-shrink:0}
-.mg-shop .mg-platform{padding:8px 12px;margin-bottom:10px;gap:12px}
-.mg-shop .mg-platform>div{display:flex;gap:8px;align-items:center;min-width:0;flex-wrap:wrap}
-.mg-shop .mg-platform p{margin:0}
-.mg-shop .mg-currencies{display:block;margin-bottom:10px;font-size:var(--font-small,12px)}
-.mg-shop .mg-currencies .task-intro{margin:0 0 6px;padding:6px 10px}
-.mg-shop .mg-currencies .task-intro>div{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.mg-shop .mg-currencies p{margin:0}
+.mg-shop>.toolbar,.mg-shop>.mg-page-nav,.mg-shop>.mg-notice{flex-shrink:0}
+.mg-shop>.toolbar{min-height:44px;margin-bottom:8px}
 .mg-shop .mg-content{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;overflow-wrap:anywhere}
-.mg-shop-title{margin:0 0 10px}
-@media(max-width:500px){.minigames-app .mg-page-nav .task-tab{padding:0 7px;font-size:var(--font-small,12px)}.minigames-app .mg-page-nav .mg-exchange-balance{gap:4px}.mg-shop-switcher{gap:8px}.mg-shop .mg-platform{display:block}.mg-shop .mg-platform p{margin-top:4px}}
-/* Short windows retain a usable product region; the page may also scroll if status/currencies need space. */
-@media(max-height:420px){.minigames-app.mg-shop.page-active{overflow:auto}.mg-shop .mg-content{flex:1 0 100px;min-height:100px}.mg-shop .mg-platform p{display:none}.mg-shop .mg-platform>div{font-size:11px}.mg-shop .mg-platform strong{font-size:11px}.mg-shop .mg-shop-switcher{margin-bottom:8px}}
+.mg-shop-heading{position:relative;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 6px}
+.mg-shop-title{margin:0;font-size:var(--font-body,15px)}
+.mg-shop-help{flex-shrink:0;font-size:var(--font-small,12px)}
+.mg-shop-help summary,.mg-product-details summary{cursor:pointer;color:var(--muted)}
+.mg-shop-help>div{position:absolute;z-index:5;right:0;top:100%;width:min(420px,100%);max-height:260px;overflow:auto;padding:10px;border:2px solid var(--line);background:var(--panel);box-shadow:2px 2px 0 var(--line)}
+.mg-shop-help p{margin:0 0 8px;line-height:1.45}
+.mg-shop-section{margin:0 0 12px}
+.mg-shop-group-title{margin:0 0 6px;font-size:var(--font-small,12px);color:var(--muted)}
+.mg-shop .mg-products{grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr));gap:8px;margin:0}
+.mg-shop .mg-content .mg-product-card{display:flex;flex-direction:column;gap:5px;min-width:0;padding:9px}
+.mg-shop .mg-content .mg-product-card h4{margin:0;font-size:var(--font-body,15px)}
+.mg-shop .mg-product-price{margin:0;font-size:var(--font-body,15px);color:var(--text);font-weight:700}
+.mg-shop .mg-product-details{font-size:var(--font-small,12px)}
+.mg-shop .mg-product-details p{margin:5px 0 0;font-size:var(--font-small,12px);line-height:1.4}
+.mg-shop .mg-content .mg-product-card>.detail-actions{margin-top:auto;padding-top:4px}
+.mg-shop .mg-content .mg-product-card>.detail-actions button{min-height:32px;padding:5px 8px}
+.mg-shop .mg-card-preview{margin:0 auto 2px;max-width:220px}
+.mg-shop .mg-preview-media{height:150px;aspect-ratio:auto}
+.mg-shop .mg-card-preview figcaption{margin-top:3px;font-size:10px;line-height:1.3}
+@media(max-width:600px){.mg-shop-switcher{flex:1 1 140px}.minigames-app .mg-page-nav .task-tab{padding:0 7px;font-size:var(--font-small,12px)}.minigames-app .mg-page-nav .mg-platform{margin-left:auto}.minigames-app .mg-page-nav .mg-exchange-balance{margin-left:0}.mg-shop .mg-products{grid-template-columns:repeat(auto-fill,minmax(min(100%,180px),1fr))}}
+@media(max-height:600px){.mg-shop>.toolbar{min-height:36px;margin-bottom:5px}.mg-shop>.toolbar .eyebrow{display:none}.mg-shop .mg-shop-heading{margin-bottom:4px}.mg-shop .mg-content .mg-product-card{display:grid;grid-template-columns:72px minmax(0,1fr);gap:3px 7px;padding:7px}.mg-shop .mg-content .mg-product-card>.mg-card-preview{grid-column:1;grid-row:1/5;width:72px;margin:0}.mg-shop .mg-preview-media{height:90px}.mg-shop .mg-card-preview figcaption{display:none}.mg-shop .mg-content .mg-product-card>h4,.mg-shop .mg-content .mg-product-card>.mg-product-price,.mg-shop .mg-content .mg-product-card>.mg-product-details,.mg-shop .mg-content .mg-product-card>.detail-actions{grid-column:2}.mg-shop .mg-content .mg-product-card:not(:has(.mg-card-preview)){grid-template-columns:1fr}.mg-shop .mg-content .mg-product-card:not(:has(.mg-card-preview))>*{grid-column:1}.mg-shop .mg-content .mg-product-card>.detail-actions{padding-top:2px}}
+.mg-platform strong{font-size:11px}.mg-shop .mg-shop-switcher{margin-bottom:8px}}
 .mg-platform strong,.mg-currencies strong{display:block}
 .mg-platform p,.mg-currencies p{font-size:var(--font-small,12px);color:var(--muted);line-height:1.6}
 .mg-currencies{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-bottom:12px}
@@ -95,3 +110,15 @@
 @media(max-width:500px){.mg-form-row{grid-template-columns:1fr;gap:5px}.mg-dialog-panel{padding:12px!important}.mg-room-facts{gap:5px 12px}}
 
 .mg-member-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.mg-member-heading h3{margin:0}.mg-member-heading+ .mg-members{margin-top:14px}.mg-ai-member>div{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.mg-members .mg-ai-badge{font-size:var(--font-small,12px);border:1px solid var(--line);padding:2px 7px;background:var(--panel);color:var(--text)}.mg-ai-member small{color:var(--muted)}.mg-ai-member button{flex-shrink:0}.mg-ai-member{gap:12px;flex-wrap:wrap}
+
+/* Keep complete cards reachable even with maximum-width balances in very short windows. */
+@media(max-height:420px){
+ .minigames-app.mg-shop>.toolbar{padding:3px;min-height:32px}
+ .minigames-app.mg-shop>.toolbar .back{width:30px;height:30px;font-size:24px}
+ .minigames-app.mg-shop>.toolbar h2{font-size:20px}
+ .minigames-app.mg-shop>.toolbar .secondary{padding:3px 8px;min-height:30px}
+ .minigames-app.mg-shop .mg-page-nav .task-tab,.minigames-app.mg-shop .mg-shop-switcher select,.minigames-app.mg-shop .mg-page-nav .mg-platform{height:30px;min-height:30px}
+ .mg-shop .mg-content .mg-product-card{padding:6px;gap:3px 6px}
+ .mg-shop .mg-content .mg-product-card h4,.mg-shop .mg-content .mg-product-price{font-size:13px;line-height:16px}
+ .mg-shop .mg-content .mg-product-card>.detail-actions button{font-size:12px;line-height:14px;padding:3px 5px;min-height:26px}
+}

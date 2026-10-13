@@ -2,6 +2,10 @@
   'use strict';
   const M=window.MuxiMinigamesModel,el=id=>document.getElementById(id),root=el('games');
   if(!root)return;
+  const shopToolbar=root.querySelector('.mg-page-nav');
+  shopToolbar.insertBefore(el('mg-shop-switcher'),el('mg-exchange-balance'));
+  shopToolbar.insertBefore(el('mg-platform'),el('mg-exchange-balance'));
+  el('mg-shop-switcher').querySelector('label').textContent='分类';
   let snapshot={loading:true,games:[]},context=M.cleanContext({}),actions=new Map(),lastRenderSignature='',stopped=false,pending=null,unconfirmed=null,invitationBusy=false,confirmAction=null,lastRead=0,readSerial=0,saveTimer;
   const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const lobbyHint='\u4ece\u623f\u95f4\u5217\u8868\u52a0\u5165\uff0c\u6216\u521b\u5efa\u65b0\u623f\u95f4\u3002';
@@ -27,7 +31,9 @@
     if(content!==renderedContent){
       // Reuse the actual media nodes; unrelated snapshot changes must not reset GIF clocks.
       const retained=new Map();for(const media of mount.querySelectorAll('[data-mg-preview-key]')){const key=media.dataset.mgPreviewKey;if(!retained.has(key))retained.set(key,[]);retained.get(key).push(media);}
+      const detailStates=new Map([...mount.querySelectorAll('details[data-mg-details-key]')].map(d=>[d.dataset.mgDetailsKey,d.open]));
       const template=document.createElement('template');template.innerHTML=content;
+      for(const d of template.content.querySelectorAll('details[data-mg-details-key]'))if(detailStates.has(d.dataset.mgDetailsKey))d.open=detailStates.get(d.dataset.mgDetailsKey);
       for(const media of template.content.querySelectorAll('[data-mg-preview-key]')){const existing=retained.get(media.dataset.mgPreviewKey)?.shift();if(existing)media.replaceWith(existing);}
       const scroll=el('mg-room-list')?.scrollTop||0;window.TerminalIcons?.release(mount);mount.replaceChildren(template.content);if(el('mg-room-list'))el('mg-room-list').scrollTop=scroll;renderedContent=content;replaced=true;
     }
@@ -53,7 +59,23 @@
   function sectionHtml(id,section){
     return `<section class="detail-card"><div class="detail-section"><h3>${iconHtml(section.icon,section.title)}${M.esc(section.title)}</h3><p>${M.esc(section.text)}</p></div><div class="mg-fields">${fieldsHtml(id,section)}</div><div class="detail-actions">${(section.actions||[]).map(button=>buttonHtml(id,button,section)).join('')}</div><div class="guide-list">${(section.cards||[]).map(card=>`<article class="guide-card">${previewHtml(card)}<h4>${iconHtml(card.icon,card.title)}${M.esc(card.title)}</h4><p>${M.esc(card.text)}</p><div class="detail-actions">${(card.actions||[]).map(button=>buttonHtml(id,button,section,card)).join('')}</div></article>`).join('')}</div></section>`;
   }
-  function currencyHtml(item){return (item?.ui?.currencies||[]).map(currency=>`<article class="task-intro"><div><small>${M.esc(currency.label)} \u00b7 ${M.esc(currency.scope)}</small><strong>${M.esc(currency.value)}</strong><p>${M.esc(currency.note)}</p></div></article>`).join('');}
+  // Compact display only. All commands still resolve the original current server action.
+  function shopCardHtml(id,card,owner){
+    const text=String(card.text||''),amount=text.match(/(?:兑换\s*)?(\d[\d,]*)\s*(兑换币|金币|积分|战术点|分)/u);
+    const price=amount?amount[1]+' '+amount[2]:'';
+    const key=id+':'+(card.actions?.[0]?.action||'')+':'+(card.actions?.[0]?.value||card.title);
+    return `<article class="guide-card mg-product-card">${previewHtml(card)}<h4>${iconHtml(card.icon,card.title)}${M.esc(card.title)}</h4>${price?`<p class="mg-product-price">${M.esc(price)}</p>`:''}${text&&text.trim()!==amount?.[0]?.trim()?`<details class="mg-product-details" data-mg-details-key="${M.esc(key)}"><summary>商品详情</summary><p>${M.esc(text)}</p></details>`:''}<div class="detail-actions">${(card.actions||[]).map(button=>buttonHtml(id,button,owner,card)).join('')}</div></article>`;
+  }
+  function shopSectionHtml(id,section){
+    return `<section class="mg-shop-section"><h3 class="mg-shop-group-title">${iconHtml(section.icon,section.title)}${M.esc(section.title)}</h3>${(section.fields||[]).length?`<div class="mg-fields">${fieldsHtml(id,section)}</div>`:''}${(section.actions||[]).length?`<div class="detail-actions mg-shop-section-actions">${section.actions.map(button=>buttonHtml(id,button,section)).join('')}</div>`:''}${(section.cards||[]).length?`<div class="guide-list mg-products">${section.cards.map(card=>shopCardHtml(id,card,section)).join('')}</div>`:''}</section>`;
+  }
+  function shopHtml(item){
+    const sections=M.sections(item,'shop'),usable=sections.filter(s=>(s.cards||[]).length||(s.actions||[]).length||(s.fields||[]).length);
+    const notes=sections.filter(s=>s.text).map(s=>`<p><strong>${M.esc(s.title)}</strong>：${M.esc(s.text)}</p>`).join('');
+    const currencies=(item.ui?.currencies||[]).map(c=>`<p>${M.esc(c.label)}：${M.esc(c.value)} · ${M.esc(c.scope)}。${M.esc(c.note)}</p>`).join('');
+    const pendingNote=snapshot.resultPending>0?`<p>${M.esc(snapshot.resultPending)} 条结算等待服务器确认。</p>`:'';
+    return `<div class="mg-shop-heading"><h3 class="mg-shop-title">${M.esc(item.ui?.shop?.title||item.title)}</h3><details class="mg-shop-help" data-mg-details-key="${M.esc(item.id+':help')}"><summary>兑换提示</summary><div><p>各玩法货币与平台积分分别记录；实际兑换以服务器确认结果为准。</p>${notes}${currencies}${pendingNote}</div></details></div>${usable.length?usable.map(s=>shopSectionHtml(item.id,s)).join(''):'<div class="task-empty" role="status">当前游戏暂无可兑换商品。</div>'}`;
+  }
   let createDraft=null,settingsDraft=null;const modalActions=new Map();
   const dialog=window.MuxiRoomDialog.create({root,onClose(kind){if(kind==='invite'){const mount=el('mg-room-invitations');window.MuxiRoomInvites?.show({visible:false,game:context.game,session:M.ownRoom(game())?.session||''});root.append(mount);mount.hidden=true;}if(kind==='create')createDraft=null;if(kind==='settings')settingsDraft=null;}});
   const phaseTitle=phase=>({WAITING:'等待组队',LOBBY:'等待组队',BUILDING:'准备地图',PREPARING:'准备地图',COUNTDOWN:'开始倒计时',RUNNING:'游戏中',REST:'波间补给',START_ROOM:'起点安全屋',SAFE_ROOM:'安全屋',ASSEMBLING:'参赛者集合',FINISHED:'已结束',SETTLING:'结算中'}[phase]||phase||'');
@@ -71,12 +93,12 @@
     const signature=JSON.stringify([snapshot.games,snapshot.self,snapshot.activeGame,snapshot.platform,snapshot.social,snapshot.resultPending,snapshot.allowed,snapshot.actionSupported,snapshot.loading,snapshot.protocol,context,busy()]);
     if(signature===lastRenderSignature){dialog.busy(busy());return;}lastRenderSignature=signature;
     const currency=M.exchangeCurrency(snapshot),balance=el('mg-exchange-balance');el('mg-exchange-value').textContent=currency?.value??'—';balance.disabled=busy();balance.title=currency?'兑换币 '+currency.value+' · '+currency.scope+' · '+currency.note:'兑换币余额尚未同步';balance.setAttribute('aria-label',balance.title+'，打开兑换商店');
-    el('mg-platform').hidden=context.page!=='shop';el('mg-platform').innerHTML=`<div><small>平台累计积分</small><strong>${M.esc(M.platformText(snapshot.platform))}</strong></div><p>各玩法货币与平台积分分别记录。${snapshot.resultPending>0?' '+M.esc(snapshot.resultPending)+' 条结算等待确认。':''}</p>`;
+    el('mg-platform').hidden=context.page!=='shop';el('mg-platform').innerHTML=`<small>积分</small><strong>${M.esc(M.platformText(snapshot.platform))}</strong>`;el('mg-platform').title='平台累计积分 '+M.platformText(snapshot.platform)+'；各玩法货币分别记录。'+(snapshot.resultPending>0?' '+snapshot.resultPending+' 条结算等待确认。':'');
     for(const tab of root.querySelectorAll('[data-mg-page]')){const active=tab.dataset.mgPage===context.page;tab.setAttribute('aria-pressed',String(active));tab.classList.toggle('task-tab-active',active);}
     const shop=M.shopGame(snapshot,context),switcher=el('mg-shop-switcher'),select=el('mg-shop-game');switcher.hidden=context.page!=='shop';const options=games.map(item=>`<option value="${M.esc(item.id)}" ${item.id===shop?.id?'selected':''}>${M.esc(item.title)}</option>`).join('');if(select.innerHTML!==options)select.innerHTML=options;select.disabled=busy()||!games.length;
-    el('mg-stepbar').hidden=true;el('mg-games').hidden=true;el('mg-currencies').hidden=context.page!=='shop';const currencies=context.page==='shop'?currencyHtml(shop):'';if(el('mg-currencies').innerHTML!==currencies){window.TerminalIcons?.release(el('mg-currencies'));el('mg-currencies').innerHTML=currencies;}
+    el('mg-stepbar').hidden=true;el('mg-games').hidden=true;el('mg-currencies').hidden=true;if(el('mg-currencies').innerHTML){window.TerminalIcons?.release(el('mg-currencies'));el('mg-currencies').replaceChildren();}
     actions.clear();let content='';
-    if(context.page==='shop'){content=shop?`<h3 class="section-title mg-shop-title">${M.esc(shop.ui?.shop?.title||shop.title)}</h3>${M.sections(shop,'shop').length?M.sections(shop,'shop').map(section=>sectionHtml(shop.id,section)).join(''):'<div class="task-empty" role="status">当前游戏暂无可兑换商品。</div>'}`:`<div class="task-empty" role="status">${snapshot.loading?'正在读取游戏商店…':'暂无可用的游戏商店。'}</div>`;}
+    if(context.page==='shop'){content=shop?shopHtml(shop):`<div class="task-empty" role="status">${snapshot.loading?'正在读取游戏商店…':'暂无可用的游戏商店。'}</div>`;}
     else if(stage()==='room'&&M.ownRoom(selected)){content=roomView(selected,M.ownRoom(selected));}
     else{const own=owned();content=`<div class="mg-lobby-heading"><h3>房间大厅</h3><button class="primary" data-mg-create ${busy()||own||snapshot.loading||snapshot.actionSupported===false||snapshot.allowed===false?'disabled':''}>创建房间</button></div><div id="mg-room-list" class="mg-room-list" role="region" aria-label="房间列表" tabindex="0">`;
       if(!own)for(const item of games){const recovery=M.sections(item).filter(s=>(s.actions||[]).some(a=>a.safe&&a.action==='leave'));for(const section of recovery)content+=`<article class="task-intro mg-recovery"><div><strong>${M.esc(section.title)}</strong><span>${M.esc(section.text)}</span></div><div class="detail-actions">${(section.actions||[]).filter(a=>a.safe&&a.action==='leave').map(a=>buttonHtml(item.id,a,section)).join('')}</div></article>`;}if(own)content+=`<article class="task-intro"><div><strong>${M.esc(M.ownRoom(own).roomName||own.title)}</strong><span>你已在房间中</span></div><button class="secondary" data-mg-open-room="${M.esc(own.id)}">返回房间</button></article>`;
@@ -101,7 +123,7 @@
   function lobby(){dialog.close('navigation');context.page='lobby';context.game='';setStage('lobby');render();}
   async function respond(button){if(busy())return;const t=(snapshot.social?.invitations||[]).find(t=>t.invitation===button.dataset.mgInvite&&t.status==='PENDING'&&t.expiresInSeconds>0);if(!t||!window.MuxiRoomInvites?.respond)return;invitationBusy=true;render();try{const completed=await window.MuxiRoomInvites.respond({op:button.dataset.mgInviteOp,game:t.game,invitation:t.invitation});await refresh(true);if(completed&&button.dataset.mgInviteOp==='accept'&&M.ownRoom((snapshot.games||[]).find(g=>g.id===t.game))){context.game=t.game;context.page='lobby';setStage('room');}}catch(error){notice(error.message);}finally{invitationBusy=false;render();}}
   root.addEventListener('input',event=>{if(event.target.matches('[data-mg-room-name]')){const draft=dialog.kind==='create'?createDraft:settingsDraft;if(draft)draft.name=event.target.value;}});
-  root.addEventListener('change',event=>{const control=event.target;if(control.matches('[data-mg-shop-game]')){if(!busy()&&(snapshot.games||[]).some(item=>item.id===control.value)){context.drafts['minigames:shop-game']=control.value;render();}return;}if(control.matches('[data-mg-create-game]')&&createDraft){createDraft.game=control.value;dialog.content(createForm());}else if(control.matches('[data-mg-field]')){if(createDraft){createDraft.drafts[createDraft.game+':'+control.dataset.mgField]=control.value;dialog.content(createForm());}else if(settingsDraft)settingsDraft.choice=control.value;}});
+  root.addEventListener('change',event=>{const control=event.target;if(control.matches('[data-mg-shop-game]')){if(!busy()&&(snapshot.games||[]).some(item=>item.id===control.value)){context.drafts['minigames:shop-game']=control.value;render();notice(availabilityNotice());}return;}if(control.matches('[data-mg-create-game]')&&createDraft){createDraft.game=control.value;dialog.content(createForm());}else if(control.matches('[data-mg-field]')){if(createDraft){createDraft.drafts[createDraft.game+':'+control.dataset.mgField]=control.value;dialog.content(createForm());}else if(settingsDraft)settingsDraft.choice=control.value;}});
   root.addEventListener('click',event=>{const control=event.target.closest('button');if(control?.disabled)return;const submit=event.target.closest('[data-mg-submit]');if(submit){if(submit.dataset.mgSubmit==='create'&&createDraft)void execute({shared:'create',game:createDraft.game,name:createDraft.name,drafts:{...createDraft.drafts}});if(submit.dataset.mgSubmit==='settings'&&settingsDraft)void execute({shared:'settings',...settingsDraft});return;}
     if(event.target.closest('#mg-exchange-balance')){if(busy())return;dialog.close('navigation');const currency=M.exchangeCurrency(snapshot);if(currency)context.drafts['minigames:shop-game']=currency.game;context.page='shop';render();return;}
     if(event.target.closest('[data-mg-create]')){openCreate();return;}if(event.target.closest('[data-mg-settings]')){openSettings();return;}if(event.target.closest('[data-mg-invites]')){openInvites();return;}
