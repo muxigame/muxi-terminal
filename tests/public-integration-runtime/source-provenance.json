@@ -1,0 +1,62 @@
+{
+  "purpose": "Consolidate unique public terminal QA source into canonical muxi-terminal without copying runtimes or modifying product behavior",
+  "sourceOwner": "01a0fcd7-2c80-7299-ae3d-6621c89fa00b",
+  "sourceFiles": [
+    {
+      "source": "task-13/native-java/net/muxigame/terminal/nativeqa/NativeRuntimeQA.java",
+      "destination": "java/net/muxigame/terminal/nativeqa/NativeRuntimeQA.java",
+      "bytes": 39882,
+      "sha256": "3b964e1943d317b640246cb45b34f4a6a48618a49058506982e12e3be08a3d0c",
+      "exactBytes": true
+    },
+    {
+      "source": "task-13/native-java/net/muxigame/terminal/nativeqa/mixin/GuardDiagnosticMixin.java",
+      "destination": "java/net/muxigame/terminal/nativeqa/mixin/GuardDiagnosticMixin.java",
+      "bytes": 3106,
+      "sha256": "a348df663b12e69d23915124e9c916a62fa18f06e88184c55d6270bda1527140",
+      "exactBytes": true
+    },
+    {
+      "source": "task-13/native-java/net/muxigame/terminal/nativeqa/mixin/TargetPreparationObservationMixin.java",
+      "destination": "java/net/muxigame/terminal/nativeqa/mixin/TargetPreparationObservationMixin.java",
+      "bytes": 3319,
+      "sha256": "c49b995cf54712f1ef0a4dc1dd1b57b3691256d2bf5130fc6ec2831f099a982e",
+      "exactBytes": true
+    },
+    {
+      "source": "task-13/run_map_lifecycle_test.py",
+      "destination": "run_map_lifecycle.py",
+      "sourceSha256": "655263f1c60d3a28920ad6ea84cdba1fedcf1de9d50515d0e689fb9debb2518d",
+      "destinationSha256": "ca384c7b3c54ed4beacd4e587a2aaeabb5072a271d6b842b609eecc24383fc75",
+      "normalization": "Replace old candidate-manifest/JDK/output paths with explicit arguments and canonical defaults; Java fixtures unchanged."
+    }
+  ],
+  "validation": {
+    "javaExactByteMatches": 3,
+    "pythonSyntax": "passed",
+    "embeddedMapFixtureBodiesUnchanged": true,
+    "runtimeTested": false,
+    "pythonHelp": "passed; no files or processes created"
+  },
+  "alreadyCanonical": [
+    "tests/window-ui/run_offline.py",
+    "src/main/java/net/muxigame/terminal/client/TerminalScreen.java",
+    "src/main/java/net/muxigame/terminal/client/TerminalWindowLayout.java",
+    "tests/settings/java/net/muxigame/terminal/client/SettingsTest.java",
+    "tests/friends/run-native-tests.py",
+    "tests/task6-native-map-qa/java/net/muxigame/terminal/qa/TerminalRenderPreflight.java",
+    "tests/task6-native-map-qa/java/net/muxigame/terminal/nativeqa/mixin/NetworkProbeMixin.java",
+    "tests/task6-native-map-qa/java/net/muxigame/terminal/nativeqa/mixin/RendererProbeMixin.java"
+  ],
+  "inputLinkCanonicalRepo": "muxi-game-core/tests/input-link-qa",
+  "oldWindowCommitsAlreadyAncestors": [
+    "4433b378f372777586251522139cb0e960522936",
+    "c674e73656b7e7b51f507d21a2afed5fc276ab4b"
+  ],
+  "excluded": [
+    "worlds, instance copies, cache, mods, restricted resources, credentials, compiled output",
+    "historical source variants superseded by current product APIs",
+    "legacy desktop/attach/retry/stop and candidate-copy scripts"
+  ],
+  "deploymentPerformed": false
+}
