@@ -42,3 +42,7 @@ the latest APIs and runtime dependencies before using this historical harness.
 The former scripts tied to an absolute session directory and an entire copied
 pack are superseded; they are not a second supported launcher. No instances,
 caches, worlds, resource packs, native binaries or raw results are committed here.
+
+Preservation handoff: [HANDOFF-20261014.md](HANDOFF-20261014.md) records the
+root cause, evidence limits, unresolved checks, dependency fingerprints and the
+two small local-only accepted inputs. All deletion authorization is revoked.

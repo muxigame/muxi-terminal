@@ -1,0 +1,28 @@
+{
+  "sourceCommit": "f599cafdd173aca3c12befa7f23a856de0b85321",
+  "qaSourcePreservationCommit": "24fbbf7f4be80e7707462fc3982174c26da6b42f",
+  "policy": "Keep only these two small self-owned historical jars locally; do not add them to Git. Do not retain or recreate whole Minecraft instances. No deletion is authorized.",
+  "localOnlyAcceptedInputs": [
+    {
+      "file": "muxi-terminal-0.2.4-task14-social-qa.1.jar",
+      "canonicalLocalPath": "C:\\Users\\ranzh\\workspace\\dev\\muxigame\\muxi-terminal\\tests\\camera\\native-runtime\\retained-inputs\\muxi-terminal-0.2.4-task14-social-qa.1.jar",
+      "bytes": 561502,
+      "sha256": "f2834520cfafb386553b270bebab0ff51216e10be41fb193f4d9aede101c46fd",
+      "purpose": "Exact historical accepted mixed-working-tree product; cannot be reconstructed byte-for-byte from a single commit.",
+      "publish": false
+    },
+    {
+      "file": "camera-lifecycle-qa-only.jar",
+      "canonicalLocalPath": "C:\\Users\\ranzh\\workspace\\dev\\muxigame\\muxi-terminal\\tests\\camera\\native-runtime\\retained-inputs\\camera-lifecycle-qa-only.jar",
+      "bytes": 26814,
+      "sha256": "92665e99c3349fb1bcc58578d939030a47fdec6933812a1391c5947741f50714",
+      "purpose": "Exact QA binary for the historical acceptance; jar timestamp/order means the preserved source need not reproduce identical bytes.",
+      "publish": false
+    }
+  ],
+  "totalLocalOnlyBytes": 588316,
+  "necessaryOldDirectoryInputsAfterVerifiedLocalPreservation": [],
+  "decompiledThirdPartySourceCreatedByThisSession": false,
+  "licenseUnknownSourceForPublicUpload": [],
+  "remainingNonPreservedMaterial": "Raw screenshots/logs/instance worlds and copied pack resources are intentionally not part of the source handoff. Historical evidence summary and resource metrics are already versioned."
+}

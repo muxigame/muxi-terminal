@@ -1,0 +1,62 @@
+from pathlib import Path
+import ctypes, json, subprocess, os, sys, time, datetime
+ROOT=Path(__file__).resolve().parent
+JDK=Path(r'C:\Users\ranzh\Documents\Codex\terminal-integration-task6-20261001\tools\jdk\jdk-21.0.12.1+1')
+
+class Entry(ctypes.Structure):
+    _fields_=[('dwSize',ctypes.c_ulong),('cntUsage',ctypes.c_ulong),('pid',ctypes.c_ulong),('heap',ctypes.c_size_t),('module',ctypes.c_ulong),('threads',ctypes.c_ulong),('parent',ctypes.c_ulong),('priority',ctypes.c_long),('flags',ctypes.c_ulong),('name',ctypes.c_wchar*260)]
+class Memory(ctypes.Structure):
+    _fields_=[('cb',ctypes.c_ulong),('faults',ctypes.c_ulong),('peakWS',ctypes.c_size_t),('ws',ctypes.c_size_t),('peakPaged',ctypes.c_size_t),('paged',ctypes.c_size_t),('peakNonPaged',ctypes.c_size_t),('nonPaged',ctypes.c_size_t),('pagefile',ctypes.c_size_t),('peakPagefile',ctypes.c_size_t),('private',ctypes.c_size_t)]
+k=ctypes.windll.kernel32
+k.CreateToolhelp32Snapshot.restype=ctypes.c_void_p;k.Process32FirstW.argtypes=[ctypes.c_void_p,ctypes.POINTER(Entry)];k.Process32NextW.argtypes=k.Process32FirstW.argtypes
+k.CloseHandle.argtypes=[ctypes.c_void_p];k.OpenProcess.restype=ctypes.c_void_p;k.OpenProcess.argtypes=[ctypes.c_ulong,ctypes.c_bool,ctypes.c_ulong]
+ctypes.windll.psapi.GetProcessMemoryInfo.argtypes=[ctypes.c_void_p,ctypes.POINTER(Memory),ctypes.c_ulong]
+def sample(pid):
+    snapshot=k.CreateToolhelp32Snapshot(2,0);entry=Entry();entry.dwSize=ctypes.sizeof(entry);rows=[]
+    try:
+        available=k.Process32FirstW(snapshot,ctypes.byref(entry))
+        while available:
+            rows.append((entry.pid,entry.parent,entry.name));available=k.Process32NextW(snapshot,ctypes.byref(entry))
+    finally:k.CloseHandle(snapshot)
+    descendants={pid}
+    for _ in range(6):descendants.update(p for p,parent,name in rows if parent in descendants)
+    result=[]
+    for p,parent,name in rows:
+        if p not in descendants:continue
+        handle=k.OpenProcess(0x410,False,p)
+        if not handle:continue
+        try:
+            memory=Memory();memory.cb=ctypes.sizeof(memory)
+            if ctypes.windll.psapi.GetProcessMemoryInfo(handle,ctypes.byref(memory),memory.cb):result.append({'pid':p,'parentPid':parent,'name':name,'workingSet':memory.ws,'privateBytes':memory.private})
+        finally:k.CloseHandle(handle)
+    return {'utc':datetime.datetime.utcnow().isoformat()+'Z','processes':result,'totalPrivateBytes':sum(r['privateBytes'] for r in result),'totalWorkingSet':sum(r['workingSet'] for r in result)}
+def main():
+    lab=Path(sys.argv[1]).resolve()
+    if lab.parent!=ROOT or not lab.name.startswith('camera-runtime-'):raise SystemExit('Wrong isolated lab')
+    session=ctypes.c_ulong();k.ProcessIdToSessionId(os.getpid(),ctypes.byref(session))
+    if os.environ.get('COMPUTERNAME')!='JBC_FCRL' or session.value!=2:raise SystemExit('131 Session2 required')
+    receipt=json.loads((lab/'inputs.json').read_text())
+    with (lab/'launch-reservation.json').open('x') as f:json.dump({'session':session.value,'startedUtc':datetime.datetime.utcnow().isoformat()+'Z'},f)
+    env=dict(os.environ);env.pop('JAVA_TOOL_OPTIONS',None);env.pop('MUXI_TERMINAL_GAME_CREDENTIAL',None)
+    with (lab/'boot.log').open('w',encoding='utf-8') as log:
+        process=subprocess.Popen([str(JDK/'bin/java.exe'),'@'+str(lab/'launch.args')],cwd=lab,env=env,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT)
+        receipt.update(privatePid=process.pid,session=session.value,clientStarted=True);(lab/'active.json').write_text(json.dumps(receipt,indent=2))
+        started=time.monotonic();last=0;nextNmt=0
+        with (lab/'process-samples.jsonl').open('w',encoding='utf-8') as samples:
+            while process.poll() is None:
+                elapsed=time.monotonic()-started
+                if elapsed>1200:
+                    (lab/'exit.json').write_text(json.dumps({'timeout':True,'privatePid':process.pid,'normalCloseRequired':True}));return 2
+                if elapsed-last>=10:
+                    samples.write(json.dumps(sample(process.pid))+'\n');samples.flush();last=elapsed
+                if elapsed>=nextNmt:
+                    try:
+                        nmt=subprocess.run([str(JDK/'bin/jcmd.exe'),str(process.pid),'VM.native_memory','summary'],capture_output=True,timeout=8)
+                        (lab/('nmt-%04d.txt'%int(elapsed))).write_bytes(nmt.stdout+nmt.stderr)
+                    except subprocess.TimeoutExpired:pass
+                    nextNmt=elapsed+45
+                time.sleep(1)
+        code=process.returncode
+    (lab/'exit.json').write_text(json.dumps({'exitCode':code,'timeout':False,'normalExit':True,'elapsedSeconds':time.monotonic()-started,'remainingDescendants':sample(process.pid)['processes']},indent=2))
+    return code
+if __name__=='__main__':sys.exit(main())

@@ -1,0 +1,69 @@
+from pathlib import Path
+import importlib.util, json, zipfile, hashlib, shutil, sys, datetime, os
+
+ROOT = Path(__file__).resolve().parent
+REPO = Path(r'C:\Users\ranzh\Documents\Codex\2026-10-02\task\dev-sync-20261002\muxi-terminal')
+DEV = Path(r'C:\Users\ranzh\workspace\dev\muxigame')
+OLD = Path(r'C:\Users\ranzh\Documents\Codex\camera-native-task22-20261002')
+JDK = Path(r'C:\Users\ranzh\Documents\Codex\terminal-integration-task6-20261001\tools\jdk\jdk-21.0.12.1+1')
+spec=importlib.util.spec_from_file_location('terminal_build',REPO/'build.py')
+b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
+
+def deps(out):
+    out.mkdir(parents=True,exist_ok=True)
+    jars=list((DEV/'bmc5server/libraries').rglob('*.jar'))
+    jars.extend((DEV/'_client_test/game/libraries').rglob('*.jar'))
+    mcef=next((DEV/'better-mc-remake/pack/source/Better MC Remake [FORGE]/mods').glob('*mcef*.jar'))
+    jars.append(mcef)
+    jars.extend(b.nested_jars(mcef,out))
+    jars.extend(b.nested_jars(DEV/'bmc5server/libraries/net/neoforged/neoforge/21.1.250/neoforge-21.1.250-universal.jar',out))
+    return os.pathsep.join(map(str,jars))
+
+def buildqa(product):
+    qa=ROOT/'camera-qa'
+    compiler,runtime=b.java_tools(JDK)
+    out=qa/'build';out.mkdir(parents=True,exist_ok=True)
+    cp=str(product)+os.pathsep+deps(out/'nested')
+    b.compile_java(compiler,list((qa/'java').rglob('*.java')),out/'classes',cp,out/'compile.args')
+    target=out/'camera-lifecycle-qa-only.jar'
+    with zipfile.ZipFile(target,'w',zipfile.ZIP_DEFLATED) as z:
+        z.writestr('META-INF/neoforge.mods.toml','modLoader="javafml"\nloaderVersion="[4,)"\nlicense="MIT"\n[[mixins]]\nconfig="camera_lifecycle_qa.mixins.json"\n[[mods]]\nmodId="camera_native_qa"\nversion="1.0.1"\ndisplayName="Isolated camera lifecycle QA"\n')
+        z.writestr('camera_lifecycle_qa.mixins.json',json.dumps({'required':True,'minVersion':'0.8','package':'net.muxigame.terminal.qa.mixin','compatibilityLevel':'JAVA_21','client':['OfflineMcefMixin','HardwareWmiTimeoutQAMixin','AlbumAuthorityQAMixin','ImageResourceQAMixin','BrowserTextureQAMixin'],'injectors':{'defaultRequire':1}}))
+        for p in (out/'classes').rglob('*.class'):z.write(p,p.relative_to(out/'classes').as_posix())
+    return target
+
+def prepare(product,label):
+    qa=buildqa(product)
+    template=OLD/'run-20261002-055245-420455d3'
+    lab=ROOT/('camera-runtime-'+label+'-'+datetime.datetime.utcnow().strftime('%H%M%S'))
+    lab.mkdir()
+    for name in ('natives','config','shaderpacks','resourcepacks','defaultconfigs','kubejs','tacz'):
+        if (template/name).is_dir():shutil.copytree(template/name,lab/name)
+    def ignore(directory,names):
+        return [n for n in names if n.startswith('muxi-terminal-') or n.endswith('qa-only.jar')]
+    shutil.copytree(template/'mods',lab/'mods',ignore=ignore)
+    shutil.copy2(product,lab/'mods'/product.name);shutil.copy2(qa,lab/'mods'/qa.name)
+    shutil.copy2(template/'options.txt',lab/'options.txt')
+    args=(template/'launch.args').read_text(encoding='utf-8').replace(str(template),str(lab)).replace(str(template).replace('\\','/'),str(lab).replace('\\','/'))
+    args='"-XX:NativeMemoryTracking=summary"\n'+args
+    if label=='baselinecancel':args='"-Dqa.cancelOnly=true"\n'+args
+    if label in ('fixed','cameraonly'):args='"-Dqa.expectClosed=true"\n'+args
+    if label=='cameraonly':args='"-Dqa.cameraOnly=true"\n'+args
+    (lab/'launch.args').write_text(args,encoding='utf-8')
+    receipt={'lab':str(lab),'label':label,'prepared':True,'product':product.name,'productSha256':hashlib.sha256(product.read_bytes()).hexdigest(),'qaSha256':hashlib.sha256(qa.read_bytes()).hexdigest(),'productionChanged':False}
+    (lab/'inputs.json').write_text(json.dumps(receipt,indent=2),encoding='utf-8')
+    (ROOT/'camera-prepared.json').write_text(json.dumps(receipt,indent=2),encoding='utf-8')
+    print(json.dumps(receipt))
+
+if __name__=='__main__':
+    sys.stdout.reconfigure(encoding='utf-8',errors='replace')
+    mode=sys.argv[1]
+    if mode=='baseline':prepare(OLD/'muxi-terminal-0.2.4-task22-native-camera.1.jar','baseline')
+    elif mode=='baselinecancel':prepare(OLD/'muxi-terminal-0.2.4-task22-native-camera.1.jar','baselinecancel')
+    elif mode=='fixed':
+        product=b.build(DEV/'bmc5server',JDK,DEV/'_client_test/game',DEV/'better-mc-remake/pack/source/Better MC Remake [FORGE]/mods')
+        prepare(product,'fixed')
+    elif mode=='cameraonly':
+        product=b.build(DEV/'bmc5server',JDK,DEV/'_client_test/game',DEV/'better-mc-remake/pack/source/Better MC Remake [FORGE]/mods')
+        prepare(product,'cameraonly')
+    elif mode=='deps':print(deps(ROOT/'compiler/nested'))
